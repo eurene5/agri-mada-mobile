@@ -1,0 +1,49 @@
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.log
+nul
+apk_build_output.txt
+build_output.txt
+
+# ── Flutter / Dart / Pub ─────────────────────────────────────────────────────
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+**/doc/api/
+
+# ── Android ──────────────────────────────────────────────────────────────────
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/local.properties
+android/key.properties
+
+# ── iOS / macOS ───────────────────────────────────────────────────────────────
+ios/Flutter/.last_build_id
+ios/Pods/
+macos/Pods/
+
+# ── Obfuscation / symbolication ───────────────────────────────────────────────
+app.*.symbols
+app.*.map.json
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+.env.*
+*.pem
+*.p12
+*.jks
+google-services.json
+GoogleService-Info.plist
