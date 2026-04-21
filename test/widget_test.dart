@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/widgets.dart';
 
 void main() {
-  testWidgets('ProviderScope se construit sans erreur', (WidgetTester tester) async {
+  testWidgets('ProviderScope se construit sans erreur',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: Directionality(
