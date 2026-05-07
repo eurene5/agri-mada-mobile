@@ -1,16 +1,31 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/constants/test_keys.dart';
+import '../../../journal/presentation/providers/journal_provider.dart';
+import '../../domain/entities/scan_result_entity.dart';
+import '../providers/scan_provider.dart';
 
-class ScanResultScreen extends StatelessWidget {
+class ScanResultScreen extends ConsumerWidget {
   const ScanResultScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scanState = ref.watch(scanNotifierProvider);
+    final result = switch (scanState) {
+      ScanSuccess(:final result) => result,
+      _ => null,
+    };
+
     return Scaffold(
+      key: const Key(TestKeys.scanResultScreen),
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
         children: [
@@ -25,29 +40,117 @@ class ScanResultScreen extends StatelessWidget {
                   topRight: Radius.circular(AppSpacing.cardRadius),
                 ),
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Column(
-                  children: [
-                    const _DiagnosticCard(),
-                    const SizedBox(height: AppSpacing.md),
-                    const _SeverityCard(),
-                    const SizedBox(height: AppSpacing.md),
-                    const _RecommendationsCard(),
-                    const SizedBox(height: AppSpacing.md),
-                    const _TipCard(),
-                    const SizedBox(height: AppSpacing.md),
-                    _ActionButtons(
+              child: result == null
+                  ? _NoResultState(
                       onRescan: () => context.go(AppRoutes.scanning),
-                      onSave: () => context.go(AppRoutes.journal),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        children: [
+                          _DiagnosticCard(result: result),
+                          const SizedBox(height: AppSpacing.md),
+                          _SeverityCard(result: result),
+                          const SizedBox(height: AppSpacing.md),
+                          _RecommendationsCard(result: result),
+                          const SizedBox(height: AppSpacing.md),
+                          _TipCard(tip: result.tip),
+                          const SizedBox(height: AppSpacing.md),
+                          _ActionButtons(
+                            onRescan: () => context.go(AppRoutes.scanning),
+                            onSave: () async {
+                              if (context.mounted) {
+                                context.go(AppRoutes.journal);
+                              }
+
+                              try {
+                                final save = await ref
+                                    .read(journalNotifierProvider.notifier)
+                                    .saveScanResult(result);
+
+                                if (!context.mounted) {
+                                  return;
+                                }
+
+                                save.fold(
+                                  (failure) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text(failure.message)),
+                                    );
+                                  },
+                                  (_) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Diagnostic enregistré dans le journal'),
+                                      ),
+                                    );
+                                  },
+                                );
+                              } catch (_) {
+                                if (!context.mounted) {
+                                  return;
+                                }
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'Enregistrement local indisponible'),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          const _ShareButton(),
+                          const SizedBox(height: AppSpacing.lg),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                    const _ShareButton(),
-                    const SizedBox(height: AppSpacing.lg),
-                  ],
-                ),
-              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoResultState extends StatelessWidget {
+  const _NoResultState({required this.onRescan});
+
+  final VoidCallback onRescan;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.image_search_outlined,
+            size: 64,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          const Text(
+            'Aucun résultat disponible',
+            style: AppTypography.headlineMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Lancez un nouveau scan pour obtenir un diagnostic.',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          ElevatedButton.icon(
+            key: const Key(TestKeys.scanResultRescanButton),
+            onPressed: onRescan,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Refaire un scan'),
           ),
         ],
       ),
@@ -87,7 +190,7 @@ class _ScanResultHeader extends StatelessWidget {
                 style: AppTypography.headlineMedium,
               ),
               Text(
-                'Analyse hors ligne terminé',
+                'Analyse hors ligne terminée',
                 style: AppTypography.bodySmall,
               ),
             ],
@@ -99,10 +202,14 @@ class _ScanResultHeader extends StatelessWidget {
 }
 
 class _DiagnosticCard extends StatelessWidget {
-  const _DiagnosticCard();
+  const _DiagnosticCard({required this.result});
+
+  final ScanResultEntity result;
 
   @override
   Widget build(BuildContext context) {
+    final confidencePercent = (result.confidence * 100).toStringAsFixed(0);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
@@ -122,12 +229,10 @@ class _DiagnosticCard extends StatelessWidget {
               topLeft: Radius.circular(AppSpacing.cardRadius),
               bottomLeft: Radius.circular(AppSpacing.cardRadius),
             ),
-            child: Container(
+            child: SizedBox(
               width: 116,
               height: 115,
-              color: AppColors.primaryLight,
-              child:
-                  const Icon(Icons.grass, color: AppColors.primary, size: 48),
+              child: _ScanImagePreview(path: result.imagePath),
             ),
           ),
           Expanded(
@@ -137,14 +242,14 @@ class _DiagnosticCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Riz Pyriculariose',
+                    result.diseaseName,
                     style: AppTypography.bodyMedium.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Magnaporthe oryzae',
+                    result.scientificName,
                     style: AppTypography.bodySmall.copyWith(
                       fontStyle: FontStyle.italic,
                     ),
@@ -169,7 +274,7 @@ class _DiagnosticCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Diagnostic IA fiable',
+                          'Confiance: $confidencePercent%',
                           style: AppTypography.bodySmall.copyWith(
                             color: AppColors.primary,
                             fontSize: 11,
@@ -188,11 +293,57 @@ class _DiagnosticCard extends StatelessWidget {
   }
 }
 
-class _SeverityCard extends StatelessWidget {
-  const _SeverityCard();
+class _ScanImagePreview extends StatelessWidget {
+  const _ScanImagePreview({required this.path});
+
+  final String path;
 
   @override
   Widget build(BuildContext context) {
+    if (path.startsWith('mock://')) {
+      return Container(
+        color: AppColors.primaryLight,
+        child: const Icon(Icons.grass, color: AppColors.primary, size: 48),
+      );
+    }
+
+    final file = File(path);
+    return Image.file(
+      file,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Container(
+        color: AppColors.primaryLight,
+        child: const Icon(Icons.grass, color: AppColors.primary, size: 48),
+      ),
+    );
+  }
+}
+
+class _SeverityCard extends StatelessWidget {
+  const _SeverityCard({required this.result});
+
+  final ScanResultEntity result;
+
+  @override
+  Widget build(BuildContext context) {
+    final severityText = switch (result.severity) {
+      ScanSeverity.low => 'Niveau faible - surveillance recommandée',
+      ScanSeverity.medium => 'Niveau moyen - traitement préventif conseillé',
+      ScanSeverity.high => 'Niveau élevé - intervention recommandée',
+    };
+
+    final severityColor = switch (result.severity) {
+      ScanSeverity.low => AppColors.severityLow,
+      ScanSeverity.medium => AppColors.severityMedium,
+      ScanSeverity.high => AppColors.severityHigh,
+    };
+
+    final alignment = switch (result.severity) {
+      ScanSeverity.low => Alignment.centerLeft,
+      ScanSeverity.medium => Alignment.center,
+      ScanSeverity.high => Alignment.centerRight,
+    };
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -215,7 +366,6 @@ class _SeverityCard extends StatelessWidget {
                 AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.md),
-          // Barre de gravité
           Stack(
             children: [
               Container(
@@ -231,36 +381,37 @@ class _SeverityCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              // Indicateur position élevée
-              const Positioned(
-                right: 0,
-                top: 4,
-                child: _SeverityIndicator(),
+              Align(
+                alignment: alignment,
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                  width: 11,
+                  height: 11,
+                  decoration: BoxDecoration(
+                    color: severityColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                ),
               ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Faible', style: AppTypography.bodySmall),
-              Text('Moyen', style: AppTypography.bodySmall),
-              Text('Élevé', style: AppTypography.bodySmall),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.warning_amber_outlined,
-                color: AppColors.severityHigh,
+                color: severityColor,
                 size: 20,
               ),
               const SizedBox(width: AppSpacing.xs),
-              Text(
-                'Niveau élevé - intervention recommandée',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.severityHigh,
+              Expanded(
+                child: Text(
+                  severityText,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: severityColor,
+                  ),
                 ),
               ),
             ],
@@ -271,25 +422,10 @@ class _SeverityCard extends StatelessWidget {
   }
 }
 
-class _SeverityIndicator extends StatelessWidget {
-  const _SeverityIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 11,
-      height: 11,
-      decoration: BoxDecoration(
-        color: AppColors.severityHigh,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
-      ),
-    );
-  }
-}
-
 class _RecommendationsCard extends StatelessWidget {
-  const _RecommendationsCard();
+  const _RecommendationsCard({required this.result});
+
+  final ScanResultEntity result;
 
   @override
   Widget build(BuildContext context) {
@@ -315,23 +451,11 @@ class _RecommendationsCard extends StatelessWidget {
                 AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
           ),
           const Divider(height: AppSpacing.xl),
-          const _RecommendationItem(
-            icon: Icons.spa_outlined,
-            title: 'Traitement conseillé',
-            description: "Pulvérisez avec décoction d'ail tous les 7 jours",
-          ),
-          const Divider(height: AppSpacing.xl),
-          const _RecommendationItem(
-            icon: Icons.water_drop_outlined,
-            title: 'Dosage recommandé',
-            description: "150 ml de décoction diluée dans 1L d'eau",
-          ),
-          const Divider(height: AppSpacing.xl),
-          const _RecommendationItem(
-            icon: Icons.shield_outlined,
-            title: 'Prévention',
-            description: 'Maintenez des rangées aérées pour les champs voisins',
-          ),
+          for (final recommendation in result.recommendations) ...[
+            _RecommendationItem(description: recommendation),
+            if (recommendation != result.recommendations.last)
+              const Divider(height: AppSpacing.xl),
+          ],
         ],
       ),
     );
@@ -339,14 +463,8 @@ class _RecommendationsCard extends StatelessWidget {
 }
 
 class _RecommendationItem extends StatelessWidget {
-  const _RecommendationItem({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
+  const _RecommendationItem({required this.description});
 
-  final IconData icon;
-  final String title;
   final String description;
 
   @override
@@ -355,30 +473,20 @@ class _RecommendationItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 66,
-          height: 71,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(AppSpacing.sm),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 32),
+          child: const Icon(Icons.spa_outlined,
+              color: AppColors.primary, size: 24),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTypography.bodySmall.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(description, style: AppTypography.bodySmall),
-            ],
+          child: Text(
+            description,
+            style: AppTypography.bodySmall,
           ),
         ),
       ],
@@ -387,7 +495,9 @@ class _RecommendationItem extends StatelessWidget {
 }
 
 class _TipCard extends StatelessWidget {
-  const _TipCard();
+  const _TipCard({required this.tip});
+
+  final String tip;
 
   @override
   Widget build(BuildContext context) {
@@ -404,7 +514,7 @@ class _TipCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              "Astuce : évitez l'arrosage excessif pendant 3 jours",
+              'Astuce: $tip',
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w500,
@@ -435,6 +545,7 @@ class _ActionButtons extends StatelessWidget {
             button: true,
             label: 'Refaire un scan',
             child: OutlinedButton.icon(
+              key: const Key(TestKeys.scanResultRescanButton),
               onPressed: onRescan,
               icon: const Icon(Icons.refresh, size: 18),
               label: const Text('Refaire un scan'),
@@ -455,6 +566,7 @@ class _ActionButtons extends StatelessWidget {
             button: true,
             label: 'Enregistrer dans le journal',
             child: ElevatedButton.icon(
+              key: const Key(TestKeys.scanResultSaveButton),
               onPressed: onSave,
               icon: const Icon(Icons.bookmark_outline, size: 18),
               label: const Text(

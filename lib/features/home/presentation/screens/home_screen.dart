@@ -4,6 +4,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/constants/test_keys.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,6 +12,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key(TestKeys.homeScreen),
       backgroundColor: AppColors.scaffoldBackground,
       body: const SafeArea(
         child: CustomScrollView(
@@ -106,6 +108,7 @@ class _HomeHeader extends StatelessWidget {
         const Spacer(),
         // Mode hors ligne
         Row(
+          key: const Key(TestKeys.homeOfflineBadge),
           children: [
             const Icon(Icons.wifi_off, color: AppColors.primary, size: 18),
             const SizedBox(width: 4),
@@ -387,6 +390,7 @@ class _ScanFab extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
+          key: const Key(TestKeys.homeScanFab),
           width: 90,
           height: 90,
           decoration: BoxDecoration(
@@ -463,6 +467,7 @@ class _NavItem extends StatelessWidget {
       button: true,
       label: label,
       child: GestureDetector(
+        key: label == 'Journal' ? const Key(TestKeys.homeJournalNav) : null,
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Column(

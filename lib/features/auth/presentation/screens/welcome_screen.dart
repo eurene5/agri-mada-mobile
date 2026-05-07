@@ -4,6 +4,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/constants/test_keys.dart';
 import '../../../../core/widgets/app_button/app_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -202,6 +203,7 @@ class _WelcomeActions extends StatelessWidget {
     return Column(
       children: [
         AppButton(
+          key: const Key(TestKeys.welcomeStartButton),
           label: 'Commencer',
           onPressed: onStart,
         ),
