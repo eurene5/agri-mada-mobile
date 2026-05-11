@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/ai/tflite_service.dart';
+import '../providers/scan_provider.dart';
 
-class ScanResultScreen extends StatelessWidget {
+class ScanResultScreen extends ConsumerWidget {
   const ScanResultScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scanState = ref.watch(scanNotifierProvider);
+    final result = scanState.valueOrNull;
+    if (result == null) {
+      // Fallback si on arrive ici sans résultat
+      WidgetsBinding.instance.addPostFrameCallback((_) => context.go(AppRoutes.scanning));
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
@@ -29,16 +39,19 @@ class ScanResultScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(
                   children: [
-                    const _DiagnosticCard(),
+                    _DiagnosticCard(result: result),
                     const SizedBox(height: AppSpacing.md),
-                    const _SeverityCard(),
+                    _SeverityCard(gravite: result.niveauGravite),
                     const SizedBox(height: AppSpacing.md),
-                    const _RecommendationsCard(),
+                    _RecommendationsCard(recommandations: result.recommandations),
                     const SizedBox(height: AppSpacing.md),
                     const _TipCard(),
                     const SizedBox(height: AppSpacing.md),
                     _ActionButtons(
-                      onRescan: () => context.go(AppRoutes.scanning),
+                      onRescan: () {
+                        ref.read(scanNotifierProvider.notifier).reset();
+                        context.go(AppRoutes.scanning);
+                      },
                       onSave: () => context.go(AppRoutes.journal),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -99,20 +112,27 @@ class _ScanResultHeader extends StatelessWidget {
 }
 
 class _DiagnosticCard extends StatelessWidget {
-  const _DiagnosticCard();
+  const _DiagnosticCard({required this.result});
+  final DiagnosticResult result;
+
+  String get _displayName => switch (result.maladieDetectee) {
+    'Bacterial leaf blight' => 'Brûlure bactérienne',
+    'Brown spot' => 'Tache brune',
+    'Leaf smut' => 'Charbon foliaire',
+    _ => 'Plante saine',
+  };
+
+  String get _confidence => '${(result.confiance * 100).toStringAsFixed(0)}% de confiance';
 
   @override
   Widget build(BuildContext context) {
+    final isHealthy = result.maladieDetectee.toLowerCase() == 'healthy';
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -123,11 +143,13 @@ class _DiagnosticCard extends StatelessWidget {
               bottomLeft: Radius.circular(AppSpacing.cardRadius),
             ),
             child: Container(
-              width: 116,
-              height: 115,
-              color: AppColors.primaryLight,
-              child:
-                  const Icon(Icons.grass, color: AppColors.primary, size: 48),
+              width: 116, height: 115,
+              color: isHealthy ? AppColors.primaryLight : const Color(0xFFFFF3E0),
+              child: Icon(
+                isHealthy ? Icons.check_circle_outline : Icons.bug_report_outlined,
+                color: isHealthy ? AppColors.primary : AppColors.severityHigh,
+                size: 48,
+              ),
             ),
           ),
           Expanded(
@@ -136,25 +158,12 @@ class _DiagnosticCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Riz Pyriculariose',
-                    style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text(_displayName, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
-                  Text(
-                    'Magnaporthe oryzae',
-                    style: AppTypography.bodySmall.copyWith(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
+                  Text(result.maladieDetectee, style: AppTypography.bodySmall.copyWith(fontStyle: FontStyle.italic)),
                   const SizedBox(height: AppSpacing.sm),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(AppSpacing.sm),
@@ -162,19 +171,9 @@ class _DiagnosticCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.psychology_outlined,
-                          color: AppColors.primary,
-                          size: 14,
-                        ),
+                        const Icon(Icons.psychology_outlined, color: AppColors.primary, size: 14),
                         const SizedBox(width: 4),
-                        Text(
-                          'Diagnostic IA fiable',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.primary,
-                            fontSize: 11,
-                          ),
-                        ),
+                        Text(_confidence, style: AppTypography.bodySmall.copyWith(color: AppColors.primary, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -189,7 +188,28 @@ class _DiagnosticCard extends StatelessWidget {
 }
 
 class _SeverityCard extends StatelessWidget {
-  const _SeverityCard();
+  const _SeverityCard({required this.gravite});
+  final String gravite;
+
+  double get _severityPosition => switch (gravite) {
+    'aucune' => 0.0,
+    'faible' => 0.15,
+    'modéré' => 0.55,
+    _ => 0.95,
+  };
+
+  Color get _severityColor => switch (gravite) {
+    'aucune' || 'faible' => AppColors.severityLow,
+    'modéré' => AppColors.severityMedium,
+    _ => AppColors.severityHigh,
+  };
+
+  String get _severityLabel => switch (gravite) {
+    'aucune' => 'Aucune — Plante saine',
+    'faible' => 'Faible — Surveiller',
+    'modéré' => 'Modéré — Intervention conseillée',
+    _ => 'Élevé — Intervention urgente',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -198,71 +218,48 @@ class _SeverityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Niveau de gravité',
-            style:
-                AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('Niveau de gravité', style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: AppSpacing.md),
-          // Barre de gravité
-          Stack(
-            children: [
-              Container(
-                height: 19,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.severityLow,
-                      AppColors.severityMedium,
-                      AppColors.severityHigh,
-                    ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return Stack(
+                children: [
+                  Container(
+                    height: 19,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(colors: [AppColors.severityLow, AppColors.severityMedium, AppColors.severityHigh]),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              // Indicateur position élevée
-              const Positioned(
-                right: 0,
-                top: 4,
-                child: _SeverityIndicator(),
-              ),
-            ],
+                  Positioned(
+                    left: (constraints.maxWidth * _severityPosition).clamp(0.0, constraints.maxWidth - 11),
+                    top: 4,
+                    child: Container(
+                      width: 11, height: 11,
+                      decoration: BoxDecoration(color: _severityColor, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Faible', style: AppTypography.bodySmall),
-              Text('Moyen', style: AppTypography.bodySmall),
-              Text('Élevé', style: AppTypography.bodySmall),
-            ],
-          ),
+          const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Text('Faible', style: AppTypography.bodySmall),
+            Text('Moyen', style: AppTypography.bodySmall),
+            Text('Élevé', style: AppTypography.bodySmall),
+          ]),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              const Icon(
-                Icons.warning_amber_outlined,
-                color: AppColors.severityHigh,
-                size: 20,
-              ),
+              Icon(Icons.info_outline, color: _severityColor, size: 20),
               const SizedBox(width: AppSpacing.xs),
-              Text(
-                'Niveau élevé - intervention recommandée',
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.severityHigh,
-                ),
-              ),
+              Expanded(child: Text(_severityLabel, style: AppTypography.bodySmall.copyWith(color: _severityColor))),
             ],
           ),
         ],
@@ -277,19 +274,18 @@ class _SeverityIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 11,
-      height: 11,
-      decoration: BoxDecoration(
+      width: 11, height: 11,
+      decoration: const BoxDecoration(
         color: AppColors.severityHigh,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
       ),
     );
   }
 }
 
 class _RecommendationsCard extends StatelessWidget {
-  const _RecommendationsCard();
+  const _RecommendationsCard({required this.recommandations});
+  final List<String> recommandations;
 
   @override
   Widget build(BuildContext context) {
@@ -298,40 +294,23 @@ class _RecommendationsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Recommandations adaptées',
-            style:
-                AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-          ),
+          Text('Recommandations adaptées', style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
           const Divider(height: AppSpacing.xl),
-          const _RecommendationItem(
-            icon: Icons.spa_outlined,
-            title: 'Traitement conseillé',
-            description: "Pulvérisez avec décoction d'ail tous les 7 jours",
-          ),
-          const Divider(height: AppSpacing.xl),
-          const _RecommendationItem(
-            icon: Icons.water_drop_outlined,
-            title: 'Dosage recommandé',
-            description: "150 ml de décoction diluée dans 1L d'eau",
-          ),
-          const Divider(height: AppSpacing.xl),
-          const _RecommendationItem(
-            icon: Icons.shield_outlined,
-            title: 'Prévention',
-            description: 'Maintenez des rangées aérées pour les champs voisins',
-          ),
+          ...recommandations.map((r) => Column(
+            children: [
+              _RecommendationItem(
+                icon: Icons.spa_outlined,
+                title: 'Recommandation',
+                description: r,
+              ),
+              if (r != recommandations.last) const Divider(height: AppSpacing.xl),
+            ],
+          )),
         ],
       ),
     );

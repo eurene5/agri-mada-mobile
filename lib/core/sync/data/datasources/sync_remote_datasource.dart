@@ -1,0 +1,15 @@
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+part 'sync_remote_datasource.g.dart';
+
+@RestApi()
+abstract class SyncRemoteDatasource {
+  factory SyncRemoteDatasource(Dio dio, {String baseUrl}) = _SyncRemoteDatasource;
+
+  @POST('/sync/parcelles')
+  Future<Map<String, dynamic>> syncParcelles(@Body() Map<String, dynamic> body);
+
+  @POST('/sync/diagnostics')
+  Future<Map<String, dynamic>> syncDiagnostics(@Body() Map<String, dynamic> body);
+}

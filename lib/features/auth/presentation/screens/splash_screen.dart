@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../providers/session_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
@@ -38,7 +40,17 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _navigateAfterDelay() async {
     await Future<void>.delayed(const Duration(seconds: 2));
-    if (mounted) {
+    if (!mounted) return;
+
+    // Vérification de la session locale — pas besoin d'internet
+    final isLoggedIn = await ref.read(isLoggedInProvider.future);
+    if (!mounted) return;
+
+    if (isLoggedIn) {
+      // Session valide : aller directement à l'accueil (mode hors-ligne)
+      context.go(AppRoutes.home);
+    } else {
+      // Première utilisation : afficher l'écran de bienvenue
       context.go(AppRoutes.welcome);
     }
   }

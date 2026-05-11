@@ -32,12 +32,8 @@ mixin _$AuthModel {
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
 
-  /// Serializes this AuthModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of AuthModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AuthModelCopyWith<AuthModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -66,8 +62,6 @@ class _$AuthModelCopyWithImpl<$Res, $Val extends AuthModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AuthModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -132,8 +126,6 @@ class __$$AuthModelImplCopyWithImpl<$Res>
       _$AuthModelImpl _value, $Res Function(_$AuthModelImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthModel
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -227,14 +219,12 @@ class _$AuthModelImpl implements _AuthModel {
                 other.avatarUrl == avatarUrl));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, userId, email, accessToken,
       refreshToken, displayName, avatarUrl);
 
-  /// Create a copy of AuthModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AuthModelImplCopyWith<_$AuthModelImpl> get copyWith =>
@@ -277,11 +267,8 @@ abstract class _AuthModel implements AuthModel {
   @override
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
-
-  /// Create a copy of AuthModel
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AuthModelImplCopyWith<_$AuthModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../auth/presentation/providers/session_provider.dart';
+import '../../../journal/presentation/providers/journal_provider.dart';
+import '../../../../core/sync/providers/sync_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Initialise le service de synchronisation en arrière-plan
+    ref.watch(syncNotifierProvider);
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: const SafeArea(
@@ -85,23 +92,29 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bonjour, Soa!',
-              style: AppTypography.headlineMedium.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              'Prêt pour une analyse ?',
-              style: AppTypography.bodySmall.copyWith(
-                color: AppColors.primary,
-                fontSize: 12,
-              ),
-            ),
-          ],
+        Consumer(
+          builder: (context, ref, _) {
+            final sessionAsync = ref.watch(sessionProvider);
+            final prenom = sessionAsync.valueOrNull?['prenom'] ?? 'Agriculteur';
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bonjour, $prenom!',
+                  style: AppTypography.headlineMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'Prêt pour une analyse ?',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.primary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         const Spacer(),
         // Mode hors ligne
@@ -229,9 +242,15 @@ class _SummaryCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  const Text(
-                    'Dernier diagnostic : il ya 2 jours',
-                    style: AppTypography.bodySmall,
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final journalAsync = ref.watch(journalAgricoleProvider);
+                      final nb = journalAsync.valueOrNull?.length ?? 0;
+                      return Text(
+                        '$nb parcelle(s) enregistrée(s)',
+                        style: AppTypography.bodySmall,
+                      );
+                    },
                   ),
                 ],
               ),

@@ -23,9 +23,7 @@ mixin _$AuthEntity {
   String? get displayName => throw _privateConstructorUsedError;
   String? get avatarUrl => throw _privateConstructorUsedError;
 
-  /// Create a copy of AuthEntity
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   $AuthEntityCopyWith<AuthEntity> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -55,8 +53,6 @@ class _$AuthEntityCopyWithImpl<$Res, $Val extends AuthEntity>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of AuthEntity
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -121,8 +117,6 @@ class __$$AuthEntityImplCopyWithImpl<$Res>
       _$AuthEntityImpl _value, $Res Function(_$AuthEntityImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of AuthEntity
-  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -212,9 +206,7 @@ class _$AuthEntityImpl implements _AuthEntity {
   int get hashCode => Object.hash(runtimeType, userId, email, accessToken,
       refreshToken, displayName, avatarUrl);
 
-  /// Create a copy of AuthEntity
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   @override
   @pragma('vm:prefer-inline')
   _$$AuthEntityImplCopyWith<_$AuthEntityImpl> get copyWith =>
@@ -242,11 +234,8 @@ abstract class _AuthEntity implements AuthEntity {
   String? get displayName;
   @override
   String? get avatarUrl;
-
-  /// Create a copy of AuthEntity
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
+  @JsonKey(ignore: true)
   _$$AuthEntityImplCopyWith<_$AuthEntityImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

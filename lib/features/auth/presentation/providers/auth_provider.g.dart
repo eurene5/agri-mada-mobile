@@ -19,8 +19,6 @@ final dioProvider = AutoDisposeProvider<Dio>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef DioRef = AutoDisposeProviderRef<Dio>;
 String _$authRemoteDatasourceHash() =>
     r'e80921f39c874ab92eaaf9d0cd60ba9b05766e88';
@@ -38,8 +36,6 @@ final authRemoteDatasourceProvider =
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef AuthRemoteDatasourceRef = AutoDisposeProviderRef<AuthRemoteDatasource>;
 String _$authRepositoryHash() => r'3bfd6d0e666f4820a185495dfba5741c8879c987';
 
@@ -55,8 +51,6 @@ final authRepositoryProvider = AutoDisposeProvider<AuthRepositoryImpl>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef AuthRepositoryRef = AutoDisposeProviderRef<AuthRepositoryImpl>;
 String _$loginUseCaseHash() => r'5a95b111ff086652f0c947b88bcfe26ea7ce95be';
 
@@ -71,8 +65,6 @@ final loginUseCaseProvider = AutoDisposeProvider<LoginUseCase>.internal(
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 typedef LoginUseCaseRef = AutoDisposeProviderRef<LoginUseCase>;
 String _$authNotifierHash() => r'abfc3b2504969428bf12e325c3d24beb893b8c2b';
 
@@ -90,4 +82,4 @@ final authNotifierProvider =
 
 typedef _$AuthNotifier = AutoDisposeNotifier<AuthState>;
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

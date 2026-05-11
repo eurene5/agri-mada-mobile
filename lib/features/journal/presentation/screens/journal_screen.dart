@@ -1,24 +1,25 @@
+// Journal Agricole - Écran dynamique connecté à Isar (hors-ligne)
+// Affiche les vraies parcelles avec leur statut de santé calculé dynamiquement
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/local_db/models/parcelle_local.dart';
+import '../../../../core/local_db/models/diagnostic_local.dart';
+import '../providers/journal_provider.dart';
 
-enum _JournalFilter { all, thisWeek, severe, rice }
-
-class JournalScreen extends StatefulWidget {
+class JournalScreen extends ConsumerWidget {
   const JournalScreen({super.key});
 
   @override
-  State<JournalScreen> createState() => _JournalScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final journalAsync = ref.watch(journalAgricoleProvider);
 
-class _JournalScreenState extends State<JournalScreen> {
-  _JournalFilter _selected = _JournalFilter.all;
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
@@ -34,43 +35,70 @@ class _JournalScreenState extends State<JournalScreen> {
                   topRight: Radius.circular(AppSpacing.cardRadius),
                 ),
               ),
-              child: Column(
-                children: [
-                  _FilterTabs(
-                    selected: _selected,
-                    onSelected: (f) => setState(() => _selected = f),
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.md,
+              child: journalAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                error: (e, _) => Center(child: Text('Erreur: $e')),
+                data: (journal) {
+                  if (journal.isEmpty) {
+                    return _EmptyJournal(onAdd: () => _showAddParcelleSheet(context, ref));
+                  }
+                  // Tri : malades en premier
+                  final sorted = [...journal]
+                    ..sort((a, b) => (a['statut'] == 'malade' ? 0 : 1).compareTo(b['statut'] == 'malade' ? 0 : 1));
+
+                  return Column(
+                    children: [
+                      // Résumé rapide
+                      _QuickStats(journal: journal),
+                      // Liste des parcelles
+                      Expanded(
+                        child: ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.md,
+                          ),
+                          itemCount: sorted.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                          itemBuilder: (context, index) => _ParcelleCard(
+                            entry: sorted[index],
+                            onScan: () => context.go(AppRoutes.scanning),
+                          ),
+                        ),
                       ),
-                      itemCount: _mockEntries.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, index) =>
-                          _JournalEntry(entry: _mockEntries[index]),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: Semantics(
-        button: true,
-        label: 'Nouveau scan',
-        child: FloatingActionButton(
-          onPressed: () => context.go(AppRoutes.scanning),
-          backgroundColor: AppColors.primary,
-          child: const Icon(Icons.add, color: AppColors.textOnPrimary),
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddParcelleSheet(context, ref),
+        backgroundColor: AppColors.primary,
+        icon: const Icon(Icons.add, color: AppColors.textOnPrimary),
+        label: Text('Nouvelle parcelle', style: AppTypography.bodySmall.copyWith(color: AppColors.textOnPrimary)),
+      ),
+    );
+  }
+
+  void _showAddParcelleSheet(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => ProviderScope(
+        parent: ProviderScope.containerOf(context),
+        child: _AddParcelleSheet(onSaved: () => ref.invalidate(journalAgricoleProvider)),
       ),
     );
   }
 }
+
+// ─── En-tête ────────────────────────────────────────────────────────────────
 
 class _JournalHeader extends StatelessWidget {
   const _JournalHeader();
@@ -80,27 +108,21 @@ class _JournalHeader extends StatelessWidget {
     final topPadding = MediaQuery.of(context).padding.top;
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSpacing.screenHorizontal,
-        topPadding + AppSpacing.md,
-        AppSpacing.screenHorizontal,
-        AppSpacing.md,
+        AppSpacing.screenHorizontal, topPadding + AppSpacing.md,
+        AppSpacing.screenHorizontal, AppSpacing.md,
       ),
       child: Row(
         children: [
-          Semantics(
-            button: true,
-            label: 'Retour',
-            child: GestureDetector(
-              onTap: () => context.go(AppRoutes.home),
-              child: const Icon(Icons.arrow_back_ios, size: 22),
-            ),
+          GestureDetector(
+            onTap: () => context.go(AppRoutes.home),
+            child: const Icon(Icons.arrow_back_ios, size: 22),
           ),
           const SizedBox(width: AppSpacing.md),
           const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Journal agricole', style: AppTypography.headlineMedium),
-              Text("Historique des analyses", style: AppTypography.bodySmall),
+              Text('Suivi de vos parcelles', style: AppTypography.bodySmall),
             ],
           ),
         ],
@@ -109,232 +131,291 @@ class _JournalHeader extends StatelessWidget {
   }
 }
 
-class _FilterTabs extends StatelessWidget {
-  const _FilterTabs({
-    required this.selected,
-    required this.onSelected,
-  });
+// ─── Résumé rapide ──────────────────────────────────────────────────────────
 
-  final _JournalFilter selected;
-  final ValueChanged<_JournalFilter> onSelected;
+class _QuickStats extends StatelessWidget {
+  const _QuickStats({required this.journal});
+  final List<Map<String, dynamic>> journal;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+    final saines = journal.where((e) => e['statut'] == 'sain').length;
+    final malades = journal.where((e) => e['statut'] == 'malade').length;
+    final total = journal.length;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _FilterChip(
-            label: 'Tous',
-            isSelected: selected == _JournalFilter.all,
-            onTap: () => onSelected(_JournalFilter.all),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          _FilterChip(
-            label: 'Cette semaine',
-            isSelected: selected == _JournalFilter.thisWeek,
-            onTap: () => onSelected(_JournalFilter.thisWeek),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          _FilterChip(
-            label: 'Grave',
-            isSelected: selected == _JournalFilter.severe,
-            onTap: () => onSelected(_JournalFilter.severe),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          _FilterChip(
-            label: 'Riz',
-            isSelected: selected == _JournalFilter.rice,
-            onTap: () => onSelected(_JournalFilter.rice),
-          ),
+          _StatItem(label: 'Total', value: '$total', color: AppColors.primary),
+          _StatItem(label: 'Saines', value: '$saines', color: AppColors.severityLow),
+          _StatItem(label: 'Malades', value: '$malades', color: AppColors.severityHigh),
         ],
       ),
     );
   }
 }
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
+class _StatItem extends StatelessWidget {
+  const _StatItem({required this.label, required this.value, required this.color});
   final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
+  final String value;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: label,
-      selected: isSelected,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 35,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary : AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: AppTypography.bodySmall.copyWith(
-              color: isSelected ? AppColors.textOnPrimary : AppColors.primary,
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
+    return Column(
+      children: [
+        Text(value, style: AppTypography.displayMedium.copyWith(color: color, fontWeight: FontWeight.bold)),
+        Text(label, style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+      ],
     );
   }
 }
 
-class _JournalEntryData {
-  const _JournalEntryData({
-    required this.diseaseName,
-    required this.scientificName,
-    required this.evolutionLabel,
-    required this.evolutionColor,
-    required this.evolutionIcon,
-  });
+// ─── Carte parcelle ─────────────────────────────────────────────────────────
 
-  final String diseaseName;
-  final String scientificName;
-  final String evolutionLabel;
-  final Color evolutionColor;
-  final IconData evolutionIcon;
-}
-
-final _mockEntries = [
-  const _JournalEntryData(
-    diseaseName: 'Helminthosporiose',
-    scientificName: 'Cochliobolus miyabeanus',
-    evolutionLabel: 'Évolution : stable',
-    evolutionColor: AppColors.severityMedium,
-    evolutionIcon: Icons.trending_flat,
-  ),
-  const _JournalEntryData(
-    diseaseName: 'Le faux charbon',
-    scientificName: 'Ustilaginoidea virens',
-    evolutionLabel: 'Gravité faible',
-    evolutionColor: AppColors.severityLow,
-    evolutionIcon: Icons.trending_down,
-  ),
-  const _JournalEntryData(
-    diseaseName: 'Flétrissement bactérien',
-    scientificName: 'Xanthomonas oryzae',
-    evolutionLabel: 'Évolution : stable',
-    evolutionColor: AppColors.severityMedium,
-    evolutionIcon: Icons.trending_flat,
-  ),
-  const _JournalEntryData(
-    diseaseName: 'Riz Pyriculariose',
-    scientificName: 'Magnaporthe oryzae',
-    evolutionLabel: 'Évolution : aggravation',
-    evolutionColor: AppColors.severityHigh,
-    evolutionIcon: Icons.trending_up,
-  ),
-];
-
-class _JournalEntry extends StatelessWidget {
-  const _JournalEntry({required this.entry});
-
-  final _JournalEntryData entry;
+class _ParcelleCard extends StatelessWidget {
+  const _ParcelleCard({required this.entry, required this.onScan});
+  final Map<String, dynamic> entry;
+  final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
+    final parcelle = entry['parcelle'] as ParcelleLocal;
+    final statut = entry['statut'] as String;
+    final dernierDiag = entry['dernier_diagnostic'] as DiagnosticLocal?;
+    final nbDiag = entry['nb_diagnostics'] as int;
+
+    final isHealthy = statut == 'sain';
+    final isMalade = statut == 'malade';
+    final statusColor = isMalade ? AppColors.severityHigh : (isHealthy ? AppColors.severityLow : AppColors.textSecondary);
+    final statusLabel = isMalade ? 'Malade' : (isHealthy ? 'Sain' : 'Non analysé');
+    final statusIcon = isMalade ? Icons.warning_amber_outlined : (isHealthy ? Icons.check_circle_outline : Icons.help_outline);
+
     return Container(
-      height: 115,
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))],
+        border: isMalade ? Border.all(color: AppColors.severityHigh.withAlpha(80), width: 1) : null,
       ),
-      child: Row(
+      child: Column(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(AppSpacing.cardRadius),
-              bottomLeft: Radius.circular(AppSpacing.cardRadius),
-            ),
-            child: Container(
-              width: 116,
-              height: 115,
-              color: AppColors.primaryLight,
-              child:
-                  const Icon(Icons.grass, color: AppColors.primary, size: 40),
+          // Ligne principale
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                Container(
+                  width: 50, height: 50,
+                  decoration: BoxDecoration(
+                    color: statusColor.withAlpha(30),
+                    borderRadius: BorderRadius.circular(AppSpacing.sm),
+                  ),
+                  child: Icon(Icons.map_outlined, color: statusColor, size: 28),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(parcelle.nomParcelle, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                      if (parcelle.description != null)
+                        Text(parcelle.description!, style: AppTypography.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 4),
+                      Row(children: [
+                        if (parcelle.surface != null) ...[
+                          const Icon(Icons.crop_square_outlined, size: 12, color: AppColors.textSecondary),
+                          const SizedBox(width: 2),
+                          Text('${parcelle.surface} ha', style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                          const SizedBox(width: AppSpacing.sm),
+                        ],
+                        Text('$nbDiag analyse(s)', style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                      ]),
+                    ],
+                  ),
+                ),
+                // Badge statut
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withAlpha(25),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(statusIcon, color: statusColor, size: 12),
+                    const SizedBox(width: 3),
+                    Text(statusLabel, style: AppTypography.caption.copyWith(color: statusColor, fontWeight: FontWeight.w600)),
+                  ]),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+          // Dernier diagnostic
+          if (dernierDiag != null) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              child: Row(
                 children: [
-                  Text(
-                    entry.diseaseName,
-                    style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w600,
+                  const Icon(Icons.history, size: 14, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      'Dernier : ${dernierDiag.maladieDetectee} — ${DateFormat('dd/MM/yyyy').format(dernierDiag.dateDiagnostic)}',
+                      style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    entry.scientificName,
-                    style: AppTypography.bodySmall.copyWith(
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: entry.evolutionColor.withAlpha(30),
-                      borderRadius: BorderRadius.circular(AppSpacing.xs),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          entry.evolutionIcon,
-                          color: entry.evolutionColor,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          entry.evolutionLabel,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: entry.evolutionColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                  GestureDetector(
+                    onTap: onScan,
+                    child: Text('Scanner', style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
             ),
+          ] else ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 14, color: AppColors.textSecondary),
+                  const SizedBox(width: 4),
+                  const Text('Aucun diagnostic encore', style: AppTypography.caption),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: onScan,
+                    child: Text('Scanner maintenant', style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Journal vide ───────────────────────────────────────────────────────────
+
+class _EmptyJournal extends StatelessWidget {
+  const _EmptyJournal({required this.onAdd});
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.map_outlined, size: 80, color: AppColors.primaryLight),
+          const SizedBox(height: AppSpacing.md),
+          Text('Aucune parcelle', style: AppTypography.headlineMedium.copyWith(color: AppColors.textSecondary)),
+          const SizedBox(height: AppSpacing.sm),
+          Text('Ajoutez votre première parcelle\npour commencer le suivi.', style: AppTypography.bodySmall, textAlign: TextAlign.center),
+          const SizedBox(height: AppSpacing.xl),
+          ElevatedButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add),
+            label: const Text('Ajouter une parcelle'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Formulaire Nouvelle Parcelle ────────────────────────────────────────────
+
+class _AddParcelleSheet extends ConsumerStatefulWidget {
+  const _AddParcelleSheet({required this.onSaved});
+  final VoidCallback onSaved;
+
+  @override
+  ConsumerState<_AddParcelleSheet> createState() => _AddParcelleSheetState();
+}
+
+class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _nomController = TextEditingController();
+  final _descController = TextEditingController();
+  final _surfaceController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nomController.dispose();
+    _descController.dispose();
+    _surfaceController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    await ref.read(parcelleNotifierProvider.notifier).createParcelle(
+      nom: _nomController.text.trim(),
+      description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
+      surface: double.tryParse(_surfaceController.text.trim()),
+    );
+    widget.onSaved();
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(parcelleNotifierProvider);
+    final isLoading = state is AsyncLoading;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md + bottomInset),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.textSecondary, borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: AppSpacing.md),
+            Text('Nouvelle parcelle', style: AppTypography.headlineMedium),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _nomController,
+              decoration: const InputDecoration(labelText: 'Nom de la parcelle *', prefixIcon: Icon(Icons.map_outlined)),
+              validator: (v) => (v == null || v.isEmpty) ? 'Nom requis' : null,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            TextFormField(
+              controller: _descController,
+              decoration: const InputDecoration(labelText: 'Description (optionnel)', prefixIcon: Icon(Icons.notes_outlined)),
+              maxLines: 2,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            TextFormField(
+              controller: _surfaceController,
+              decoration: const InputDecoration(labelText: 'Surface (ha, optionnel)', prefixIcon: Icon(Icons.crop_square_outlined)),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : _save,
+                child: isLoading
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text('Enregistrer'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
