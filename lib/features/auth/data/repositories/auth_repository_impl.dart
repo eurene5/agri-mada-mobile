@@ -28,9 +28,10 @@ class AuthRepositoryImpl implements AuthRepository {
         tokenType: token.tokenType,
       );
 
-      final profileJson = await _remote.getMe(
+      final profileJsonRaw = await _remote.getMe(
         '${token.tokenType} ${token.accessToken}',
       );
+      final profileJson = Map<String, dynamic>.from(profileJsonRaw);
 
       final userId = profileJson['id'] as int?;
       final nom = profileJson['nom'] as String? ?? '';

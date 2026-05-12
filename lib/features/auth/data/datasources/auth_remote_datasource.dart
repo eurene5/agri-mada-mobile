@@ -19,7 +19,7 @@ abstract class AuthRemoteDatasource {
   );
 
   @GET(ApiConstants.me)
-  Future<Map<String, dynamic>> getMe(
+  Future<Map<String, Object?>> getMe(
     @Header('Authorization') String authorization,
   );
 }

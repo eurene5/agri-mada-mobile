@@ -105,7 +105,8 @@ class __$$AuthModelImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _$AuthModelImpl implements _AuthModel {
   const _$AuthModelImpl({required this.accessToken, required this.tokenType});
 

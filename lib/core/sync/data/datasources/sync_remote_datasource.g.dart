@@ -22,13 +22,13 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Map<String, dynamic>> syncParcelles(Map<String, dynamic> body) async {
+  Future<Map<String, Object?>> syncParcelles(Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<Map<String, dynamic>>(Options(
+    final _options = _setStreamType<Map<String, Object>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -45,10 +45,9 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late Map<String, Object?> _value;
     try {
-      _value = _result.data!.map((k, dynamic v) =>
-          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+      _value = _result.data ?? <String, Object?>{};
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -57,14 +56,14 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> syncDiagnostics(
+  Future<Map<String, Object?>> syncDiagnostics(
       Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<Map<String, dynamic>>(Options(
+    final _options = _setStreamType<Map<String, Object>>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -81,10 +80,9 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
+    late Map<String, Object?> _value;
     try {
-      _value = _result.data!.map((k, dynamic v) =>
-          MapEntry(k, dynamic.fromJson(v as Map<String, dynamic>)));
+      _value = _result.data ?? <String, Object?>{};
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
