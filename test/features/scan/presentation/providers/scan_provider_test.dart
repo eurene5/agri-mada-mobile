@@ -47,7 +47,7 @@ void main() {
   tearDown(() => container.dispose());
 
   group('ScanNotifier', () {
-    test('l etat initial est ScanState.initial', () {
+    test("l'état initial est ScanState.initial", () {
       expect(container.read(scanNotifierProvider), const ScanState.initial());
     });
 

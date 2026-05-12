@@ -69,7 +69,7 @@ void main() {
   tearDown(() => container.dispose());
 
   group('JournalNotifier', () {
-    test('l etat initial est JournalState.initial', () {
+    test("l'état initial est JournalState.initial", () {
       expect(
         container.read(journalNotifierProvider),
         const JournalState.initial(),
