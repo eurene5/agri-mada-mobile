@@ -5,11 +5,14 @@ part 'sync_remote_datasource.g.dart';
 
 @RestApi()
 abstract class SyncRemoteDatasource {
-  factory SyncRemoteDatasource(Dio dio, {String baseUrl}) = _SyncRemoteDatasource;
+  // Le header Authorization est injecté automatiquement par l'intercepteur Dio.
+  factory SyncRemoteDatasource(Dio dio, {String baseUrl}) =
+      _SyncRemoteDatasource;
 
   @POST('/sync/parcelles')
   Future<Map<String, dynamic>> syncParcelles(@Body() Map<String, dynamic> body);
 
   @POST('/sync/diagnostics')
-  Future<Map<String, dynamic>> syncDiagnostics(@Body() Map<String, dynamic> body);
+  Future<Map<String, dynamic>> syncDiagnostics(
+      @Body() Map<String, dynamic> body);
 }

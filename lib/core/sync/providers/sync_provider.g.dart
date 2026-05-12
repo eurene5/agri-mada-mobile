@@ -23,11 +23,11 @@ final syncRemoteDatasourceProvider =
 );
 
 typedef SyncRemoteDatasourceRef = AutoDisposeProviderRef<SyncRemoteDatasource>;
-String _$syncNotifierHash() => r'7528081b618a12334a054b2f1f8f01b9cd9b9b98';
+String _$syncNotifierHash() => r'dd7853a69fa1522652aa0a6a75f3f68696f4d176';
 
 /// See also [SyncNotifier].
 @ProviderFor(SyncNotifier)
-final syncNotifierProvider = NotifierProvider<SyncNotifier, bool>.internal(
+final syncNotifierProvider = NotifierProvider<SyncNotifier, SyncState>.internal(
   SyncNotifier.new,
   name: r'syncNotifierProvider',
   debugGetCreateSourceHash:
@@ -36,6 +36,6 @@ final syncNotifierProvider = NotifierProvider<SyncNotifier, bool>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef _$SyncNotifier = Notifier<bool>;
+typedef _$SyncNotifier = Notifier<SyncState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

@@ -8,10 +8,17 @@
 //   2 → Leaf smut
 
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
+
+class TFLiteNotInitializedException implements Exception {
+  const TFLiteNotInitializedException();
+
+  @override
+  String toString() =>
+      'TFLiteService non initialisé. Appelez init() avant analyzeImage().';
+}
 
 // Résultat d'une analyse IA
 class DiagnosticResult {
@@ -38,8 +45,12 @@ class TFLiteService {
   // Taille d'entrée du modèle (doit correspondre au modèle entraîné)
   static const int _inputSize = 224;
 
+  bool get isReady => _interpreter != null && _labels.isNotEmpty;
+
   /// À appeler une seule fois dans main() après IsarService.init()
   Future<void> init() async {
+    if (isReady) return;
+
     // Charger le modèle
     final modelData =
         await rootBundle.load('assets/model/agrimada_model.tflite');
@@ -57,9 +68,8 @@ class TFLiteService {
 
   /// Analyse une image et retourne le diagnostic
   Future<DiagnosticResult> analyzeImage(File imageFile) async {
-    if (_interpreter == null) {
-      throw StateError(
-          'TFLiteService non initialisé. Appelez init() d\'abord.');
+    if (!isReady) {
+      throw const TFLiteNotInitializedException();
     }
 
     // 1. Lire et redimensionner l'image
@@ -157,5 +167,7 @@ class TFLiteService {
 
   void dispose() {
     _interpreter?.close();
+    _interpreter = null;
+    _labels = [];
   }
 }

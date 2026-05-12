@@ -89,6 +89,8 @@ class JournalScreen extends ConsumerWidget {
   }
 
   void _showAddParcelleSheet(BuildContext context, WidgetRef ref) {
+    final container = ProviderScope.containerOf(context);
+
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -96,10 +98,11 @@ class JournalScreen extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => ProviderScope(
-        parent: ProviderScope.containerOf(context),
+      builder: (_) => UncontrolledProviderScope(
+        container: container,
         child: _AddParcelleSheet(
-            onSaved: () => ref.invalidate(journalAgricoleProvider)),
+          onSaved: () => ref.invalidate(journalAgricoleProvider),
+        ),
       ),
     );
   }

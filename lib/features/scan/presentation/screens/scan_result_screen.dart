@@ -14,12 +14,20 @@ class ScanResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scanState = ref.watch(scanNotifierProvider);
-    final result = scanState.valueOrNull;
+    final result = switch (scanState) {
+      ScanSuccess(:final result) => result,
+      _ => null,
+    };
+
     if (result == null) {
-      // Fallback si on arrive ici sans résultat
-      WidgetsBinding.instance.addPostFrameCallback((_) => context.go(AppRoutes.scanning));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.go(AppRoutes.scanning);
+        }
+      });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
@@ -43,7 +51,8 @@ class ScanResultScreen extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.md),
                     _SeverityCard(gravite: result.niveauGravite),
                     const SizedBox(height: AppSpacing.md),
-                    _RecommendationsCard(recommandations: result.recommandations),
+                    _RecommendationsCard(
+                        recommandations: result.recommandations),
                     const SizedBox(height: AppSpacing.md),
                     const _TipCard(),
                     const SizedBox(height: AppSpacing.md),
@@ -116,13 +125,14 @@ class _DiagnosticCard extends StatelessWidget {
   final DiagnosticResult result;
 
   String get _displayName => switch (result.maladieDetectee) {
-    'Bacterial leaf blight' => 'Brûlure bactérienne',
-    'Brown spot' => 'Tache brune',
-    'Leaf smut' => 'Charbon foliaire',
-    _ => 'Plante saine',
-  };
+        'Bacterial leaf blight' => 'Brûlure bactérienne',
+        'Brown spot' => 'Tache brune',
+        'Leaf smut' => 'Charbon foliaire',
+        _ => 'Plante saine',
+      };
 
-  String get _confidence => '${(result.confiance * 100).toStringAsFixed(0)}% de confiance';
+  String get _confidence =>
+      '${(result.confiance * 100).toStringAsFixed(0)}% de confiance';
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +142,10 @@ class _DiagnosticCard extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
         boxShadow: [
-          BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 8,
+              offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -143,10 +156,14 @@ class _DiagnosticCard extends StatelessWidget {
               bottomLeft: Radius.circular(AppSpacing.cardRadius),
             ),
             child: Container(
-              width: 116, height: 115,
-              color: isHealthy ? AppColors.primaryLight : const Color(0xFFFFF3E0),
+              width: 116,
+              height: 115,
+              color:
+                  isHealthy ? AppColors.primaryLight : const Color(0xFFFFF3E0),
               child: Icon(
-                isHealthy ? Icons.check_circle_outline : Icons.bug_report_outlined,
+                isHealthy
+                    ? Icons.check_circle_outline
+                    : Icons.bug_report_outlined,
                 color: isHealthy ? AppColors.primary : AppColors.severityHigh,
                 size: 48,
               ),
@@ -158,12 +175,17 @@ class _DiagnosticCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_displayName, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                  Text(_displayName,
+                      style: AppTypography.bodyMedium
+                          .copyWith(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
-                  Text(result.maladieDetectee, style: AppTypography.bodySmall.copyWith(fontStyle: FontStyle.italic)),
+                  Text(result.maladieDetectee,
+                      style: AppTypography.bodySmall
+                          .copyWith(fontStyle: FontStyle.italic)),
                   const SizedBox(height: AppSpacing.sm),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(AppSpacing.sm),
@@ -171,9 +193,12 @@ class _DiagnosticCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.psychology_outlined, color: AppColors.primary, size: 14),
+                        const Icon(Icons.psychology_outlined,
+                            color: AppColors.primary, size: 14),
                         const SizedBox(width: 4),
-                        Text(_confidence, style: AppTypography.bodySmall.copyWith(color: AppColors.primary, fontSize: 11)),
+                        Text(_confidence,
+                            style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.primary, fontSize: 11)),
                       ],
                     ),
                   ),
@@ -192,24 +217,24 @@ class _SeverityCard extends StatelessWidget {
   final String gravite;
 
   double get _severityPosition => switch (gravite) {
-    'aucune' => 0.0,
-    'faible' => 0.15,
-    'modéré' => 0.55,
-    _ => 0.95,
-  };
+        'aucune' => 0.0,
+        'faible' => 0.15,
+        'modéré' => 0.55,
+        _ => 0.95,
+      };
 
   Color get _severityColor => switch (gravite) {
-    'aucune' || 'faible' => AppColors.severityLow,
-    'modéré' => AppColors.severityMedium,
-    _ => AppColors.severityHigh,
-  };
+        'aucune' || 'faible' => AppColors.severityLow,
+        'modéré' => AppColors.severityMedium,
+        _ => AppColors.severityHigh,
+      };
 
   String get _severityLabel => switch (gravite) {
-    'aucune' => 'Aucune — Plante saine',
-    'faible' => 'Faible — Surveiller',
-    'modéré' => 'Modéré — Intervention conseillée',
-    _ => 'Élevé — Intervention urgente',
-  };
+        'aucune' => 'Aucune — Plante saine',
+        'faible' => 'Faible — Surveiller',
+        'modéré' => 'Modéré — Intervention conseillée',
+        _ => 'Élevé — Intervention urgente',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -218,12 +243,19 @@ class _SeverityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Niveau de gravité', style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+          Text('Niveau de gravité',
+              style: AppTypography.bodyMedium
+                  .copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: AppSpacing.md),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -232,16 +264,25 @@ class _SeverityCard extends StatelessWidget {
                   Container(
                     height: 19,
                     decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: [AppColors.severityLow, AppColors.severityMedium, AppColors.severityHigh]),
+                      gradient: LinearGradient(colors: [
+                        AppColors.severityLow,
+                        AppColors.severityMedium,
+                        AppColors.severityHigh
+                      ]),
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
                   Positioned(
-                    left: (constraints.maxWidth * _severityPosition).clamp(0.0, constraints.maxWidth - 11),
+                    left: (constraints.maxWidth * _severityPosition)
+                        .clamp(0.0, constraints.maxWidth - 11),
                     top: 4,
                     child: Container(
-                      width: 11, height: 11,
-                      decoration: BoxDecoration(color: _severityColor, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+                      width: 11,
+                      height: 11,
+                      decoration: BoxDecoration(
+                          color: _severityColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2)),
                     ),
                   ),
                 ],
@@ -249,35 +290,25 @@ class _SeverityCard extends StatelessWidget {
             },
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text('Faible', style: AppTypography.bodySmall),
-            Text('Moyen', style: AppTypography.bodySmall),
-            Text('Élevé', style: AppTypography.bodySmall),
-          ]),
+          const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Faible', style: AppTypography.bodySmall),
+                Text('Moyen', style: AppTypography.bodySmall),
+                Text('Élevé', style: AppTypography.bodySmall),
+              ]),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
               Icon(Icons.info_outline, color: _severityColor, size: 20),
               const SizedBox(width: AppSpacing.xs),
-              Expanded(child: Text(_severityLabel, style: AppTypography.bodySmall.copyWith(color: _severityColor))),
+              Expanded(
+                  child: Text(_severityLabel,
+                      style: AppTypography.bodySmall
+                          .copyWith(color: _severityColor))),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SeverityIndicator extends StatelessWidget {
-  const _SeverityIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 11, height: 11,
-      decoration: const BoxDecoration(
-        color: AppColors.severityHigh,
-        shape: BoxShape.circle,
       ),
     );
   }
@@ -294,23 +325,31 @@ class _RecommendationsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Recommandations adaptées', style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+          Text('Recommandations adaptées',
+              style: AppTypography.bodyMedium
+                  .copyWith(fontWeight: FontWeight.w600)),
           const Divider(height: AppSpacing.xl),
           ...recommandations.map((r) => Column(
-            children: [
-              _RecommendationItem(
-                icon: Icons.spa_outlined,
-                title: 'Recommandation',
-                description: r,
-              ),
-              if (r != recommandations.last) const Divider(height: AppSpacing.xl),
-            ],
-          )),
+                children: [
+                  _RecommendationItem(
+                    icon: Icons.spa_outlined,
+                    title: 'Recommandation',
+                    description: r,
+                  ),
+                  if (r != recommandations.last)
+                    const Divider(height: AppSpacing.xl),
+                ],
+              )),
         ],
       ),
     );
@@ -463,7 +502,13 @@ class _ShareButton extends StatelessWidget {
       button: true,
       label: 'Partager le résultat',
       child: OutlinedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Partage du résultat bientôt disponible'),
+            ),
+          );
+        },
         icon: const Icon(Icons.share_outlined, size: 18),
         label: const Text('Partager le résultat'),
         style: OutlinedButton.styleFrom(

@@ -16,11 +16,10 @@ void main() {
 
   const tEmail = 'user@agrimada.mg';
   const tPassword = 'password123';
-  const tUser = AuthEntity(
+  const UserProfile tUser = UserProfile(
     userId: 'user-001',
     email: tEmail,
-    accessToken: 'access-token',
-    refreshToken: 'refresh-token',
+    phoneNumber: '0341234567',
   );
 
   setUp(() {
@@ -43,7 +42,9 @@ void main() {
     test('passe par loading puis authenticated après login réussi', () async {
       // Arrange
       when(() => mockUseCase.call(email: tEmail, password: tPassword))
-          .thenAnswer((_) async => const Right(tUser));
+          .thenAnswer(
+        (_) async => const Right<Failure, UserProfile>(tUser),
+      );
 
       final states = <AuthState>[];
       container.listen(authNotifierProvider, (_, s) => states.add(s));
@@ -63,9 +64,12 @@ void main() {
     test('passe en error() en cas de AuthFailure', () async {
       // Arrange
       when(() => mockUseCase.call(
-              email: any(named: 'email'), password: any(named: 'password')))
-          .thenAnswer(
-              (_) async => const Left(AuthFailure('Identifiants incorrects')));
+          email: any(named: 'email'),
+          password: any(named: 'password'))).thenAnswer(
+        (_) async => const Left<Failure, UserProfile>(
+          AuthFailure('Identifiants incorrects'),
+        ),
+      );
 
       // Act
       await container
@@ -83,8 +87,12 @@ void main() {
         () async {
       // Arrange
       when(() => mockUseCase.call(
-              email: any(named: 'email'), password: any(named: 'password')))
-          .thenAnswer((_) async => const Left(NetworkFailure('No connection')));
+          email: any(named: 'email'),
+          password: any(named: 'password'))).thenAnswer(
+        (_) async => const Left<Failure, UserProfile>(
+          NetworkFailure('No connection'),
+        ),
+      );
 
       // Act
       await container
@@ -101,13 +109,15 @@ void main() {
     test('logout remet l\'état à initial', () async {
       // Arrange
       when(() => mockUseCase.call(email: tEmail, password: tPassword))
-          .thenAnswer((_) async => const Right(tUser));
+          .thenAnswer(
+        (_) async => const Right<Failure, UserProfile>(tUser),
+      );
       await container
           .read(authNotifierProvider.notifier)
           .login(email: tEmail, password: tPassword);
 
       // Act
-      container.read(authNotifierProvider.notifier).logout();
+      await container.read(authNotifierProvider.notifier).logout();
 
       // Assert
       expect(

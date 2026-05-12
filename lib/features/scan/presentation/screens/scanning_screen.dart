@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../../main.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../journal/data/repositories/parcelle_local_repository.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../providers/scan_provider.dart';
@@ -27,6 +28,16 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   ParcelleLocal? _selectedParcelle;
 
   Future<void> _pickAndAnalyze(ImageSource source) async {
+    if (!ref.read(isTFLiteReadyProvider)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Diagnostic IA indisponible, veuillez réessayer'),
+        ),
+      );
+      return;
+    }
+
     // 1. Sélectionner une parcelle si pas encore fait
     if (_selectedParcelle == null) {
       final parcelles =
@@ -136,7 +147,11 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   @override
   Widget build(BuildContext context) {
     final scanState = ref.watch(scanNotifierProvider);
-    final isLoading = scanState is AsyncLoading;
+    final isLoading = scanState is ScanLoading;
+    final isTFLiteReady = ref.watch(isTFLiteReadyProvider);
+    final hasEngineError = scanState is ScanError &&
+        scanState.message == 'Moteur IA non disponible';
+    final showDegradedMessage = !isTFLiteReady || hasEngineError;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -149,12 +164,32 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
               child: _CameraViewfinder(
                 isLoading: isLoading,
                 selectedParcelle: _selectedParcelle,
+                isTFLiteReady: isTFLiteReady,
                 onCamera: () => _pickAndAnalyze(ImageSource.camera),
                 onGallery: () => _pickAndAnalyze(ImageSource.gallery),
               ),
             ),
           ),
           const Positioned(top: 0, left: 0, right: 0, child: _ScanHeader()),
+          if (showDegradedMessage)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 70,
+              left: AppSpacing.screenHorizontal,
+              right: AppSpacing.screenHorizontal,
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.severityHigh.withAlpha(230),
+                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                ),
+                child: Text(
+                  'Diagnostic IA indisponible, veuillez réessayer',
+                  style: AppTypography.bodySmall
+                      .copyWith(color: AppColors.textOnPrimary),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           if (!isLoading)
             Positioned(
               bottom: 60,
@@ -172,12 +207,14 @@ class _CameraViewfinder extends StatelessWidget {
   const _CameraViewfinder({
     required this.isLoading,
     required this.selectedParcelle,
+    required this.isTFLiteReady,
     required this.onCamera,
     required this.onGallery,
   });
 
   final bool isLoading;
   final ParcelleLocal? selectedParcelle;
+  final bool isTFLiteReady;
   final VoidCallback onCamera;
   final VoidCallback onGallery;
 
@@ -233,13 +270,15 @@ class _CameraViewfinder extends StatelessWidget {
               children: [
                 // Bouton galerie
                 GestureDetector(
-                  onTap: onGallery,
+                  onTap: isTFLiteReady ? onGallery : null,
                   child: Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withAlpha(30),
+                        color: isTFLiteReady
+                            ? Colors.white.withAlpha(30)
+                            : Colors.white.withAlpha(10),
                         border: Border.all(color: Colors.white, width: 2)),
                     child: const Icon(Icons.photo_library_outlined,
                         color: Colors.white, size: 24),
@@ -248,13 +287,15 @@ class _CameraViewfinder extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xl),
                 // Bouton capture
                 GestureDetector(
-                  onTap: onCamera,
+                  onTap: isTFLiteReady ? onCamera : null,
                   child: Container(
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.primary,
+                        color: isTFLiteReady
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
                         border: Border.all(color: Colors.white, width: 3)),
                     child: const Icon(Icons.circle,
                         color: AppColors.textOnPrimary, size: 40),

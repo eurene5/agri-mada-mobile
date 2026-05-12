@@ -3,9 +3,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../../core/constants/api_constants.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/local_db/session_service.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth_entity.dart';
@@ -31,13 +31,7 @@ class AuthState with _$AuthState {
 // ---------------------------------------------------------------------------
 
 @riverpod
-Dio dio(Ref ref) => Dio(
-      BaseOptions(
-        baseUrl: ApiConstants.baseUrl,
-        connectTimeout: ApiConstants.connectTimeout,
-        receiveTimeout: ApiConstants.receiveTimeout,
-      ),
-    );
+Dio dio(Ref ref) => ref.watch(dioClientProvider);
 
 @riverpod
 AuthRemoteDatasource authRemoteDatasource(Ref ref) =>

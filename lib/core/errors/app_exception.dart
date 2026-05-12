@@ -12,6 +12,10 @@ final class NetworkException extends AppException {
   const NetworkException(super.message);
 
   factory NetworkException.fromDioError(DioException e) {
+    final responseData = e.response?.data;
+    final responseMap =
+        responseData is Map<String, dynamic> ? responseData : null;
+
     return switch (e.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
@@ -20,7 +24,7 @@ final class NetworkException extends AppException {
       DioExceptionType.connectionError =>
         const NetworkException('Impossible de se connecter au serveur'),
       DioExceptionType.badResponse => NetworkException(
-          e.response?.data?['message'] as String? ?? 'Erreur serveur',
+          responseMap?['message'] as String? ?? 'Erreur serveur',
         ),
       _ => NetworkException(e.message ?? 'Erreur réseau inconnue'),
     };

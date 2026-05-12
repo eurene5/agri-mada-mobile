@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/sync/presentation/sync_status_indicator.dart';
 import '../../../auth/presentation/providers/session_provider.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/sync/providers/sync_provider.dart';
@@ -59,11 +61,13 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _HomeHeader extends StatelessWidget {
+class _HomeHeader extends ConsumerWidget {
   const _HomeHeader();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final syncState = ref.watch(syncNotifierProvider);
+
     return Row(
       children: [
         // Menu hamburger
@@ -120,6 +124,8 @@ class _HomeHeader extends StatelessWidget {
         // Mode hors ligne
         Row(
           children: [
+            const SyncStatusIndicator(),
+            if (syncState is! SyncIdle) const SizedBox(width: AppSpacing.sm),
             const Icon(Icons.wifi_off, color: AppColors.primary, size: 18),
             const SizedBox(width: 4),
             Text(

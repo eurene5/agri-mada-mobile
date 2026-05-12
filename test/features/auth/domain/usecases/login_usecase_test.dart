@@ -30,14 +30,15 @@ void main() {
     test('retourne un AuthEntity quand le repository répond avec succès',
         () async {
       // Arrange
-      when(() => mockRepo.login(email: tEmail, password: tPassword))
-          .thenAnswer((_) async => const Right(tUser));
+      when(() => mockRepo.login(email: tEmail, password: tPassword)).thenAnswer(
+        (_) async => const Right<Failure, UserProfile>(tUser),
+      );
 
       // Act
       final result = await useCase(email: tEmail, password: tPassword);
 
       // Assert
-      expect(result, const Right(tUser));
+      expect(result, const Right<Failure, UserProfile>(tUser));
       verify(() => mockRepo.login(email: tEmail, password: tPassword))
           .called(1);
       verifyNoMoreInteractions(mockRepo);
@@ -47,14 +48,21 @@ void main() {
         () async {
       // Arrange
       when(() => mockRepo.login(
-              email: any(named: 'email'), password: any(named: 'password')))
-          .thenAnswer((_) async => const Left(NetworkFailure('No connection')));
+          email: any(named: 'email'),
+          password: any(named: 'password'))).thenAnswer(
+        (_) async => const Left<Failure, UserProfile>(
+          NetworkFailure('No connection'),
+        ),
+      );
 
       // Act
       final result = await useCase(email: tEmail, password: tPassword);
 
       // Assert
-      expect(result, const Left(NetworkFailure('No connection')));
+      expect(
+        result,
+        const Left<Failure, UserProfile>(NetworkFailure('No connection')),
+      );
     });
 
     test('retourne un AuthFailure quand les identifiants sont incorrects',
