@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/ai/tflite_service.dart';
+import '../../../../core/local_db/models/diagnostic_local.dart';
 import '../providers/scan_provider.dart';
 
 class ScanResultScreen extends ConsumerWidget {
@@ -14,10 +17,12 @@ class ScanResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scanState = ref.watch(scanNotifierProvider);
+    final scanNotifier = ref.read(scanNotifierProvider.notifier);
     final result = switch (scanState) {
       ScanSuccess(:final result) => result,
       _ => null,
     };
+    final lastSavedDiagnostic = scanNotifier.lastSavedDiagnostic;
 
     if (result == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -57,14 +62,49 @@ class ScanResultScreen extends ConsumerWidget {
                     const _TipCard(),
                     const SizedBox(height: AppSpacing.md),
                     _ActionButtons(
+                      onSave: () async {
+                        final savedDiagnostic =
+                            await scanNotifier.persistLastDiagnostic();
+                        if (!context.mounted) return;
+
+                        if (savedDiagnostic == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Impossible d\'enregistrer le diagnostic',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Diagnostic enregistré'),
+                          ),
+                        );
+                        context.go(AppRoutes.journal);
+                      },
                       onRescan: () {
                         ref.read(scanNotifierProvider.notifier).reset();
                         context.go(AppRoutes.scanning);
                       },
-                      onSave: () => context.go(AppRoutes.journal),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    const _ShareButton(),
+                    _ShareButton(
+                      onShare: () async {
+                        try {
+                          await Share.share(
+                            _buildShareText(
+                              result: result,
+                              savedDiagnostic: lastSavedDiagnostic,
+                            ),
+                          );
+                        } catch (_) {
+                          // Partage annulé ou indisponible.
+                        }
+                      },
+                    ),
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
@@ -210,6 +250,30 @@ class _DiagnosticCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _buildShareText({
+  required DiagnosticResult result,
+  DiagnosticLocal? savedDiagnostic,
+}) {
+  final date = DateFormat('dd/MM/yyyy').format(
+    savedDiagnostic?.dateDiagnostic ?? DateTime.now(),
+  );
+  final disease = switch (result.maladieDetectee) {
+    'Bacterial leaf blight' => 'Brûlure bactérienne',
+    'Brown spot' => 'Tache brune',
+    'Leaf smut' => 'Charbon foliaire',
+    _ => result.maladieDetectee,
+  };
+  final confidence = (result.confiance * 100).toStringAsFixed(0);
+
+  return [
+    'Diagnostic AgriMada',
+    'Culture: Riz',
+    'Maladie: $disease',
+    'Confiance: $confidence%',
+    'Date: $date',
+  ].join('\n');
 }
 
 class _SeverityCard extends StatelessWidget {
@@ -442,7 +506,7 @@ class _ActionButtons extends StatelessWidget {
   });
 
   final VoidCallback onRescan;
-  final VoidCallback onSave;
+  final Future<void> Function() onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -473,7 +537,9 @@ class _ActionButtons extends StatelessWidget {
             button: true,
             label: 'Enregistrer dans le journal',
             child: ElevatedButton.icon(
-              onPressed: onSave,
+              onPressed: () {
+                onSave();
+              },
               icon: const Icon(Icons.bookmark_outline, size: 18),
               label: const Text(
                 'Enregistrer',
@@ -494,7 +560,9 @@ class _ActionButtons extends StatelessWidget {
 }
 
 class _ShareButton extends StatelessWidget {
-  const _ShareButton();
+  const _ShareButton({required this.onShare});
+
+  final Future<void> Function() onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -503,11 +571,7 @@ class _ShareButton extends StatelessWidget {
       label: 'Partager le résultat',
       child: OutlinedButton.icon(
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Partage du résultat bientôt disponible'),
-            ),
-          );
+          onShare();
         },
         icon: const Icon(Icons.share_outlined, size: 18),
         label: const Text('Partager le résultat'),

@@ -1,17 +1,53 @@
 // Repository local - Gestion des parcelles dans Isar (hors-ligne)
 
+import 'package:fpdart/fpdart.dart';
 import 'package:isar/isar.dart';
+
+import '../../../../core/errors/failure.dart';
 import '../../../../core/local_db/isar_service.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../../../../core/local_db/models/diagnostic_local.dart';
+import '../../domain/entities/parcelle_entity.dart';
+import '../../domain/repositories/journal_repository.dart';
 
-class ParcelleLocalRepository {
+class ParcelleLocalRepository implements JournalRepository {
   Isar get _db => IsarService.instance.db;
 
   // --- Lecture ---
 
   Future<List<ParcelleLocal>> getAllParcelles() {
     return _db.parcelleLocals.where().findAll();
+  }
+
+  @override
+  Future<Either<Failure, List<ParcelleEntity>>> getParcelles() async {
+    try {
+      final parcelles = await getAllParcelles();
+      final entities = <ParcelleEntity>[];
+
+      for (final parcelle in parcelles) {
+        final latestDiagnostic = await _db.diagnosticLocals
+            .filter()
+            .parcelleLocalIdEqualTo(parcelle.id)
+            .sortByDateDiagnosticDesc()
+            .findFirst();
+
+        entities.add(
+          ParcelleEntity(
+            id: parcelle.id.toString(),
+            nom: parcelle.nomParcelle,
+            surface: parcelle.surface,
+            culture: 'Riz',
+            lastDiagnosticDate: latestDiagnostic?.dateDiagnostic,
+            isSynced: parcelle.isSynced,
+          ),
+        );
+      }
+
+      return Right(entities);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
   }
 
   Future<ParcelleLocal?> getParcelleById(int id) {
@@ -45,6 +81,23 @@ class ParcelleLocalRepository {
     return parcelle;
   }
 
+  @override
+  Future<Either<Failure, Unit>> saveParcelle(ParcelleEntity parcelle) async {
+    try {
+      final localParcelle = ParcelleLocal()
+        ..id = int.tryParse(parcelle.id) ?? Isar.autoIncrement
+        ..nomParcelle = parcelle.nom
+        ..surface = parcelle.surface
+        ..createdAt = parcelle.lastDiagnosticDate ?? DateTime.now()
+        ..isSynced = parcelle.isSynced;
+
+      await _db.writeTxn(() => _db.parcelleLocals.put(localParcelle));
+      return const Right(unit);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
   Future<void> markAsSynced(int localId, int serverId) async {
     final parcelle = await _db.parcelleLocals.get(localId);
     if (parcelle != null) {
@@ -55,7 +108,22 @@ class ParcelleLocalRepository {
     }
   }
 
-  Future<void> deleteParcelle(int id) async {
+  @override
+  Future<Either<Failure, Unit>> deleteParcelle(String id) async {
+    final parsedId = int.tryParse(id);
+    if (parsedId == null) {
+      return const Left(ValidationFailure('Identifiant parcelle invalide'));
+    }
+
+    try {
+      await _db.writeTxn(() => _db.parcelleLocals.delete(parsedId));
+      return const Right(unit);
+    } catch (e) {
+      return Left(CacheFailure(e.toString()));
+    }
+  }
+
+  Future<void> deleteParcelleById(int id) async {
     await _db.writeTxn(() => _db.parcelleLocals.delete(id));
   }
 

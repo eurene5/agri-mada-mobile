@@ -43,6 +43,71 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  Future<void> _onForgotPasswordTap() async {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Mot de passe oublié?'),
+            content: Form(
+              key: formKey,
+              child: TextFormField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  hintText: 'nom@exemple.com',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Veuillez entrer votre email';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Email invalide';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Annuler'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (!(formKey.currentState?.validate() ?? false)) return;
+                  Navigator.of(dialogContext).pop();
+                  // TODO(#reset-password): brancher sur POST /auth/reset-password quand l'endpoint backend sera disponible
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Fonctionnalité bientôt disponible'),
+                    ),
+                  );
+                },
+                child: const Text('Envoyer'),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      emailController.dispose();
+    }
+  }
+
+  void _onRegisterTap() {
+    // TODO(#register): créer RegisterScreen et la route /register
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Inscription bientôt disponible')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
@@ -126,7 +191,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: _onForgotPasswordTap,
                           child: Text(
                             'Mot de passe oublié?',
                             style: AppTypography.bodySmall.copyWith(
@@ -155,7 +220,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: _onRegisterTap,
                             child: Text(
                               "S'inscrire",
                               style: AppTypography.bodySmall.copyWith(

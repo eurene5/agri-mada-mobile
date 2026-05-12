@@ -19,9 +19,15 @@ class HomeScreen extends ConsumerWidget {
     // Initialise le service de synchronisation en arrière-plan
     ref.watch(syncNotifierProvider);
 
+    void showComingSoonSnackBar(String message) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      body: const SafeArea(
+      body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
@@ -33,7 +39,12 @@ class HomeScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _HomeHeader(),
+                    _HomeHeader(
+                      onMenuTap: () {
+                        // TODO(#feature-1): implémenter le menu latéral quand la feature Home sera disponible
+                        showComingSoonSnackBar('Bientôt disponible');
+                      },
+                    ),
                     SizedBox(height: AppSpacing.md),
                     _SearchBar(),
                     SizedBox(height: AppSpacing.lg),
@@ -56,13 +67,17 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton:
           _ScanFab(onTap: () => context.go(AppRoutes.scanning)),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const _HomeBottomNav(),
+      bottomNavigationBar: _HomeBottomNav(
+        onHomeTap: () => context.go(AppRoutes.home),
+      ),
     );
   }
 }
 
 class _HomeHeader extends ConsumerWidget {
-  const _HomeHeader();
+  const _HomeHeader({required this.onMenuTap});
+
+  final VoidCallback onMenuTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,7 +90,7 @@ class _HomeHeader extends ConsumerWidget {
           button: true,
           label: 'Ouvrir le menu',
           child: GestureDetector(
-            onTap: () {},
+            onTap: onMenuTap,
             child: Container(
               width: 40,
               height: 40,
@@ -437,7 +452,9 @@ class _ScanFab extends StatelessWidget {
 }
 
 class _HomeBottomNav extends StatelessWidget {
-  const _HomeBottomNav();
+  const _HomeBottomNav({required this.onHomeTap});
+
+  final VoidCallback onHomeTap;
 
   @override
   Widget build(BuildContext context) {
@@ -453,7 +470,7 @@ class _HomeBottomNav extends StatelessWidget {
             icon: Icons.home_outlined,
             label: 'Accueil',
             isSelected: true,
-            onTap: () {},
+            onTap: onHomeTap,
           ),
           const SizedBox(width: 60),
           _NavItem(
