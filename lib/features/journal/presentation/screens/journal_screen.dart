@@ -1,25 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/constants/test_keys.dart';
+import '../../../scan/domain/entities/scan_result_entity.dart';
+import '../../domain/entities/journal_entry_entity.dart';
+import '../providers/journal_provider.dart';
 
 enum _JournalFilter { all, thisWeek, severe, rice }
 
-class JournalScreen extends StatefulWidget {
+class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
 
   @override
-  State<JournalScreen> createState() => _JournalScreenState();
+  ConsumerState<JournalScreen> createState() => _JournalScreenState();
 }
 
-class _JournalScreenState extends State<JournalScreen> {
+class _JournalScreenState extends ConsumerState<JournalScreen> {
   _JournalFilter _selected = _JournalFilter.all;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(journalNotifierProvider.notifier).loadEntries();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(journalNotifierProvider);
+    final entries = switch (state) {
+      JournalLoaded(:final entries) => entries,
+      _ => const <JournalEntryEntity>[],
+    };
+
+    final filteredEntries = _applyFilter(entries);
+
     return Scaffold(
+      key: const Key(TestKeys.journalScreen),
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
         children: [
@@ -41,17 +64,23 @@ class _JournalScreenState extends State<JournalScreen> {
                     onSelected: (f) => setState(() => _selected = f),
                   ),
                   Expanded(
-                    child: ListView.separated(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.md,
-                      ),
-                      itemCount: _mockEntries.length,
-                      separatorBuilder: (_, __) =>
-                          const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, index) =>
-                          _JournalEntry(entry: _mockEntries[index]),
-                    ),
+                    child: switch (state) {
+                      JournalLoading() || JournalInitial() => Center(
+                          child: Text(
+                            'Chargement du journal...',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      JournalError(:final message) => _JournalErrorState(
+                          message: message,
+                          onRetry: () => ref
+                              .read(journalNotifierProvider.notifier)
+                              .loadEntries(),
+                        ),
+                      _ => _JournalList(entries: filteredEntries),
+                    },
                   ),
                 ],
               ),
@@ -63,12 +92,27 @@ class _JournalScreenState extends State<JournalScreen> {
         button: true,
         label: 'Nouveau scan',
         child: FloatingActionButton(
+          key: const Key(TestKeys.journalNewScanFab),
           onPressed: () => context.go(AppRoutes.scanning),
           backgroundColor: AppColors.primary,
           child: const Icon(Icons.add, color: AppColors.textOnPrimary),
         ),
       ),
     );
+  }
+
+  List<JournalEntryEntity> _applyFilter(List<JournalEntryEntity> entries) {
+    final now = DateTime.now();
+
+    return entries.where((entry) {
+      return switch (_selected) {
+        _JournalFilter.all => true,
+        _JournalFilter.thisWeek => now.difference(entry.createdAt).inDays <= 7,
+        _JournalFilter.severe => entry.severity == ScanSeverity.high ||
+            entry.severity == ScanSeverity.medium,
+        _JournalFilter.rice => entry.diseaseName.toLowerCase().contains('riz'),
+      };
+    }).toList();
   }
 }
 
@@ -100,7 +144,7 @@ class _JournalHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Journal agricole', style: AppTypography.headlineMedium),
-              Text("Historique des analyses", style: AppTypography.bodySmall),
+              Text('Historique des analyses', style: AppTypography.bodySmall),
             ],
           ),
         ],
@@ -198,60 +242,110 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _JournalEntryData {
-  const _JournalEntryData({
-    required this.diseaseName,
-    required this.scientificName,
-    required this.evolutionLabel,
-    required this.evolutionColor,
-    required this.evolutionIcon,
-  });
+class _JournalList extends StatelessWidget {
+  const _JournalList({required this.entries});
 
-  final String diseaseName;
-  final String scientificName;
-  final String evolutionLabel;
-  final Color evolutionColor;
-  final IconData evolutionIcon;
+  final List<JournalEntryEntity> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    if (entries.isEmpty) {
+      return ListView(
+        key: const Key(TestKeys.journalList),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          const SizedBox(height: AppSpacing.xl),
+          const Icon(
+            Icons.bookmark_border,
+            size: 56,
+            color: AppColors.textSecondary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            'Aucun diagnostic enregistré pour ce filtre.',
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return ListView.separated(
+      key: const Key(TestKeys.journalList),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.md,
+      ),
+      itemCount: entries.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      itemBuilder: (context, index) => _JournalEntry(entry: entries[index]),
+    );
+  }
 }
 
-final _mockEntries = [
-  const _JournalEntryData(
-    diseaseName: 'Helminthosporiose',
-    scientificName: 'Cochliobolus miyabeanus',
-    evolutionLabel: 'Évolution : stable',
-    evolutionColor: AppColors.severityMedium,
-    evolutionIcon: Icons.trending_flat,
-  ),
-  const _JournalEntryData(
-    diseaseName: 'Le faux charbon',
-    scientificName: 'Ustilaginoidea virens',
-    evolutionLabel: 'Gravité faible',
-    evolutionColor: AppColors.severityLow,
-    evolutionIcon: Icons.trending_down,
-  ),
-  const _JournalEntryData(
-    diseaseName: 'Flétrissement bactérien',
-    scientificName: 'Xanthomonas oryzae',
-    evolutionLabel: 'Évolution : stable',
-    evolutionColor: AppColors.severityMedium,
-    evolutionIcon: Icons.trending_flat,
-  ),
-  const _JournalEntryData(
-    diseaseName: 'Riz Pyriculariose',
-    scientificName: 'Magnaporthe oryzae',
-    evolutionLabel: 'Évolution : aggravation',
-    evolutionColor: AppColors.severityHigh,
-    evolutionIcon: Icons.trending_up,
-  ),
-];
+class _JournalErrorState extends StatelessWidget {
+  const _JournalErrorState({
+    required this.message,
+    required this.onRetry,
+  });
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              message,
+              style: AppTypography.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            OutlinedButton(
+              onPressed: onRetry,
+              child: const Text('Réessayer'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class _JournalEntry extends StatelessWidget {
   const _JournalEntry({required this.entry});
 
-  final _JournalEntryData entry;
+  final JournalEntryEntity entry;
 
   @override
   Widget build(BuildContext context) {
+    final icon = switch (entry.severity) {
+      ScanSeverity.low => Icons.trending_down,
+      ScanSeverity.medium => Icons.trending_flat,
+      ScanSeverity.high => Icons.trending_up,
+    };
+
+    final color = switch (entry.severity) {
+      ScanSeverity.low => AppColors.severityLow,
+      ScanSeverity.medium => AppColors.severityMedium,
+      ScanSeverity.high => AppColors.severityHigh,
+    };
+
+    final label = switch (entry.severity) {
+      ScanSeverity.low => 'Gravité faible',
+      ScanSeverity.medium => 'Évolution stable',
+      ScanSeverity.high => 'Évolution aggravée',
+    };
+
     return Container(
       height: 115,
       decoration: BoxDecoration(
@@ -307,22 +401,18 @@ class _JournalEntry extends StatelessWidget {
                       vertical: AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
-                      color: entry.evolutionColor.withAlpha(30),
+                      color: color.withAlpha(30),
                       borderRadius: BorderRadius.circular(AppSpacing.xs),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          entry.evolutionIcon,
-                          color: entry.evolutionColor,
-                          size: 14,
-                        ),
+                        Icon(icon, color: color, size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          entry.evolutionLabel,
+                          '$label • ${(entry.confidence * 100).toStringAsFixed(0)}%',
                           style: AppTypography.bodySmall.copyWith(
-                            color: entry.evolutionColor,
+                            color: color,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),

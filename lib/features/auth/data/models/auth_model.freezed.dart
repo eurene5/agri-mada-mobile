@@ -20,16 +20,11 @@ AuthModel _$AuthModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AuthModel {
-  @JsonKey(name: 'user_id')
   String get userId => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
-  @JsonKey(name: 'access_token')
   String get accessToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'refresh_token')
   String get refreshToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'display_name')
   String? get displayName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
 
   /// Serializes this AuthModel to a JSON map.
@@ -48,12 +43,12 @@ abstract class $AuthModelCopyWith<$Res> {
       _$AuthModelCopyWithImpl<$Res, AuthModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'user_id') String userId,
+      {String userId,
       String email,
-      @JsonKey(name: 'access_token') String accessToken,
-      @JsonKey(name: 'refresh_token') String refreshToken,
-      @JsonKey(name: 'display_name') String? displayName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl});
+      String accessToken,
+      String refreshToken,
+      String? displayName,
+      String? avatarUrl});
 }
 
 /// @nodoc
@@ -116,12 +111,12 @@ abstract class _$$AuthModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'user_id') String userId,
+      {String userId,
       String email,
-      @JsonKey(name: 'access_token') String accessToken,
-      @JsonKey(name: 'refresh_token') String refreshToken,
-      @JsonKey(name: 'display_name') String? displayName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl});
+      String accessToken,
+      String refreshToken,
+      String? displayName,
+      String? avatarUrl});
 }
 
 /// @nodoc
@@ -174,35 +169,31 @@ class __$$AuthModelImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(fieldRename: FieldRename.snake)
 class _$AuthModelImpl implements _AuthModel {
   const _$AuthModelImpl(
-      {@JsonKey(name: 'user_id') required this.userId,
+      {required this.userId,
       required this.email,
-      @JsonKey(name: 'access_token') required this.accessToken,
-      @JsonKey(name: 'refresh_token') required this.refreshToken,
-      @JsonKey(name: 'display_name') this.displayName,
-      @JsonKey(name: 'avatar_url') this.avatarUrl});
+      required this.accessToken,
+      required this.refreshToken,
+      this.displayName,
+      this.avatarUrl});
 
   factory _$AuthModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'user_id')
   final String userId;
   @override
   final String email;
   @override
-  @JsonKey(name: 'access_token')
   final String accessToken;
   @override
-  @JsonKey(name: 'refresh_token')
   final String refreshToken;
   @override
-  @JsonKey(name: 'display_name')
   final String? displayName;
   @override
-  @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
 
   @override
@@ -250,32 +241,27 @@ class _$AuthModelImpl implements _AuthModel {
 
 abstract class _AuthModel implements AuthModel {
   const factory _AuthModel(
-      {@JsonKey(name: 'user_id') required final String userId,
+      {required final String userId,
       required final String email,
-      @JsonKey(name: 'access_token') required final String accessToken,
-      @JsonKey(name: 'refresh_token') required final String refreshToken,
-      @JsonKey(name: 'display_name') final String? displayName,
-      @JsonKey(name: 'avatar_url') final String? avatarUrl}) = _$AuthModelImpl;
+      required final String accessToken,
+      required final String refreshToken,
+      final String? displayName,
+      final String? avatarUrl}) = _$AuthModelImpl;
 
   factory _AuthModel.fromJson(Map<String, dynamic> json) =
       _$AuthModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'user_id')
   String get userId;
   @override
   String get email;
   @override
-  @JsonKey(name: 'access_token')
   String get accessToken;
   @override
-  @JsonKey(name: 'refresh_token')
   String get refreshToken;
   @override
-  @JsonKey(name: 'display_name')
   String? get displayName;
   @override
-  @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
 
   /// Create a copy of AuthModel

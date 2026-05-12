@@ -1,5 +1,16 @@
 import 'package:dio/dio.dart';
 
+String? _extractServerMessage(Response<dynamic>? response) {
+  final Object? data = response?.data;
+
+  if (data case final Map<String, dynamic> map) {
+    final Object? message = map['message'];
+    return message is String ? message : null;
+  }
+
+  return null;
+}
+
 sealed class AppException implements Exception {
   const AppException(this.message);
   final String message;
@@ -20,7 +31,7 @@ final class NetworkException extends AppException {
       DioExceptionType.connectionError =>
         const NetworkException('Impossible de se connecter au serveur'),
       DioExceptionType.badResponse => NetworkException(
-          e.response?.data?['message'] as String? ?? 'Erreur serveur',
+          _extractServerMessage(e.response) ?? 'Erreur serveur',
         ),
       _ => NetworkException(e.message ?? 'Erreur réseau inconnue'),
     };
