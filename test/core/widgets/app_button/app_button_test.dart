@@ -68,7 +68,8 @@ void main() {
       expect(find.text('Valider'), findsNothing);
     });
 
-    testWidgets('bouton secondaire utilise la variante secondary', (tester) async {
+    testWidgets('bouton secondaire utilise la variante secondary',
+        (tester) async {
       // Arrange
       await tester.pumpWidget(
         const MaterialApp(

@@ -13,6 +13,10 @@ Thumbs.db
 nul
 apk_build_output.txt
 build_output.txt
+log.txt
+git_history.txt
+android/build_log.txt
+android/gradle_output.txt
 
 # ── Flutter / Dart / Pub ─────────────────────────────────────────────────────
 .dart_tool/

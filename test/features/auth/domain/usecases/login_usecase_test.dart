@@ -32,13 +32,13 @@ void main() {
         () async {
       // Arrange
       when(() => mockRepo.login(email: tEmail, password: tPassword))
-          .thenAnswer((_) async => const Right(tUser));
+          .thenAnswer((_) async => const Right<Failure, AuthEntity>(tUser));
 
       // Act
       final result = await useCase(email: tEmail, password: tPassword);
 
       // Assert
-      expect(result, const Right(tUser));
+      expect(result, const Right<Failure, AuthEntity>(tUser));
       verify(() => mockRepo.login(email: tEmail, password: tPassword))
           .called(1);
       verifyNoMoreInteractions(mockRepo);
@@ -47,21 +47,28 @@ void main() {
     test('retourne un NetworkFailure quand le réseau est indisponible',
         () async {
       // Arrange
-      when(() => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')))
-          .thenAnswer((_) async => const Left(NetworkFailure('No connection')));
+      when(() => mockRepo.login(
+              email: any(named: 'email'), password: any(named: 'password')))
+          .thenAnswer((_) async =>
+              const Left<Failure, AuthEntity>(NetworkFailure('No connection')));
 
       // Act
       final result = await useCase(email: tEmail, password: tPassword);
 
       // Assert
-      expect(result, const Left(NetworkFailure('No connection')));
+      expect(
+        result,
+        const Left<Failure, AuthEntity>(NetworkFailure('No connection')),
+      );
     });
 
     test('retourne un AuthFailure quand les identifiants sont incorrects',
         () async {
       // Arrange
-      when(() => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')))
-          .thenAnswer((_) async => const Left(AuthFailure('Identifiants incorrects')));
+      when(() => mockRepo.login(
+              email: any(named: 'email'), password: any(named: 'password')))
+          .thenAnswer(
+              (_) async => const Left(AuthFailure('Identifiants incorrects')));
 
       // Act
       final result = await useCase(email: tEmail, password: tPassword);
@@ -85,11 +92,13 @@ void main() {
         (_) => fail('Expected Left'),
       );
       verifyNever(
-        () => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')),
+        () => mockRepo.login(
+            email: any(named: 'email'), password: any(named: 'password')),
       );
     });
 
-    test('retourne une ValidationFailure sans appel réseau si mot de passe vide',
+    test(
+        'retourne une ValidationFailure sans appel réseau si mot de passe vide',
         () async {
       // Act
       final result = await useCase(email: tEmail, password: '');
@@ -100,7 +109,8 @@ void main() {
         (_) => fail('Expected Left'),
       );
       verifyNever(
-        () => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')),
+        () => mockRepo.login(
+            email: any(named: 'email'), password: any(named: 'password')),
       );
     });
   });

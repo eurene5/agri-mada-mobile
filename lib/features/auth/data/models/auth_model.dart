@@ -7,13 +7,14 @@ part 'auth_model.g.dart';
 
 @freezed
 class AuthModel with _$AuthModel {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory AuthModel({
-    @JsonKey(name: 'user_id') required String userId,
+    required String userId,
     required String email,
-    @JsonKey(name: 'access_token') required String accessToken,
-    @JsonKey(name: 'refresh_token') required String refreshToken,
-    @JsonKey(name: 'display_name') String? displayName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    required String accessToken,
+    required String refreshToken,
+    String? displayName,
+    String? avatarUrl,
   }) = _AuthModel;
 
   factory AuthModel.fromJson(Map<String, dynamic> json) =>
