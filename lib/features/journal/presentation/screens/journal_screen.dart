@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -18,6 +19,7 @@ class JournalScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final journalAsync = ref.watch(journalAgricoleProvider);
 
     return Scaffold(
@@ -38,7 +40,8 @@ class JournalScreen extends ConsumerWidget {
               child: journalAsync.when(
                 loading: () => const Center(
                     child: CircularProgressIndicator(color: AppColors.primary)),
-                error: (e, _) => Center(child: Text('Erreur: $e')),
+                error: (e, _) =>
+                    Center(child: Text(loc.journalError(e.toString()))),
                 data: (journal) {
                   if (journal.isEmpty) {
                     return _EmptyJournal(
@@ -81,7 +84,7 @@ class JournalScreen extends ConsumerWidget {
         onPressed: () => _showAddParcelleSheet(context, ref),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add, color: AppColors.textOnPrimary),
-        label: Text('Nouvelle parcelle',
+        label: Text(loc.journalNewPlot,
             style: AppTypography.bodySmall
                 .copyWith(color: AppColors.textOnPrimary)),
       ),
@@ -115,6 +118,7 @@ class _JournalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.of(context).padding.top;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -130,11 +134,11 @@ class _JournalHeader extends StatelessWidget {
             child: const Icon(Icons.arrow_back_ios, size: 22),
           ),
           const SizedBox(width: AppSpacing.md),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Journal agricole', style: AppTypography.headlineMedium),
-              Text('Suivi de vos parcelles', style: AppTypography.bodySmall),
+              Text(loc.journalTitle, style: AppTypography.headlineMedium),
+              Text(loc.journalSubtitle, style: AppTypography.bodySmall),
             ],
           ),
         ],
@@ -151,6 +155,7 @@ class _QuickStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final saines = journal.where((e) => e['statut'] == 'sain').length;
     final malades = journal.where((e) => e['statut'] == 'malade').length;
     final total = journal.length;
@@ -166,13 +171,21 @@ class _QuickStats extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatItem(label: 'Total', value: '$total', color: AppColors.primary),
           _StatItem(
-              label: 'Saines', value: '$saines', color: AppColors.severityLow),
+            label: loc.journalTotal,
+            value: '$total',
+            color: AppColors.primary,
+          ),
           _StatItem(
-              label: 'Malades',
-              value: '$malades',
-              color: AppColors.severityHigh),
+            label: loc.journalHealthyPlural,
+            value: '$saines',
+            color: AppColors.severityLow,
+          ),
+          _StatItem(
+            label: loc.journalSickPlural,
+            value: '$malades',
+            color: AppColors.severityHigh,
+          ),
         ],
       ),
     );
@@ -210,6 +223,7 @@ class _ParcelleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final parcelle = entry['parcelle'] as ParcelleLocal;
     final statut = entry['statut'] as String;
     final dernierDiag = entry['dernier_diagnostic'] as DiagnosticLocal?;
@@ -220,8 +234,9 @@ class _ParcelleCard extends StatelessWidget {
     final statusColor = isMalade
         ? AppColors.severityHigh
         : (isHealthy ? AppColors.severityLow : AppColors.textSecondary);
-    final statusLabel =
-        isMalade ? 'Malade' : (isHealthy ? 'Sain' : 'Non analysé');
+    final statusLabel = isMalade
+        ? loc.journalStatusSick
+        : (isHealthy ? loc.journalStatusHealthy : loc.journalStatusNotAnalyzed);
     final statusIcon = isMalade
         ? Icons.warning_amber_outlined
         : (isHealthy ? Icons.check_circle_outline : Icons.help_outline);
@@ -275,12 +290,12 @@ class _ParcelleCard extends StatelessWidget {
                           const Icon(Icons.crop_square_outlined,
                               size: 12, color: AppColors.textSecondary),
                           const SizedBox(width: 2),
-                          Text('${parcelle.surface} ha',
+                          Text(loc.journalAreaHa(parcelle.surface.toString()),
                               style: AppTypography.caption
                                   .copyWith(color: AppColors.textSecondary)),
                           const SizedBox(width: AppSpacing.sm),
                         ],
-                        Text('$nbDiag analyse(s)',
+                        Text(loc.journalAnalysesCount(nbDiag),
                             style: AppTypography.caption
                                 .copyWith(color: AppColors.textSecondary)),
                       ]),
@@ -319,7 +334,11 @@ class _ParcelleCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      'Dernier : ${dernierDiag.maladieDetectee} — ${DateFormat('dd/MM/yyyy').format(dernierDiag.dateDiagnostic)}',
+                      loc.journalLastDiagnostic(
+                        dernierDiag.maladieDetectee,
+                        DateFormat('dd/MM/yyyy')
+                            .format(dernierDiag.dateDiagnostic),
+                      ),
                       style: AppTypography.caption
                           .copyWith(color: AppColors.textSecondary),
                       overflow: TextOverflow.ellipsis,
@@ -327,7 +346,7 @@ class _ParcelleCard extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: onScan,
-                    child: Text('Scanner',
+                    child: Text(loc.journalScan,
                         style: AppTypography.caption.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600)),
@@ -345,12 +364,12 @@ class _ParcelleCard extends StatelessWidget {
                   const Icon(Icons.info_outline,
                       size: 14, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
-                  const Text('Aucun diagnostic encore',
+                  Text(loc.journalNoDiagnosticYet,
                       style: AppTypography.caption),
                   const Spacer(),
                   GestureDetector(
                     onTap: onScan,
-                    child: Text('Scanner maintenant',
+                    child: Text(loc.journalScanNow,
                         style: AppTypography.caption.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600)),
@@ -373,6 +392,7 @@ class _EmptyJournal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -380,19 +400,17 @@ class _EmptyJournal extends StatelessWidget {
           const Icon(Icons.map_outlined,
               size: 80, color: AppColors.primaryLight),
           const SizedBox(height: AppSpacing.md),
-          Text('Aucune parcelle',
+          Text(loc.journalEmptyTitle,
               style: AppTypography.headlineMedium
                   .copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: AppSpacing.sm),
-          const Text(
-              'Ajoutez votre première parcelle\npour commencer le suivi.',
-              style: AppTypography.bodySmall,
-              textAlign: TextAlign.center),
+          Text(loc.journalEmptyDescription,
+              style: AppTypography.bodySmall, textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.xl),
           ElevatedButton.icon(
             onPressed: onAdd,
             icon: const Icon(Icons.add),
-            label: const Text('Ajouter une parcelle'),
+            label: Text(loc.journalAddPlot),
           ),
         ],
       ),
@@ -439,6 +457,7 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final state = ref.watch(parcelleNotifierProvider);
     final isLoading = state is AsyncLoading;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
@@ -460,30 +479,30 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
                         color: AppColors.textSecondary,
                         borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: AppSpacing.md),
-            const Text('Nouvelle parcelle',
-                style: AppTypography.headlineMedium),
+            Text(loc.journalNewPlot, style: AppTypography.headlineMedium),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _nomController,
-              decoration: const InputDecoration(
-                  labelText: 'Nom de la parcelle *',
-                  prefixIcon: Icon(Icons.map_outlined)),
-              validator: (v) => (v == null || v.isEmpty) ? 'Nom requis' : null,
+              decoration: InputDecoration(
+                  labelText: loc.journalPlotNameLabel,
+                  prefixIcon: const Icon(Icons.map_outlined)),
+              validator: (v) =>
+                  (v == null || v.isEmpty) ? loc.journalNameRequired : null,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _descController,
-              decoration: const InputDecoration(
-                  labelText: 'Description (optionnel)',
-                  prefixIcon: Icon(Icons.notes_outlined)),
+              decoration: InputDecoration(
+                  labelText: loc.journalDescriptionOptional,
+                  prefixIcon: const Icon(Icons.notes_outlined)),
               maxLines: 2,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _surfaceController,
-              decoration: const InputDecoration(
-                  labelText: 'Surface (ha, optionnel)',
-                  prefixIcon: Icon(Icons.crop_square_outlined)),
+              decoration: InputDecoration(
+                  labelText: loc.journalSurfaceOptional,
+                  prefixIcon: const Icon(Icons.crop_square_outlined)),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
             ),
@@ -498,7 +517,7 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
                         height: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                    : const Text('Enregistrer'),
+                    : Text(loc.commonSave),
               ),
             ),
           ],

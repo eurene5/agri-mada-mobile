@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -16,6 +17,7 @@ class ScanResultScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final scanState = ref.watch(scanNotifierProvider);
     final scanNotifier = ref.read(scanNotifierProvider.notifier);
     final result = switch (scanState) {
@@ -37,7 +39,7 @@ class ScanResultScreen extends ConsumerWidget {
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
         children: [
-          const _ScanResultHeader(),
+          _ScanResultHeader(),
           Expanded(
             child: Container(
               width: double.infinity,
@@ -59,7 +61,7 @@ class ScanResultScreen extends ConsumerWidget {
                     _RecommendationsCard(
                         recommandations: result.recommandations),
                     const SizedBox(height: AppSpacing.md),
-                    const _TipCard(),
+                    _TipCard(),
                     const SizedBox(height: AppSpacing.md),
                     _ActionButtons(
                       onSave: () async {
@@ -69,18 +71,16 @@ class ScanResultScreen extends ConsumerWidget {
 
                         if (savedDiagnostic == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Impossible d\'enregistrer le diagnostic',
-                              ),
+                            SnackBar(
+                              content: Text(loc.scanResultSaveFailed),
                             ),
                           );
                           return;
                         }
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Diagnostic enregistré'),
+                          SnackBar(
+                            content: Text(loc.scanResultSaved),
                           ),
                         );
                         context.go(AppRoutes.journal);
@@ -96,6 +96,7 @@ class ScanResultScreen extends ConsumerWidget {
                         try {
                           await Share.share(
                             _buildShareText(
+                              context: context,
                               result: result,
                               savedDiagnostic: lastSavedDiagnostic,
                             ),
@@ -122,6 +123,7 @@ class _ScanResultHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.of(context).padding.top;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -134,22 +136,22 @@ class _ScanResultHeader extends StatelessWidget {
         children: [
           Semantics(
             button: true,
-            label: 'Retour',
+            label: loc.scanResultBackSemantics,
             child: GestureDetector(
               onTap: () => context.go(AppRoutes.home),
               child: const Icon(Icons.arrow_back_ios, size: 22),
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Résultat de l'analyse",
+                loc.scanResultTitle,
                 style: AppTypography.headlineMedium,
               ),
               Text(
-                'Analyse hors ligne terminé',
+                loc.scanResultSubtitle,
                 style: AppTypography.bodySmall,
               ),
             ],
@@ -164,18 +166,19 @@ class _DiagnosticCard extends StatelessWidget {
   const _DiagnosticCard({required this.result});
   final DiagnosticResult result;
 
-  String get _displayName => switch (result.maladieDetectee) {
-        'Bacterial leaf blight' => 'Brûlure bactérienne',
-        'Brown spot' => 'Tache brune',
-        'Leaf smut' => 'Charbon foliaire',
-        _ => 'Plante saine',
+  String _displayName(AppLocalizations loc) => switch (result.maladieDetectee) {
+        'Bacterial leaf blight' => loc.diseaseBacterialLeafBlight,
+        'Brown spot' => loc.diseaseBrownSpot,
+        'Leaf smut' => loc.diseaseLeafSmut,
+        _ => loc.diseaseHealthy,
       };
 
-  String get _confidence =>
-      '${(result.confiance * 100).toStringAsFixed(0)}% de confiance';
+  String _confidence(AppLocalizations loc) =>
+      loc.scanResultConfidence((result.confiance * 100).toStringAsFixed(0));
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final isHealthy = result.maladieDetectee.toLowerCase() == 'healthy';
     return Container(
       decoration: BoxDecoration(
@@ -215,9 +218,11 @@ class _DiagnosticCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_displayName,
-                      style: AppTypography.bodyMedium
-                          .copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    _displayName(loc),
+                    style: AppTypography.bodyMedium
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
                   const SizedBox(height: 4),
                   Text(result.maladieDetectee,
                       style: AppTypography.bodySmall
@@ -236,7 +241,7 @@ class _DiagnosticCard extends StatelessWidget {
                         const Icon(Icons.psychology_outlined,
                             color: AppColors.primary, size: 14),
                         const SizedBox(width: 4),
-                        Text(_confidence,
+                        Text(_confidence(loc),
                             style: AppTypography.bodySmall.copyWith(
                                 color: AppColors.primary, fontSize: 11)),
                       ],
@@ -253,26 +258,28 @@ class _DiagnosticCard extends StatelessWidget {
 }
 
 String _buildShareText({
+  required BuildContext context,
   required DiagnosticResult result,
   DiagnosticLocal? savedDiagnostic,
 }) {
+  final loc = AppLocalizations.of(context)!;
   final date = DateFormat('dd/MM/yyyy').format(
     savedDiagnostic?.dateDiagnostic ?? DateTime.now(),
   );
   final disease = switch (result.maladieDetectee) {
-    'Bacterial leaf blight' => 'Brûlure bactérienne',
-    'Brown spot' => 'Tache brune',
-    'Leaf smut' => 'Charbon foliaire',
+    'Bacterial leaf blight' => loc.diseaseBacterialLeafBlight,
+    'Brown spot' => loc.diseaseBrownSpot,
+    'Leaf smut' => loc.diseaseLeafSmut,
     _ => result.maladieDetectee,
   };
   final confidence = (result.confiance * 100).toStringAsFixed(0);
 
   return [
-    'Diagnostic AgriMada',
-    'Culture: Riz',
-    'Maladie: $disease',
-    'Confiance: $confidence%',
-    'Date: $date',
+    loc.scanShareTitle,
+    loc.scanShareCulture,
+    loc.scanShareDisease(disease),
+    loc.scanShareConfidence(confidence),
+    loc.scanShareDate(date),
   ].join('\n');
 }
 
@@ -293,15 +300,16 @@ class _SeverityCard extends StatelessWidget {
         _ => AppColors.severityHigh,
       };
 
-  String get _severityLabel => switch (gravite) {
-        'aucune' => 'Aucune — Plante saine',
-        'faible' => 'Faible — Surveiller',
-        'modéré' => 'Modéré — Intervention conseillée',
-        _ => 'Élevé — Intervention urgente',
+  String _severityLabel(AppLocalizations loc) => switch (gravite) {
+        'aucune' => loc.scanSeverityNoneStatus,
+        'faible' => loc.scanSeverityLowStatus,
+        'modéré' => loc.scanSeverityMediumStatus,
+        _ => loc.scanSeverityHighStatus,
       };
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -317,7 +325,7 @@ class _SeverityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Niveau de gravité',
+          Text(loc.scanSeverityTitle,
               style: AppTypography.bodyMedium
                   .copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: AppSpacing.md),
@@ -354,20 +362,21 @@ class _SeverityCard extends StatelessWidget {
             },
           ),
           const SizedBox(height: AppSpacing.xs),
-          const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Faible', style: AppTypography.bodySmall),
-                Text('Moyen', style: AppTypography.bodySmall),
-                Text('Élevé', style: AppTypography.bodySmall),
-              ]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(loc.scanSeverityLow, style: AppTypography.bodySmall),
+              Text(loc.scanSeverityMedium, style: AppTypography.bodySmall),
+              Text(loc.scanSeverityHigh, style: AppTypography.bodySmall),
+            ],
+          ),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
               Icon(Icons.info_outline, color: _severityColor, size: 20),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
-                  child: Text(_severityLabel,
+                  child: Text(_severityLabel(loc),
                       style: AppTypography.bodySmall
                           .copyWith(color: _severityColor))),
             ],
@@ -384,6 +393,7 @@ class _RecommendationsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -399,7 +409,7 @@ class _RecommendationsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Recommandations adaptées',
+          Text(loc.scanRecommendationsTitle,
               style: AppTypography.bodyMedium
                   .copyWith(fontWeight: FontWeight.w600)),
           const Divider(height: AppSpacing.xl),
@@ -407,7 +417,7 @@ class _RecommendationsCard extends StatelessWidget {
                 children: [
                   _RecommendationItem(
                     icon: Icons.spa_outlined,
-                    title: 'Recommandation',
+                    title: loc.scanRecommendationItemTitle,
                     description: r,
                   ),
                   if (r != recommandations.last)
@@ -473,6 +483,7 @@ class _TipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -486,7 +497,7 @@ class _TipCard extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              "Astuce : évitez l'arrosage excessif pendant 3 jours",
+              loc.scanTip,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w500,
@@ -510,16 +521,17 @@ class _ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
           child: Semantics(
             button: true,
-            label: 'Refaire un scan',
+            label: loc.scanRescanSemantics,
             child: OutlinedButton.icon(
               onPressed: onRescan,
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Refaire un scan'),
+              label: Text(loc.scanRescan),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.primary),
                 foregroundColor: AppColors.primary,
@@ -535,14 +547,14 @@ class _ActionButtons extends StatelessWidget {
         Expanded(
           child: Semantics(
             button: true,
-            label: 'Enregistrer dans le journal',
+            label: loc.scanSaveJournalSemantics,
             child: ElevatedButton.icon(
               onPressed: () {
                 onSave();
               },
               icon: const Icon(Icons.bookmark_outline, size: 18),
-              label: const Text(
-                'Enregistrer',
+              label: Text(
+                loc.commonSave,
                 overflow: TextOverflow.ellipsis,
               ),
               style: ElevatedButton.styleFrom(
@@ -566,15 +578,16 @@ class _ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
-      label: 'Partager le résultat',
+      label: loc.scanShareSemantics,
       child: OutlinedButton.icon(
         onPressed: () {
           onShare();
         },
         icon: const Icon(Icons.share_outlined, size: 18),
-        label: const Text('Partager le résultat'),
+        label: Text(loc.scanShare),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 48),
           side: const BorderSide(color: AppColors.primary),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -170,16 +171,17 @@ class _DecorativeCircle extends StatelessWidget {
 class _WelcomeTexts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final loc = AppLocalizations.of(context)!;
+    return Column(
       children: [
         Text(
-          "L'intelligence au service de vos rizières",
+          loc.welcomeHeadline,
           style: AppTypography.headlineLarge,
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: AppSpacing.sm),
         Text(
-          "Un riz sain et protégé grâce à l'expertise AgriMada.",
+          loc.welcomeBody,
           style: AppTypography.bodySmall,
           textAlign: TextAlign.center,
         ),
@@ -199,15 +201,16 @@ class _WelcomeActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         AppButton(
-          label: 'Commencer',
+          label: loc.welcomeStart,
           onPressed: onStart,
         ),
         const SizedBox(height: AppSpacing.sm),
         AppButton(
-          label: 'Se connecter',
+          label: loc.loginSubmit,
           onPressed: onLogin,
           variant: AppButtonVariant.secondary,
         ),

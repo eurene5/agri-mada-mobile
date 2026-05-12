@@ -1,0 +1,787 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_fr.dart';
+import 'app_localizations_mg.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('fr'),
+    Locale('mg')
+  ];
+
+  /// Titre de la fenetre mot de passe oublie
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublie ?'**
+  String get loginForgotPasswordTitle;
+
+  /// Libelle du champ email
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get loginEmailLabel;
+
+  /// Placeholder email
+  ///
+  /// In fr, this message translates to:
+  /// **'nom@exemple.com'**
+  String get loginEmailHint;
+
+  /// Validation email requis
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer votre email'**
+  String get loginEmailRequired;
+
+  /// Validation email invalide
+  ///
+  /// In fr, this message translates to:
+  /// **'Email invalide'**
+  String get loginEmailInvalid;
+
+  /// Action annuler
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get commonCancel;
+
+  /// Action envoyer
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get commonSend;
+
+  /// Message fonctionnalite bientot disponible
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonctionnalite bientot disponible'**
+  String get featureComingSoon;
+
+  /// Message inscription bientot disponible
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription bientot disponible'**
+  String get registerComingSoon;
+
+  /// Titre ecran login
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion'**
+  String get loginTitle;
+
+  /// Libelle mot de passe
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get loginPasswordLabel;
+
+  /// Validation mot de passe requis
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez entrer votre mot de passe'**
+  String get loginPasswordRequired;
+
+  /// Lien mot de passe oublie
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublie ?'**
+  String get loginForgotPassword;
+
+  /// Bouton connexion
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get loginSubmit;
+
+  /// Texte pas de compte
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte ?'**
+  String get loginNoAccount;
+
+  /// Lien inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'inscrire'**
+  String get loginRegister;
+
+  /// Texte salutation login
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour !'**
+  String get loginHello;
+
+  /// Sous-titre login
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur AgriMada'**
+  String get loginWelcome;
+
+  /// Titre ecran bienvenue
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'intelligence au service de vos rizieres'**
+  String get welcomeHeadline;
+
+  /// Description ecran bienvenue
+  ///
+  /// In fr, this message translates to:
+  /// **'Un riz sain et protege grace a l\'expertise AgriMada.'**
+  String get welcomeBody;
+
+  /// Bouton commencer
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get welcomeStart;
+
+  /// Snack bar bientot disponible
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientot disponible'**
+  String get homeSoonMessage;
+
+  /// Titre section services
+  ///
+  /// In fr, this message translates to:
+  /// **'Nos Services'**
+  String get homeServicesTitle;
+
+  /// Semantique bouton menu
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le menu'**
+  String get homeMenuSemantics;
+
+  /// Salutation utilisateur
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour, {name}!'**
+  String homeHelloUser(String name);
+
+  /// Prenom par defaut si absent
+  ///
+  /// In fr, this message translates to:
+  /// **'Agriculteur'**
+  String get homeFarmerDefault;
+
+  /// Sous-texte accueil
+  ///
+  /// In fr, this message translates to:
+  /// **'Pret pour une analyse ?'**
+  String get homeReadyForAnalysis;
+
+  /// Indicateur mode hors ligne
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode hors ligne'**
+  String get homeOfflineMode;
+
+  /// Placeholder recherche
+  ///
+  /// In fr, this message translates to:
+  /// **'recherche...'**
+  String get homeSearchPlaceholder;
+
+  /// Titre carte resume
+  ///
+  /// In fr, this message translates to:
+  /// **'Resume de votre exploitation'**
+  String get homeSummaryTitle;
+
+  /// Statut systeme pret
+  ///
+  /// In fr, this message translates to:
+  /// **'Systeme pret'**
+  String get homeSystemReady;
+
+  /// Nombre de parcelles
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} parcelle(s) enregistree(s)'**
+  String homeRegisteredPlots(int count);
+
+  /// Service mes parcelles
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes parcelles'**
+  String get homeServicePlotsTitle;
+
+  /// Description service mes parcelles
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivez vos rizieres, surfaces cultivees et l\'etat sanitaire de chaque parcelle'**
+  String get homeServicePlotsDescription;
+
+  /// Service etat des cultures
+  ///
+  /// In fr, this message translates to:
+  /// **'Etat des cultures'**
+  String get homeServiceCropsTitle;
+
+  /// Description service etat cultures
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez l\'etat global de vos cultures et les niveaux de risque actuels'**
+  String get homeServiceCropsDescription;
+
+  /// Service solutions agricoles
+  ///
+  /// In fr, this message translates to:
+  /// **'Solutions agricoles'**
+  String get homeServiceSolutionsTitle;
+
+  /// Description service solutions
+  ///
+  /// In fr, this message translates to:
+  /// **'Decouvrez les traitements biologiques et solutions locales recommandees'**
+  String get homeServiceSolutionsDescription;
+
+  /// Service prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Prevenir les maladies'**
+  String get homeServicePreventionTitle;
+
+  /// Description service prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Apprenez les bonnes pratiques pour proteger vos rizieres et eviter les pertes'**
+  String get homeServicePreventionDescription;
+
+  /// Semantique bouton scan
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner une plante'**
+  String get homeScanPlantSemantics;
+
+  /// Label onglet accueil
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get homeTabHome;
+
+  /// Label onglet journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal'**
+  String get homeTabJournal;
+
+  /// Message indisponibilite IA
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic IA indisponible, veuillez reessayer'**
+  String get scanIaUnavailable;
+
+  /// Titre selection parcelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une parcelle'**
+  String get scanSelectPlot;
+
+  /// Titre dialogue aucune parcelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune parcelle'**
+  String get scanNoPlotTitle;
+
+  /// Description dialogue aucune parcelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Creez d\'abord une parcelle dans votre journal agricole avant de scanner.'**
+  String get scanNoPlotDescription;
+
+  /// Action OK
+  ///
+  /// In fr, this message translates to:
+  /// **'OK'**
+  String get commonOk;
+
+  /// Action aller au journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Aller au journal'**
+  String get scanGoToJournal;
+
+  /// Texte chargement scan
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse en cours...'**
+  String get scanLoading;
+
+  /// Instruction camera
+  ///
+  /// In fr, this message translates to:
+  /// **'Pointez la camera vers\nla feuille de riz'**
+  String get scanPointCamera;
+
+  /// Info analyse hors ligne
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'analyse se fait hors ligne'**
+  String get scanOfflineAnalysis;
+
+  /// Titre ecran scan
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner une feuille'**
+  String get scanHeaderTitle;
+
+  /// Bouton annuler scan
+  ///
+  /// In fr, this message translates to:
+  /// **'ANNULER'**
+  String get scanCancel;
+
+  /// Message echec sauvegarde diagnostic
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer le diagnostic'**
+  String get scanResultSaveFailed;
+
+  /// Message sauvegarde diagnostic reussie
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic enregistre'**
+  String get scanResultSaved;
+
+  /// Semantique bouton retour
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get scanResultBackSemantics;
+
+  /// Titre ecran resultat
+  ///
+  /// In fr, this message translates to:
+  /// **'Resultat de l\'analyse'**
+  String get scanResultTitle;
+
+  /// Sous-titre ecran resultat
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse hors ligne terminee'**
+  String get scanResultSubtitle;
+
+  /// Nom localise maladie BLB
+  ///
+  /// In fr, this message translates to:
+  /// **'Brulure bacterienne'**
+  String get diseaseBacterialLeafBlight;
+
+  /// Nom localise maladie brown spot
+  ///
+  /// In fr, this message translates to:
+  /// **'Tache brune'**
+  String get diseaseBrownSpot;
+
+  /// Nom localise maladie leaf smut
+  ///
+  /// In fr, this message translates to:
+  /// **'Charbon foliaire'**
+  String get diseaseLeafSmut;
+
+  /// Nom localise etat sain
+  ///
+  /// In fr, this message translates to:
+  /// **'Plante saine'**
+  String get diseaseHealthy;
+
+  /// Badge de confiance
+  ///
+  /// In fr, this message translates to:
+  /// **'{value}% de confiance'**
+  String scanResultConfidence(String value);
+
+  /// Titre partage diagnostic
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostic AgriMada'**
+  String get scanShareTitle;
+
+  /// Ligne culture partage
+  ///
+  /// In fr, this message translates to:
+  /// **'Culture: Riz'**
+  String get scanShareCulture;
+
+  /// Ligne maladie partage
+  ///
+  /// In fr, this message translates to:
+  /// **'Maladie: {disease}'**
+  String scanShareDisease(String disease);
+
+  /// Ligne confiance partage
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance: {value}%'**
+  String scanShareConfidence(String value);
+
+  /// Ligne date partage
+  ///
+  /// In fr, this message translates to:
+  /// **'Date: {date}'**
+  String scanShareDate(String date);
+
+  /// Titre carte gravite
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau de gravite'**
+  String get scanSeverityTitle;
+
+  /// Niveau faible
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible'**
+  String get scanSeverityLow;
+
+  /// Niveau moyen
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyen'**
+  String get scanSeverityMedium;
+
+  /// Niveau eleve
+  ///
+  /// In fr, this message translates to:
+  /// **'Eleve'**
+  String get scanSeverityHigh;
+
+  /// Texte statut gravite aucune
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune - Plante saine'**
+  String get scanSeverityNoneStatus;
+
+  /// Texte statut gravite faible
+  ///
+  /// In fr, this message translates to:
+  /// **'Faible - Surveiller'**
+  String get scanSeverityLowStatus;
+
+  /// Texte statut gravite moderee
+  ///
+  /// In fr, this message translates to:
+  /// **'Modere - Intervention conseillee'**
+  String get scanSeverityMediumStatus;
+
+  /// Texte statut gravite elevee
+  ///
+  /// In fr, this message translates to:
+  /// **'Eleve - Intervention urgente'**
+  String get scanSeverityHighStatus;
+
+  /// Titre recommandations
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandations adaptees'**
+  String get scanRecommendationsTitle;
+
+  /// Titre item recommandation
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandation'**
+  String get scanRecommendationItemTitle;
+
+  /// Astuce resultat scan
+  ///
+  /// In fr, this message translates to:
+  /// **'Astuce : evitez l\'arrosage excessif pendant 3 jours'**
+  String get scanTip;
+
+  /// Semantique bouton refaire scan
+  ///
+  /// In fr, this message translates to:
+  /// **'Refaire un scan'**
+  String get scanRescanSemantics;
+
+  /// Bouton refaire scan
+  ///
+  /// In fr, this message translates to:
+  /// **'Refaire un scan'**
+  String get scanRescan;
+
+  /// Semantique bouton enregistrer journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer dans le journal'**
+  String get scanSaveJournalSemantics;
+
+  /// Action enregistrer
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get commonSave;
+
+  /// Semantique bouton partager
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager le resultat'**
+  String get scanShareSemantics;
+
+  /// Bouton partager
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager le resultat'**
+  String get scanShare;
+
+  /// Message d'erreur ecran journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur: {error}'**
+  String journalError(String error);
+
+  /// Bouton nouvelle parcelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle parcelle'**
+  String get journalNewPlot;
+
+  /// Titre ecran journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Journal agricole'**
+  String get journalTitle;
+
+  /// Sous-titre ecran journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi de vos parcelles'**
+  String get journalSubtitle;
+
+  /// Stat total
+  ///
+  /// In fr, this message translates to:
+  /// **'Total'**
+  String get journalTotal;
+
+  /// Stat saines
+  ///
+  /// In fr, this message translates to:
+  /// **'Saines'**
+  String get journalHealthyPlural;
+
+  /// Stat malades
+  ///
+  /// In fr, this message translates to:
+  /// **'Malades'**
+  String get journalSickPlural;
+
+  /// Badge statut malade
+  ///
+  /// In fr, this message translates to:
+  /// **'Malade'**
+  String get journalStatusSick;
+
+  /// Badge statut sain
+  ///
+  /// In fr, this message translates to:
+  /// **'Sain'**
+  String get journalStatusHealthy;
+
+  /// Badge statut non analyse
+  ///
+  /// In fr, this message translates to:
+  /// **'Non analyse'**
+  String get journalStatusNotAnalyzed;
+
+  /// Affichage surface en hectares
+  ///
+  /// In fr, this message translates to:
+  /// **'{surface} ha'**
+  String journalAreaHa(String surface);
+
+  /// Nombre d'analyses
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} analyse(s)'**
+  String journalAnalysesCount(int count);
+
+  /// Dernier diagnostic
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier : {disease} - {date}'**
+  String journalLastDiagnostic(String disease, String date);
+
+  /// Action scanner
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner'**
+  String get journalScan;
+
+  /// Texte aucun diagnostic
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun diagnostic encore'**
+  String get journalNoDiagnosticYet;
+
+  /// Action scanner maintenant
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner maintenant'**
+  String get journalScanNow;
+
+  /// Titre etat vide journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune parcelle'**
+  String get journalEmptyTitle;
+
+  /// Description etat vide journal
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez votre premiere parcelle\npour commencer le suivi.'**
+  String get journalEmptyDescription;
+
+  /// Bouton ajouter une parcelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une parcelle'**
+  String get journalAddPlot;
+
+  /// Libelle nom parcelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de la parcelle *'**
+  String get journalPlotNameLabel;
+
+  /// Libelle description optionnelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Description (optionnel)'**
+  String get journalDescriptionOptional;
+
+  /// Libelle surface optionnelle
+  ///
+  /// In fr, this message translates to:
+  /// **'Surface (ha, optionnel)'**
+  String get journalSurfaceOptional;
+
+  /// Validation nom parcelle requis
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom requis'**
+  String get journalNameRequired;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['fr', 'mg'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'fr':
+      return AppLocalizationsFr();
+    case 'mg':
+      return AppLocalizationsMg();
+  }
+
+  throw FlutterError(
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
+}

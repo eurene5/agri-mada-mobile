@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 
 import '../../../../main.dart';
 import '../../../../app/router.dart';
@@ -28,11 +29,12 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   ParcelleLocal? _selectedParcelle;
 
   Future<void> _pickAndAnalyze(ImageSource source) async {
+    final loc = AppLocalizations.of(context)!;
     if (!ref.read(isTFLiteReadyProvider)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Diagnostic IA indisponible, veuillez réessayer'),
+        SnackBar(
+          content: Text(loc.scanIaUnavailable),
         ),
       );
       return;
@@ -83,6 +85,7 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
 
   Future<ParcelleLocal?> _showParcelleSelector(
       List<ParcelleLocal> parcelles) async {
+    final loc = AppLocalizations.of(context)!;
     return showModalBottomSheet<ParcelleLocal>(
       context: context,
       backgroundColor: AppColors.background,
@@ -102,8 +105,7 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
                       color: AppColors.textSecondary,
                       borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
-              const Text('Choisir une parcelle',
-                  style: AppTypography.headlineMedium),
+              Text(loc.scanSelectPlot, style: AppTypography.headlineMedium),
               const SizedBox(height: 8),
               ...parcelles.map((p) => ListTile(
                     leading: const Icon(Icons.map_outlined,
@@ -122,22 +124,22 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   }
 
   void _showNoParcelleDailog() {
+    final loc = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Aucune parcelle'),
-        content: const Text(
-            'Créez d\'abord une parcelle dans votre journal agricole avant de scanner.'),
+        title: Text(loc.scanNoPlotTitle),
+        content: Text(loc.scanNoPlotDescription),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK')),
+              child: Text(loc.commonOk)),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               context.go(AppRoutes.journal);
             },
-            child: const Text('Aller au journal'),
+            child: Text(loc.scanGoToJournal),
           ),
         ],
       ),
@@ -146,6 +148,7 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final scanState = ref.watch(scanNotifierProvider);
     final isLoading = scanState is ScanLoading;
     final isTFLiteReady = ref.watch(isTFLiteReadyProvider);
@@ -183,7 +186,7 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
                   borderRadius: BorderRadius.circular(AppSpacing.sm),
                 ),
                 child: Text(
-                  'Diagnostic IA indisponible, veuillez réessayer',
+                  loc.scanIaUnavailable,
                   style: AppTypography.bodySmall
                       .copyWith(color: AppColors.textOnPrimary),
                   textAlign: TextAlign.center,
@@ -195,7 +198,10 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
               bottom: 60,
               left: AppSpacing.screenHorizontal,
               right: AppSpacing.screenHorizontal,
-              child: _CancelButton(onCancel: () => context.go(AppRoutes.home)),
+              child: _CancelButton(
+                label: loc.scanCancel,
+                onCancel: () => context.go(AppRoutes.home),
+              ),
             ),
         ],
       ),
@@ -220,6 +226,7 @@ class _CameraViewfinder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
@@ -235,7 +242,7 @@ class _CameraViewfinder extends StatelessWidget {
           if (isLoading) ...[
             const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: AppSpacing.md),
-            Text('Analyse en cours...',
+            Text(loc.scanLoading,
                 style: AppTypography.bodyMedium
                     .copyWith(color: AppColors.textOnPrimary)),
           ] else ...[
@@ -255,13 +262,13 @@ class _CameraViewfinder extends StatelessWidget {
               ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Pointez la caméra vers\nla feuille de riz',
+              loc.scanPointCamera,
               style: AppTypography.bodyMedium
                   .copyWith(color: AppColors.textOnPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text("L'analyse se fait hors ligne",
+            Text(loc.scanOfflineAnalysis,
                 style:
                     AppTypography.bodySmall.copyWith(color: AppColors.primary)),
             const SizedBox(height: AppSpacing.xl),
@@ -315,6 +322,7 @@ class _ScanHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.of(context).padding.top;
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -338,7 +346,7 @@ class _ScanHeader extends StatelessWidget {
                 const Icon(Icons.arrow_back_ios, color: Colors.white, size: 22),
           ),
           const SizedBox(width: AppSpacing.md),
-          Text('Scanner une feuille',
+          Text(loc.scanHeaderTitle,
               style: AppTypography.headlineMedium
                   .copyWith(color: AppColors.textOnPrimary)),
         ],
@@ -348,7 +356,8 @@ class _ScanHeader extends StatelessWidget {
 }
 
 class _CancelButton extends StatelessWidget {
-  const _CancelButton({required this.onCancel});
+  const _CancelButton({required this.label, required this.onCancel});
+  final String label;
   final VoidCallback onCancel;
 
   @override
@@ -363,7 +372,7 @@ class _CancelButton extends StatelessWidget {
           border: Border.all(color: Colors.white.withAlpha(80), width: 1),
         ),
         alignment: Alignment.center,
-        child: Text('ANNULER',
+        child: Text(label,
             style: AppTypography.labelMedium.copyWith(letterSpacing: 1.5)),
       ),
     );

@@ -21,6 +21,7 @@ class SessionService {
   static const _keyPrenom = 'user_prenom';
   static const _keyTel = 'user_tel';
   static const _keyRegion = 'user_region';
+  static const _keyLocale = 'app_locale';
 
   // --- Sauvegarde (après connexion internet réussie) ---
 
@@ -63,6 +64,11 @@ class SessionService {
   Future<String?> getPrenom() => _storage.read(key: _keyPrenom);
   Future<String?> getTel() => _storage.read(key: _keyTel);
   Future<String?> getRegion() => _storage.read(key: _keyRegion);
+  Future<String?> getLocaleCode() => _storage.read(key: _keyLocale);
+
+  Future<void> saveLocaleCode(String localeCode) {
+    return _storage.write(key: _keyLocale, value: localeCode);
+  }
 
   /// Retourne true si l'utilisateur a déjà une session enregistrée
   Future<bool> isLoggedIn() async {

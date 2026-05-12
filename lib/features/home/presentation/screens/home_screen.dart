@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/sync/presentation/sync_status_indicator.dart';
+import '../../../../core/providers/locale_provider.dart';
 import '../../../auth/presentation/providers/session_provider.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/sync/providers/sync_provider.dart';
@@ -16,6 +18,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     // Initialise le service de synchronisation en arrière-plan
     ref.watch(syncNotifierProvider);
 
@@ -42,7 +45,7 @@ class HomeScreen extends ConsumerWidget {
                     _HomeHeader(
                       onMenuTap: () {
                         // TODO(#feature-1): implémenter le menu latéral quand la feature Home sera disponible
-                        showComingSoonSnackBar('Bientôt disponible');
+                        showComingSoonSnackBar(loc.homeSoonMessage);
                       },
                     ),
                     SizedBox(height: AppSpacing.md),
@@ -51,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
                     _SummaryCard(),
                     SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Nos Services',
+                      loc.homeServicesTitle,
                       style: AppTypography.headlineMedium,
                     ),
                     SizedBox(height: AppSpacing.md),
@@ -81,14 +84,16 @@ class _HomeHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context)!;
     final syncState = ref.watch(syncNotifierProvider);
+    final locale = ref.watch(localeProvider);
 
     return Row(
       children: [
         // Menu hamburger
         Semantics(
           button: true,
-          label: 'Ouvrir le menu',
+          label: loc.homeMenuSemantics,
           child: GestureDetector(
             onTap: onMenuTap,
             child: Container(
@@ -114,18 +119,19 @@ class _HomeHeader extends ConsumerWidget {
         Consumer(
           builder: (context, ref, _) {
             final sessionAsync = ref.watch(sessionProvider);
-            final prenom = sessionAsync.valueOrNull?['prenom'] ?? 'Agriculteur';
+            final prenom =
+                sessionAsync.valueOrNull?['prenom'] ?? loc.homeFarmerDefault;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bonjour, $prenom!',
+                  loc.homeHelloUser(prenom),
                   style: AppTypography.headlineMedium.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  'Prêt pour une analyse ?',
+                  loc.homeReadyForAnalysis,
                   style: AppTypography.bodySmall.copyWith(
                     color: AppColors.primary,
                     fontSize: 12,
@@ -144,9 +150,35 @@ class _HomeHeader extends ConsumerWidget {
             const Icon(Icons.wifi_off, color: AppColors.primary, size: 18),
             const SizedBox(width: 4),
             Text(
-              'Mode hors ligne',
+              loc.homeOfflineMode,
               style: AppTypography.caption.copyWith(
                 color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            PopupMenuButton<String>(
+              initialValue: locale.languageCode,
+              onSelected: (value) {
+                ref.read(localeProvider.notifier).setLocale(Locale(value));
+              },
+              itemBuilder: (_) => const [
+                PopupMenuItem(value: 'fr', child: Text('FR')),
+                PopupMenuItem(value: 'mg', child: Text('MG')),
+              ],
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xs,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.primary),
+                  borderRadius: BorderRadius.circular(AppSpacing.xs),
+                ),
+                child: Text(
+                  locale.languageCode.toUpperCase(),
+                  style:
+                      AppTypography.caption.copyWith(color: AppColors.primary),
+                ),
               ),
             ),
           ],
@@ -161,6 +193,7 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -184,7 +217,7 @@ class _SearchBar extends StatelessWidget {
                     color: AppColors.textSecondary, size: 18),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  'recherche...',
+                  loc.homeSearchPlaceholder,
                   style: AppTypography.bodyMedium.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -215,6 +248,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       height: 171,
       decoration: BoxDecoration(
@@ -237,7 +271,7 @@ class _SummaryCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Résumé de votre exploitation",
+                    loc.homeSummaryTitle,
                     style: AppTypography.headlineMedium.copyWith(fontSize: 16),
                     maxLines: 2,
                   ),
@@ -254,7 +288,7 @@ class _SummaryCard extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        'Système prêt',
+                        loc.homeSystemReady,
                         style: AppTypography.bodySmall.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w600,
@@ -268,7 +302,7 @@ class _SummaryCard extends StatelessWidget {
                       final journalAsync = ref.watch(journalAgricoleProvider);
                       final nb = journalAsync.valueOrNull?.length ?? 0;
                       return Text(
-                        '$nb parcelle(s) enregistrée(s)',
+                        loc.homeRegisteredPlots(nb),
                         style: AppTypography.bodySmall,
                       );
                     },
@@ -307,6 +341,7 @@ class _ServicesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -315,32 +350,28 @@ class _ServicesGrid extends StatelessWidget {
       mainAxisSpacing: AppSpacing.md,
       childAspectRatio:
           AppSpacing.serviceCardWidth / AppSpacing.serviceCardHeight,
-      children: const [
+      children: [
         _ServiceCard(
-          title: 'Mes parcelles',
-          description:
-              'Suivez vos rizières, surfaces cultivées et l\'état sanitaire de chaque parcelle',
+          title: loc.homeServicePlotsTitle,
+          description: loc.homeServicePlotsDescription,
           iconPath: 'assets/images/service_parcelles.png',
           iconFallback: Icons.map_outlined,
         ),
         _ServiceCard(
-          title: 'État des cultures',
-          description:
-              'Consultez l\'état global de vos cultures et les niveaux de risque actuels',
+          title: loc.homeServiceCropsTitle,
+          description: loc.homeServiceCropsDescription,
           iconPath: 'assets/images/service_cultures.png',
           iconFallback: Icons.bar_chart_outlined,
         ),
         _ServiceCard(
-          title: 'Solutions agricoles',
-          description:
-              'Découvrez les traitements biologiques et solutions locales recommandées',
+          title: loc.homeServiceSolutionsTitle,
+          description: loc.homeServiceSolutionsDescription,
           iconPath: 'assets/images/service_solutions.png',
           iconFallback: Icons.science_outlined,
         ),
         _ServiceCard(
-          title: 'Prévenir les maladies',
-          description:
-              'Apprenez les bonnes pratiques pour protéger vos rizières et éviter les pertes',
+          title: loc.homeServicePreventionTitle,
+          description: loc.homeServicePreventionDescription,
           iconPath: 'assets/images/service_prevention.png',
           iconFallback: Icons.health_and_safety_outlined,
         ),
@@ -421,9 +452,10 @@ class _ScanFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
-      label: 'Scanner une plante',
+      label: loc.homeScanPlantSemantics,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -458,6 +490,7 @@ class _HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return BottomAppBar(
       height: 79,
       color: AppColors.navBar,
@@ -468,14 +501,14 @@ class _HomeBottomNav extends StatelessWidget {
         children: [
           _NavItem(
             icon: Icons.home_outlined,
-            label: 'Accueil',
+            label: loc.homeTabHome,
             isSelected: true,
             onTap: onHomeTap,
           ),
           const SizedBox(width: 60),
           _NavItem(
             icon: Icons.book_outlined,
-            label: 'Journal',
+            label: loc.homeTabJournal,
             isSelected: false,
             onTap: () => context.go(AppRoutes.journal),
           ),

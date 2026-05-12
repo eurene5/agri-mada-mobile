@@ -62,13 +62,13 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
   }
 
   @override
-  Future<Map<String, Object?>> getMe(String authorization) async {
+  Future<Map<String, dynamic>> getMe(String authorization) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, Object>>(Options(
+    final _options = _setStreamType<Map<String, dynamic>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -85,14 +85,7 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, Object?> _value;
-    try {
-      _value = _result.data!.map((k, dynamic v) =>
-          MapEntry(k, Object.fromJson(v as Map<String, dynamic>)));
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _value = _result.data!;
     return _value;
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -44,6 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _onForgotPasswordTap() async {
+    final loc = AppLocalizations.of(context)!;
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
@@ -52,22 +54,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context: context,
         builder: (dialogContext) {
           return AlertDialog(
-            title: const Text('Mot de passe oublié?'),
+            title: Text(loc.loginForgotPasswordTitle),
             content: Form(
               key: formKey,
               child: TextFormField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'nom@exemple.com',
+                decoration: InputDecoration(
+                  labelText: loc.loginEmailLabel,
+                  hintText: loc.loginEmailHint,
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Veuillez entrer votre email';
+                    return loc.loginEmailRequired;
                   }
                   if (!value.contains('@')) {
-                    return 'Email invalide';
+                    return loc.loginEmailInvalid;
                   }
                   return null;
                 },
@@ -76,7 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Annuler'),
+                child: Text(loc.commonCancel),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -85,12 +87,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // TODO(#reset-password): brancher sur POST /auth/reset-password quand l'endpoint backend sera disponible
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Fonctionnalité bientôt disponible'),
+                    SnackBar(
+                      content: Text(loc.featureComingSoon),
                     ),
                   );
                 },
-                child: const Text('Envoyer'),
+                child: Text(loc.commonSend),
               ),
             ],
           );
@@ -104,12 +106,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _onRegisterTap() {
     // TODO(#register): créer RegisterScreen et la route /register
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Inscription bientôt disponible')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.registerComingSoon)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final authState = ref.watch(authNotifierProvider);
     final isLoading = authState is AuthLoading;
 
@@ -140,23 +143,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Connexion',
+                      Text(
+                        loc.loginTitle,
                         style: AppTypography.titleLarge,
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       // Email
                       _LoginTextField(
                         controller: _emailController,
-                        hintText: 'Email',
+                        hintText: loc.loginEmailLabel,
                         prefixIcon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre email';
+                            return loc.loginEmailRequired;
                           }
                           if (!value.contains('@')) {
-                            return 'Email invalide';
+                            return loc.loginEmailInvalid;
                           }
                           return null;
                         },
@@ -165,7 +168,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       // Mot de passe
                       _LoginTextField(
                         controller: _passwordController,
-                        hintText: 'Mot de passe',
+                        hintText: loc.loginPasswordLabel,
                         prefixIcon: Icons.lock_outline,
                         obscureText: !_passwordVisible,
                         suffixIcon: IconButton(
@@ -181,7 +184,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre mot de passe';
+                            return loc.loginPasswordRequired;
                           }
                           return null;
                         },
@@ -193,7 +196,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: TextButton(
                           onPressed: _onForgotPasswordTap,
                           child: Text(
-                            'Mot de passe oublié?',
+                            loc.loginForgotPassword,
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.primary,
                               fontSize: 14,
@@ -204,7 +207,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: AppSpacing.lg),
                       // Bouton connexion
                       AppButton(
-                        label: 'Se connecter',
+                        label: loc.loginSubmit,
                         onPressed: isLoading ? null : _onLogin,
                         isLoading: isLoading,
                       ),
@@ -214,7 +217,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Pas encore de compte? ',
+                            loc.loginNoAccount,
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.textPrimary,
                             ),
@@ -222,7 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           GestureDetector(
                             onTap: _onRegisterTap,
                             child: Text(
-                              "S'inscrire",
+                              loc.loginRegister,
                               style: AppTypography.bodySmall.copyWith(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
@@ -248,6 +251,7 @@ class _LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final topPadding = MediaQuery.of(context).padding.top;
     return SizedBox(
       height: topPadding + 160,
@@ -281,14 +285,14 @@ class _LoginHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bonjour!',
+                  loc.loginHello,
                   style: AppTypography.displayLarge.copyWith(
                     color: AppColors.textOnPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  'Bienvenue sur AgriMada',
+                  loc.loginWelcome,
                   style: AppTypography.bodyMedium.copyWith(
                     color: AppColors.textOnPrimary,
                   ),

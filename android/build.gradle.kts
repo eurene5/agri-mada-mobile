@@ -20,6 +20,7 @@ subprojects {
         afterEvaluate {
             project.extensions.configure(com.android.build.gradle.LibraryExtension::class.java) {
                 namespace = "dev.isar.isar_flutter_libs"
+                compileSdk = 34
             }
         }
     }
