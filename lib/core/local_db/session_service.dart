@@ -15,6 +15,7 @@ class SessionService {
 
   // Clés de stockage
   static const _keyToken = 'auth_token';
+  static const _keyTokenType = 'auth_token_type';
   static const _keyUserId = 'user_id';
   static const _keyNom = 'user_nom';
   static const _keyPrenom = 'user_prenom';
@@ -25,6 +26,15 @@ class SessionService {
 
   Future<void> saveSession({
     required String token,
+    required String tokenType,
+  }) async {
+    await Future.wait([
+      _storage.write(key: _keyToken, value: token),
+      _storage.write(key: _keyTokenType, value: tokenType),
+    ]);
+  }
+
+  Future<void> saveProfile({
     required int userId,
     required String nom,
     required String prenom,
@@ -32,7 +42,6 @@ class SessionService {
     required String region,
   }) async {
     await Future.wait([
-      _storage.write(key: _keyToken, value: token),
       _storage.write(key: _keyUserId, value: userId.toString()),
       _storage.write(key: _keyNom, value: nom),
       _storage.write(key: _keyPrenom, value: prenom),
@@ -44,6 +53,7 @@ class SessionService {
   // --- Lecture ---
 
   Future<String?> getToken() => _storage.read(key: _keyToken);
+  Future<String?> getTokenType() => _storage.read(key: _keyTokenType);
   Future<int?> getUserId() async {
     final v = await _storage.read(key: _keyUserId);
     return v != null ? int.tryParse(v) : null;
@@ -73,6 +83,14 @@ class SessionService {
   // --- Déconnexion ---
 
   Future<void> clearSession() async {
-    await _storage.deleteAll();
+    await Future.wait([
+      _storage.delete(key: _keyToken),
+      _storage.delete(key: _keyTokenType),
+      _storage.delete(key: _keyUserId),
+      _storage.delete(key: _keyNom),
+      _storage.delete(key: _keyPrenom),
+      _storage.delete(key: _keyTel),
+      _storage.delete(key: _keyRegion),
+    ]);
   }
 }

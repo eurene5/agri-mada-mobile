@@ -41,7 +41,8 @@ class TFLiteService {
   /// À appeler une seule fois dans main() après IsarService.init()
   Future<void> init() async {
     // Charger le modèle
-    final modelData = await rootBundle.load('assets/model/agrimada_model.tflite');
+    final modelData =
+        await rootBundle.load('assets/model/agrimada_model.tflite');
     final buffer = modelData.buffer.asUint8List();
     _interpreter = Interpreter.fromBuffer(buffer);
 
@@ -57,7 +58,8 @@ class TFLiteService {
   /// Analyse une image et retourne le diagnostic
   Future<DiagnosticResult> analyzeImage(File imageFile) async {
     if (_interpreter == null) {
-      throw StateError('TFLiteService non initialisé. Appelez init() d\'abord.');
+      throw StateError(
+          'TFLiteService non initialisé. Appelez init() d\'abord.');
     }
 
     // 1. Lire et redimensionner l'image
@@ -75,13 +77,14 @@ class TFLiteService {
     final inputData = _imageToFloat32(resized);
 
     // 3. Préparer la sortie
-    final output = List.filled(_labels.length, 0.0).reshape([1, _labels.length]);
+    final output = List.filled(_labels.length, 0.0);
+    final outputList = [output]; // Envelopper en liste 2D pour l'inférence
 
     // 4. Inférence
-    _interpreter!.run(inputData, output);
+    _interpreter!.run([inputData], outputList);
 
     // 5. Trouver le label avec le score le plus élevé
-    final scores = output[0] as List<double>;
+    final scores = outputList[0];
     double maxScore = 0;
     int maxIndex = 0;
     for (int i = 0; i < scores.length; i++) {
@@ -143,9 +146,9 @@ class TFLiteService {
         return List.generate(_inputSize, (x) {
           final pixel = image.getPixel(x, y);
           return [
-            pixel.rNormalized,
-            pixel.gNormalized,
-            pixel.bNormalized,
+            pixel.rNormalized.toDouble(),
+            pixel.gNormalized.toDouble(),
+            pixel.bNormalized.toDouble(),
           ];
         });
       });

@@ -26,7 +26,8 @@ class SyncNotifier extends _$SyncNotifier {
   }
 
   void _initConnectivityListener() {
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen((results) {
       if (results.contains(ConnectivityResult.mobile) ||
           results.contains(ConnectivityResult.wifi)) {
         syncData();
@@ -47,13 +48,15 @@ class SyncNotifier extends _$SyncNotifier {
       final unsyncedParcelles = await parcelleRepo.getUnsyncedParcelles();
       if (unsyncedParcelles.isNotEmpty) {
         final payload = {
-          "parcelles": unsyncedParcelles.map((p) => {
-            "nom_parcelle": p.nomParcelle,
-            "description": p.description,
-            "surface": p.surface,
-            "latitude": p.latitude,
-            "longitude": p.longitude,
-          }).toList(),
+          "parcelles": unsyncedParcelles
+              .map((p) => {
+                    "nom_parcelle": p.nomParcelle,
+                    "description": p.description,
+                    "surface": p.surface,
+                    "latitude": p.latitude,
+                    "longitude": p.longitude,
+                  })
+              .toList(),
         };
 
         final response = await remoteDataSource.syncParcelles(payload);
@@ -73,7 +76,8 @@ class SyncNotifier extends _$SyncNotifier {
         final List<int> localDiagIds = [];
 
         for (final diag in unsyncedDiagnostics) {
-          final parcelle = await parcelleRepo.getParcelleById(diag.parcelleLocalId);
+          final parcelle =
+              await parcelleRepo.getParcelleById(diag.parcelleLocalId);
           if (parcelle != null && parcelle.serverId != null) {
             payloadDiagnostics.add({
               "parcelle_id": parcelle.serverId,
@@ -88,13 +92,14 @@ class SyncNotifier extends _$SyncNotifier {
         }
 
         if (payloadDiagnostics.isNotEmpty) {
-          final response = await remoteDataSource.syncDiagnostics({"diagnostics": payloadDiagnostics});
+          final response = await remoteDataSource
+              .syncDiagnostics({"diagnostics": payloadDiagnostics});
           final createdList = response['diagnostics_crees'] as List<dynamic>;
 
           for (int i = 0; i < localDiagIds.length; i++) {
             if (i < createdList.length) {
-                final serverId = createdList[i]['id'] as int;
-                await diagnosticRepo.markAsSynced(localDiagIds[i], serverId);
+              final serverId = createdList[i]['id'] as int;
+              await diagnosticRepo.markAsSynced(localDiagIds[i], serverId);
             }
           }
         }

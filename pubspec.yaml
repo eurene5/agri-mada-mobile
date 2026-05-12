@@ -30,7 +30,7 @@ dependencies:
   # --- Session utilisateur sécurisée ---
   flutter_secure_storage: ^9.2.2
   # --- Intelligence Artificielle TFLite ---
-  tflite_flutter: ^0.10.4
+  tflite_flutter: ^0.11.0
   # --- Traitement d'images (redimensionnement pour le modèle IA) ---
   image: ^4.1.7
   # --- Connectivité réseau ---

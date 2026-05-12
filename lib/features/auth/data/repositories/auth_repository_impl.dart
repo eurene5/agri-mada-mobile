@@ -3,16 +3,18 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/local_db/session_service.dart';
 import '../../../../core/utils/logger.dart';
 import '../../domain/entities/auth_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
-import '../models/auth_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  const AuthRepositoryImpl(this._remote);
+  AuthRepositoryImpl(this._remote, {SessionService? sessionService})
+      : _sessionService = sessionService ?? SessionService.instance;
 
   final AuthRemoteDatasource _remote;
+  final SessionService _sessionService;
 
   @override
   Future<Either<Failure, AuthEntity>> login({
@@ -20,15 +22,57 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final model = await _remote.login({'email': email, 'password': password});
-      AppLogger.debug('Login réussi: ${model.userId}');
-      return Right(model.toEntity());
+      final token = await _remote.login(email, password);
+      await _sessionService.saveSession(
+        token: token.accessToken,
+        tokenType: token.tokenType,
+      );
+
+      final profileJson = await _remote.getMe(
+        '${token.tokenType} ${token.accessToken}',
+      );
+
+      final userId = profileJson['id'] as int?;
+      final nom = profileJson['nom'] as String? ?? '';
+      final prenom = profileJson['prenom'] as String? ?? '';
+      final tel = profileJson['tel'] as String? ?? '';
+      final region = profileJson['region'] as String? ?? '';
+
+      if (userId == null) {
+        throw const ParseException('Réponse profil invalide');
+      }
+
+      await _sessionService.saveProfile(
+        userId: userId,
+        nom: nom,
+        prenom: prenom,
+        tel: tel,
+        region: region,
+      );
+
+      final profile = UserProfile(
+        userId: userId.toString(),
+        email: profileJson['email'] as String? ?? '',
+        phoneNumber: profileJson['phone_number'] as String? ?? tel,
+      );
+
+      AppLogger.debug('Login réussi: ${profile.userId}');
+      return Right(profile);
     } on DioException catch (e, st) {
-      final exception = NetworkException.fromDioError(e);
-      AppLogger.error('Login échoué', error: exception, stackTrace: st);
       if (e.response?.statusCode == 401) {
+        AppLogger.error('Login échoué', error: e, stackTrace: st);
         return const Left(AuthFailure('Identifiants incorrects'));
       }
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        AppLogger.error('Login échoué', error: e, stackTrace: st);
+        return const Left(NetworkFailure('Délai de connexion dépassé'));
+      }
+
+      final exception = NetworkException.fromDioError(e);
+      AppLogger.error('Login échoué', error: exception, stackTrace: st);
       return Left(NetworkFailure(exception.message));
     } on ParseException catch (e, st) {
       AppLogger.error('Erreur de parsing', error: e, stackTrace: st);
@@ -41,6 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> logout() async {
+    await _sessionService.clearSession();
     return const Right(unit);
   }
 }

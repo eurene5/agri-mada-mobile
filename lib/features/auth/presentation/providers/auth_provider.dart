@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/local_db/session_service.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth_entity.dart';
@@ -43,8 +44,10 @@ AuthRemoteDatasource authRemoteDatasource(Ref ref) =>
     AuthRemoteDatasource(ref.watch(dioProvider));
 
 @riverpod
-AuthRepositoryImpl authRepository(Ref ref) =>
-    AuthRepositoryImpl(ref.watch(authRemoteDatasourceProvider));
+AuthRepositoryImpl authRepository(Ref ref) => AuthRepositoryImpl(
+      ref.watch(authRemoteDatasourceProvider),
+      sessionService: SessionService.instance,
+    );
 
 @riverpod
 LoginUseCase loginUseCase(Ref ref) =>
@@ -76,7 +79,8 @@ class AuthNotifier extends _$AuthNotifier {
     );
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await ref.read(authRepositoryProvider).logout();
     state = const AuthState.initial();
   }
 

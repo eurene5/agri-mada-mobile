@@ -20,17 +20,10 @@ AuthModel _$AuthModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AuthModel {
-  @JsonKey(name: 'user_id')
-  String get userId => throw _privateConstructorUsedError;
-  String get email => throw _privateConstructorUsedError;
   @JsonKey(name: 'access_token')
   String get accessToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'refresh_token')
-  String get refreshToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'display_name')
-  String? get displayName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_url')
-  String? get avatarUrl => throw _privateConstructorUsedError;
+  @JsonKey(name: 'token_type')
+  String get tokenType => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -44,12 +37,8 @@ abstract class $AuthModelCopyWith<$Res> {
       _$AuthModelCopyWithImpl<$Res, AuthModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'user_id') String userId,
-      String email,
-      @JsonKey(name: 'access_token') String accessToken,
-      @JsonKey(name: 'refresh_token') String refreshToken,
-      @JsonKey(name: 'display_name') String? displayName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl});
+      {@JsonKey(name: 'access_token') String accessToken,
+      @JsonKey(name: 'token_type') String tokenType});
 }
 
 /// @nodoc
@@ -65,38 +54,18 @@ class _$AuthModelCopyWithImpl<$Res, $Val extends AuthModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
-    Object? email = null,
     Object? accessToken = null,
-    Object? refreshToken = null,
-    Object? displayName = freezed,
-    Object? avatarUrl = freezed,
+    Object? tokenType = null,
   }) {
     return _then(_value.copyWith(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
       accessToken: null == accessToken
           ? _value.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
               as String,
-      refreshToken: null == refreshToken
-          ? _value.refreshToken
-          : refreshToken // ignore: cast_nullable_to_non_nullable
+      tokenType: null == tokenType
+          ? _value.tokenType
+          : tokenType // ignore: cast_nullable_to_non_nullable
               as String,
-      displayName: freezed == displayName
-          ? _value.displayName
-          : displayName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      avatarUrl: freezed == avatarUrl
-          ? _value.avatarUrl
-          : avatarUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
     ) as $Val);
   }
 }
@@ -110,12 +79,8 @@ abstract class _$$AuthModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'user_id') String userId,
-      String email,
-      @JsonKey(name: 'access_token') String accessToken,
-      @JsonKey(name: 'refresh_token') String refreshToken,
-      @JsonKey(name: 'display_name') String? displayName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl});
+      {@JsonKey(name: 'access_token') String accessToken,
+      @JsonKey(name: 'token_type') String tokenType});
 }
 
 /// @nodoc
@@ -129,38 +94,18 @@ class __$$AuthModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? userId = null,
-    Object? email = null,
     Object? accessToken = null,
-    Object? refreshToken = null,
-    Object? displayName = freezed,
-    Object? avatarUrl = freezed,
+    Object? tokenType = null,
   }) {
     return _then(_$AuthModelImpl(
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
       accessToken: null == accessToken
           ? _value.accessToken
           : accessToken // ignore: cast_nullable_to_non_nullable
               as String,
-      refreshToken: null == refreshToken
-          ? _value.refreshToken
-          : refreshToken // ignore: cast_nullable_to_non_nullable
+      tokenType: null == tokenType
+          ? _value.tokenType
+          : tokenType // ignore: cast_nullable_to_non_nullable
               as String,
-      displayName: freezed == displayName
-          ? _value.displayName
-          : displayName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      avatarUrl: freezed == avatarUrl
-          ? _value.avatarUrl
-          : avatarUrl // ignore: cast_nullable_to_non_nullable
-              as String?,
     ));
   }
 }
@@ -169,37 +114,22 @@ class __$$AuthModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AuthModelImpl implements _AuthModel {
   const _$AuthModelImpl(
-      {@JsonKey(name: 'user_id') required this.userId,
-      required this.email,
-      @JsonKey(name: 'access_token') required this.accessToken,
-      @JsonKey(name: 'refresh_token') required this.refreshToken,
-      @JsonKey(name: 'display_name') this.displayName,
-      @JsonKey(name: 'avatar_url') this.avatarUrl});
+      {@JsonKey(name: 'access_token') required this.accessToken,
+      @JsonKey(name: 'token_type') required this.tokenType});
 
   factory _$AuthModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$AuthModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'user_id')
-  final String userId;
-  @override
-  final String email;
-  @override
   @JsonKey(name: 'access_token')
   final String accessToken;
   @override
-  @JsonKey(name: 'refresh_token')
-  final String refreshToken;
-  @override
-  @JsonKey(name: 'display_name')
-  final String? displayName;
-  @override
-  @JsonKey(name: 'avatar_url')
-  final String? avatarUrl;
+  @JsonKey(name: 'token_type')
+  final String tokenType;
 
   @override
   String toString() {
-    return 'AuthModel(userId: $userId, email: $email, accessToken: $accessToken, refreshToken: $refreshToken, displayName: $displayName, avatarUrl: $avatarUrl)';
+    return 'AuthModel(accessToken: $accessToken, tokenType: $tokenType)';
   }
 
   @override
@@ -207,22 +137,15 @@ class _$AuthModelImpl implements _AuthModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AuthModelImpl &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.email, email) || other.email == email) &&
             (identical(other.accessToken, accessToken) ||
                 other.accessToken == accessToken) &&
-            (identical(other.refreshToken, refreshToken) ||
-                other.refreshToken == refreshToken) &&
-            (identical(other.displayName, displayName) ||
-                other.displayName == displayName) &&
-            (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl));
+            (identical(other.tokenType, tokenType) ||
+                other.tokenType == tokenType));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, userId, email, accessToken,
-      refreshToken, displayName, avatarUrl);
+  int get hashCode => Object.hash(runtimeType, accessToken, tokenType);
 
   @JsonKey(ignore: true)
   @override
@@ -240,33 +163,19 @@ class _$AuthModelImpl implements _AuthModel {
 
 abstract class _AuthModel implements AuthModel {
   const factory _AuthModel(
-      {@JsonKey(name: 'user_id') required final String userId,
-      required final String email,
-      @JsonKey(name: 'access_token') required final String accessToken,
-      @JsonKey(name: 'refresh_token') required final String refreshToken,
-      @JsonKey(name: 'display_name') final String? displayName,
-      @JsonKey(name: 'avatar_url') final String? avatarUrl}) = _$AuthModelImpl;
+          {@JsonKey(name: 'access_token') required final String accessToken,
+          @JsonKey(name: 'token_type') required final String tokenType}) =
+      _$AuthModelImpl;
 
   factory _AuthModel.fromJson(Map<String, dynamic> json) =
       _$AuthModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'user_id')
-  String get userId;
-  @override
-  String get email;
-  @override
   @JsonKey(name: 'access_token')
   String get accessToken;
   @override
-  @JsonKey(name: 'refresh_token')
-  String get refreshToken;
-  @override
-  @JsonKey(name: 'display_name')
-  String? get displayName;
-  @override
-  @JsonKey(name: 'avatar_url')
-  String? get avatarUrl;
+  @JsonKey(name: 'token_type')
+  String get tokenType;
   @override
   @JsonKey(ignore: true)
   _$$AuthModelImplCopyWith<_$AuthModelImpl> get copyWith =>

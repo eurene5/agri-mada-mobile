@@ -8,12 +8,8 @@ part 'auth_model.g.dart';
 @freezed
 class AuthModel with _$AuthModel {
   const factory AuthModel({
-    @JsonKey(name: 'user_id') required String userId,
-    required String email,
     @JsonKey(name: 'access_token') required String accessToken,
-    @JsonKey(name: 'refresh_token') required String refreshToken,
-    @JsonKey(name: 'display_name') String? displayName,
-    @JsonKey(name: 'avatar_url') String? avatarUrl,
+    @JsonKey(name: 'token_type') required String tokenType,
   }) = _AuthModel;
 
   factory AuthModel.fromJson(Map<String, dynamic> json) =>
@@ -21,12 +17,8 @@ class AuthModel with _$AuthModel {
 }
 
 extension AuthModelMapper on AuthModel {
-  AuthEntity toEntity() => AuthEntity(
-        userId: userId,
-        email: email,
+  AuthToken toEntity() => AuthToken(
         accessToken: accessToken,
-        refreshToken: refreshToken,
-        displayName: displayName,
-        avatarUrl: avatarUrl,
+        tokenType: tokenType,
       );
 }

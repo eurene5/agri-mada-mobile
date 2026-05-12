@@ -36,15 +36,18 @@ class JournalScreen extends ConsumerWidget {
                 ),
               ),
               child: journalAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                loading: () => const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary)),
                 error: (e, _) => Center(child: Text('Erreur: $e')),
                 data: (journal) {
                   if (journal.isEmpty) {
-                    return _EmptyJournal(onAdd: () => _showAddParcelleSheet(context, ref));
+                    return _EmptyJournal(
+                        onAdd: () => _showAddParcelleSheet(context, ref));
                   }
                   // Tri : malades en premier
-                  final sorted = [...journal]
-                    ..sort((a, b) => (a['statut'] == 'malade' ? 0 : 1).compareTo(b['statut'] == 'malade' ? 0 : 1));
+                  final sorted = [...journal]..sort((a, b) =>
+                      (a['statut'] == 'malade' ? 0 : 1)
+                          .compareTo(b['statut'] == 'malade' ? 0 : 1));
 
                   return Column(
                     children: [
@@ -58,7 +61,8 @@ class JournalScreen extends ConsumerWidget {
                             vertical: AppSpacing.md,
                           ),
                           itemCount: sorted.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: AppSpacing.sm),
                           itemBuilder: (context, index) => _ParcelleCard(
                             entry: sorted[index],
                             onScan: () => context.go(AppRoutes.scanning),
@@ -77,7 +81,9 @@ class JournalScreen extends ConsumerWidget {
         onPressed: () => _showAddParcelleSheet(context, ref),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add, color: AppColors.textOnPrimary),
-        label: Text('Nouvelle parcelle', style: AppTypography.bodySmall.copyWith(color: AppColors.textOnPrimary)),
+        label: Text('Nouvelle parcelle',
+            style: AppTypography.bodySmall
+                .copyWith(color: AppColors.textOnPrimary)),
       ),
     );
   }
@@ -92,7 +98,8 @@ class JournalScreen extends ConsumerWidget {
       ),
       builder: (_) => ProviderScope(
         parent: ProviderScope.containerOf(context),
-        child: _AddParcelleSheet(onSaved: () => ref.invalidate(journalAgricoleProvider)),
+        child: _AddParcelleSheet(
+            onSaved: () => ref.invalidate(journalAgricoleProvider)),
       ),
     );
   }
@@ -108,8 +115,10 @@ class _JournalHeader extends StatelessWidget {
     final topPadding = MediaQuery.of(context).padding.top;
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        AppSpacing.screenHorizontal, topPadding + AppSpacing.md,
-        AppSpacing.screenHorizontal, AppSpacing.md,
+        AppSpacing.screenHorizontal,
+        topPadding + AppSpacing.md,
+        AppSpacing.screenHorizontal,
+        AppSpacing.md,
       ),
       child: Row(
         children: [
@@ -144,7 +153,8 @@ class _QuickStats extends StatelessWidget {
     final total = journal.length;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+      margin: const EdgeInsets.fromLTRB(
+          AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.primaryLight,
@@ -154,8 +164,12 @@ class _QuickStats extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _StatItem(label: 'Total', value: '$total', color: AppColors.primary),
-          _StatItem(label: 'Saines', value: '$saines', color: AppColors.severityLow),
-          _StatItem(label: 'Malades', value: '$malades', color: AppColors.severityHigh),
+          _StatItem(
+              label: 'Saines', value: '$saines', color: AppColors.severityLow),
+          _StatItem(
+              label: 'Malades',
+              value: '$malades',
+              color: AppColors.severityHigh),
         ],
       ),
     );
@@ -163,7 +177,8 @@ class _QuickStats extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  const _StatItem({required this.label, required this.value, required this.color});
+  const _StatItem(
+      {required this.label, required this.value, required this.color});
   final String label;
   final String value;
   final Color color;
@@ -172,8 +187,12 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: AppTypography.displayMedium.copyWith(color: color, fontWeight: FontWeight.bold)),
-        Text(label, style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary)),
+        Text(value,
+            style: AppTypography.displayMedium
+                .copyWith(color: color, fontWeight: FontWeight.bold)),
+        Text(label,
+            style: AppTypography.bodySmall
+                .copyWith(color: AppColors.textSecondary)),
       ],
     );
   }
@@ -195,16 +214,28 @@ class _ParcelleCard extends StatelessWidget {
 
     final isHealthy = statut == 'sain';
     final isMalade = statut == 'malade';
-    final statusColor = isMalade ? AppColors.severityHigh : (isHealthy ? AppColors.severityLow : AppColors.textSecondary);
-    final statusLabel = isMalade ? 'Malade' : (isHealthy ? 'Sain' : 'Non analysé');
-    final statusIcon = isMalade ? Icons.warning_amber_outlined : (isHealthy ? Icons.check_circle_outline : Icons.help_outline);
+    final statusColor = isMalade
+        ? AppColors.severityHigh
+        : (isHealthy ? AppColors.severityLow : AppColors.textSecondary);
+    final statusLabel =
+        isMalade ? 'Malade' : (isHealthy ? 'Sain' : 'Non analysé');
+    final statusIcon = isMalade
+        ? Icons.warning_amber_outlined
+        : (isHealthy ? Icons.check_circle_outline : Icons.help_outline);
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 8, offset: const Offset(0, 2))],
-        border: isMalade ? Border.all(color: AppColors.severityHigh.withAlpha(80), width: 1) : null,
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
+        border: isMalade
+            ? Border.all(color: AppColors.severityHigh.withAlpha(80), width: 1)
+            : null,
       ),
       child: Column(
         children: [
@@ -214,7 +245,8 @@ class _ParcelleCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 50, height: 50,
+                  width: 50,
+                  height: 50,
                   decoration: BoxDecoration(
                     color: statusColor.withAlpha(30),
                     borderRadius: BorderRadius.circular(AppSpacing.sm),
@@ -226,25 +258,36 @@ class _ParcelleCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(parcelle.nomParcelle, style: AppTypography.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                      Text(parcelle.nomParcelle,
+                          style: AppTypography.bodyMedium
+                              .copyWith(fontWeight: FontWeight.w600)),
                       if (parcelle.description != null)
-                        Text(parcelle.description!, style: AppTypography.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text(parcelle.description!,
+                            style: AppTypography.bodySmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 4),
                       Row(children: [
                         if (parcelle.surface != null) ...[
-                          const Icon(Icons.crop_square_outlined, size: 12, color: AppColors.textSecondary),
+                          const Icon(Icons.crop_square_outlined,
+                              size: 12, color: AppColors.textSecondary),
                           const SizedBox(width: 2),
-                          Text('${parcelle.surface} ha', style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                          Text('${parcelle.surface} ha',
+                              style: AppTypography.caption
+                                  .copyWith(color: AppColors.textSecondary)),
                           const SizedBox(width: AppSpacing.sm),
                         ],
-                        Text('$nbDiag analyse(s)', style: AppTypography.caption.copyWith(color: AppColors.textSecondary)),
+                        Text('$nbDiag analyse(s)',
+                            style: AppTypography.caption
+                                .copyWith(color: AppColors.textSecondary)),
                       ]),
                     ],
                   ),
                 ),
                 // Badge statut
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withAlpha(25),
                     borderRadius: BorderRadius.circular(8),
@@ -252,7 +295,9 @@ class _ParcelleCard extends StatelessWidget {
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(statusIcon, color: statusColor, size: 12),
                     const SizedBox(width: 3),
-                    Text(statusLabel, style: AppTypography.caption.copyWith(color: statusColor, fontWeight: FontWeight.w600)),
+                    Text(statusLabel,
+                        style: AppTypography.caption.copyWith(
+                            color: statusColor, fontWeight: FontWeight.w600)),
                   ]),
                 ),
               ],
@@ -262,21 +307,27 @@ class _ParcelleCard extends StatelessWidget {
           if (dernierDiag != null) ...[
             const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
               child: Row(
                 children: [
-                  const Icon(Icons.history, size: 14, color: AppColors.textSecondary),
+                  const Icon(Icons.history,
+                      size: 14, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       'Dernier : ${dernierDiag.maladieDetectee} — ${DateFormat('dd/MM/yyyy').format(dernierDiag.dateDiagnostic)}',
-                      style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.caption
+                          .copyWith(color: AppColors.textSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   GestureDetector(
                     onTap: onScan,
-                    child: Text('Scanner', style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                    child: Text('Scanner',
+                        style: AppTypography.caption.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -284,16 +335,22 @@ class _ParcelleCard extends StatelessWidget {
           ] else ...[
             const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, size: 14, color: AppColors.textSecondary),
+                  const Icon(Icons.info_outline,
+                      size: 14, color: AppColors.textSecondary),
                   const SizedBox(width: 4),
-                  const Text('Aucun diagnostic encore', style: AppTypography.caption),
+                  const Text('Aucun diagnostic encore',
+                      style: AppTypography.caption),
                   const Spacer(),
                   GestureDetector(
                     onTap: onScan,
-                    child: Text('Scanner maintenant', style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                    child: Text('Scanner maintenant',
+                        style: AppTypography.caption.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -317,11 +374,17 @@ class _EmptyJournal extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.map_outlined, size: 80, color: AppColors.primaryLight),
+          const Icon(Icons.map_outlined,
+              size: 80, color: AppColors.primaryLight),
           const SizedBox(height: AppSpacing.md),
-          Text('Aucune parcelle', style: AppTypography.headlineMedium.copyWith(color: AppColors.textSecondary)),
+          Text('Aucune parcelle',
+              style: AppTypography.headlineMedium
+                  .copyWith(color: AppColors.textSecondary)),
           const SizedBox(height: AppSpacing.sm),
-          Text('Ajoutez votre première parcelle\npour commencer le suivi.', style: AppTypography.bodySmall, textAlign: TextAlign.center),
+          const Text(
+              'Ajoutez votre première parcelle\npour commencer le suivi.',
+              style: AppTypography.bodySmall,
+              textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.xl),
           ElevatedButton.icon(
             onPressed: onAdd,
@@ -361,10 +424,12 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     await ref.read(parcelleNotifierProvider.notifier).createParcelle(
-      nom: _nomController.text.trim(),
-      description: _descController.text.trim().isEmpty ? null : _descController.text.trim(),
-      surface: double.tryParse(_surfaceController.text.trim()),
-    );
+          nom: _nomController.text.trim(),
+          description: _descController.text.trim().isEmpty
+              ? null
+              : _descController.text.trim(),
+          surface: double.tryParse(_surfaceController.text.trim()),
+        );
     widget.onSaved();
     if (mounted) Navigator.of(context).pop();
   }
@@ -376,33 +441,48 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.md + bottomInset),
+      padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md,
+          AppSpacing.md + bottomInset),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.textSecondary, borderRadius: BorderRadius.circular(2)))),
+            Center(
+                child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: AppColors.textSecondary,
+                        borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: AppSpacing.md),
-            Text('Nouvelle parcelle', style: AppTypography.headlineMedium),
+            const Text('Nouvelle parcelle',
+                style: AppTypography.headlineMedium),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _nomController,
-              decoration: const InputDecoration(labelText: 'Nom de la parcelle *', prefixIcon: Icon(Icons.map_outlined)),
+              decoration: const InputDecoration(
+                  labelText: 'Nom de la parcelle *',
+                  prefixIcon: Icon(Icons.map_outlined)),
               validator: (v) => (v == null || v.isEmpty) ? 'Nom requis' : null,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _descController,
-              decoration: const InputDecoration(labelText: 'Description (optionnel)', prefixIcon: Icon(Icons.notes_outlined)),
+              decoration: const InputDecoration(
+                  labelText: 'Description (optionnel)',
+                  prefixIcon: Icon(Icons.notes_outlined)),
               maxLines: 2,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _surfaceController,
-              decoration: const InputDecoration(labelText: 'Surface (ha, optionnel)', prefixIcon: Icon(Icons.crop_square_outlined)),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                  labelText: 'Surface (ha, optionnel)',
+                  prefixIcon: Icon(Icons.crop_square_outlined)),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
@@ -410,7 +490,11 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
               child: ElevatedButton(
                 onPressed: isLoading ? null : _save,
                 child: isLoading
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
                     : const Text('Enregistrer'),
               ),
             ),

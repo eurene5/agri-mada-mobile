@@ -15,11 +15,10 @@ void main() {
 
   const tEmail = 'user@agrimada.mg';
   const tPassword = 'password123';
-  const tUser = AuthEntity(
+  const UserProfile tUser = UserProfile(
     userId: 'user-001',
     email: tEmail,
-    accessToken: 'access-token',
-    refreshToken: 'refresh-token',
+    phoneNumber: '0341234567',
   );
 
   setUp(() {
@@ -47,7 +46,8 @@ void main() {
     test('retourne un NetworkFailure quand le réseau est indisponible',
         () async {
       // Arrange
-      when(() => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')))
+      when(() => mockRepo.login(
+              email: any(named: 'email'), password: any(named: 'password')))
           .thenAnswer((_) async => const Left(NetworkFailure('No connection')));
 
       // Act
@@ -60,8 +60,10 @@ void main() {
     test('retourne un AuthFailure quand les identifiants sont incorrects',
         () async {
       // Arrange
-      when(() => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')))
-          .thenAnswer((_) async => const Left(AuthFailure('Identifiants incorrects')));
+      when(() => mockRepo.login(
+              email: any(named: 'email'), password: any(named: 'password')))
+          .thenAnswer(
+              (_) async => const Left(AuthFailure('Identifiants incorrects')));
 
       // Act
       final result = await useCase(email: tEmail, password: tPassword);
@@ -85,11 +87,13 @@ void main() {
         (_) => fail('Expected Left'),
       );
       verifyNever(
-        () => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')),
+        () => mockRepo.login(
+            email: any(named: 'email'), password: any(named: 'password')),
       );
     });
 
-    test('retourne une ValidationFailure sans appel réseau si mot de passe vide',
+    test(
+        'retourne une ValidationFailure sans appel réseau si mot de passe vide',
         () async {
       // Act
       final result = await useCase(email: tEmail, password: '');
@@ -100,7 +104,8 @@ void main() {
         (_) => fail('Expected Left'),
       );
       verifyNever(
-        () => mockRepo.login(email: any(named: 'email'), password: any(named: 'password')),
+        () => mockRepo.login(
+            email: any(named: 'email'), password: any(named: 'password')),
       );
     });
   });

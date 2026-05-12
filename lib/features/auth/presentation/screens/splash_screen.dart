@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_typography.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../providers/session_provider.dart';
+import '../../../../app/theme/app_typography.dart';
+import '../../../../core/local_db/session_service.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -43,7 +44,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!mounted) return;
 
     // Vérification de la session locale — pas besoin d'internet
-    final isLoggedIn = await ref.read(isLoggedInProvider.future);
+    final isLoggedIn = await SessionService.instance.isLoggedIn();
     if (!mounted) return;
 
     if (isLoggedIn) {

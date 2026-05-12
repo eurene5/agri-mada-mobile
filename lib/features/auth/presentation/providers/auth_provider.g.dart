@@ -37,7 +37,7 @@ final authRemoteDatasourceProvider =
 );
 
 typedef AuthRemoteDatasourceRef = AutoDisposeProviderRef<AuthRemoteDatasource>;
-String _$authRepositoryHash() => r'3bfd6d0e666f4820a185495dfba5741c8879c987';
+String _$authRepositoryHash() => r'06428315d15e5470ec66ab507b918c6713d85afd';
 
 /// See also [authRepository].
 @ProviderFor(authRepository)
@@ -66,7 +66,7 @@ final loginUseCaseProvider = AutoDisposeProvider<LoginUseCase>.internal(
 );
 
 typedef LoginUseCaseRef = AutoDisposeProviderRef<LoginUseCase>;
-String _$authNotifierHash() => r'abfc3b2504969428bf12e325c3d24beb893b8c2b';
+String _$authNotifierHash() => r'd74c39f58569d6f2b811cd4fb4c8eebf356cdb05';
 
 /// See also [AuthNotifier].
 @ProviderFor(AuthNotifier)

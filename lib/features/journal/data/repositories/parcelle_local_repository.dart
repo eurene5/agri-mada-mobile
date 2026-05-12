@@ -1,9 +1,9 @@
 // Repository local - Gestion des parcelles dans Isar (hors-ligne)
 
 import 'package:isar/isar.dart';
-import '../../../core/local_db/isar_service.dart';
-import '../../../core/local_db/models/parcelle_local.dart';
-import '../../../core/local_db/models/diagnostic_local.dart';
+import '../../../../core/local_db/isar_service.dart';
+import '../../../../core/local_db/models/parcelle_local.dart';
+import '../../../../core/local_db/models/diagnostic_local.dart';
 
 class ParcelleLocalRepository {
   Isar get _db => IsarService.instance.db;

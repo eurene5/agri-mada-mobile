@@ -5,20 +5,13 @@ import 'package:agri_mada/features/auth/domain/entities/auth_entity.dart';
 
 void main() {
   const tJson = <String, dynamic>{
-    'user_id': 'user-001',
-    'email': 'user@agrimada.mg',
     'access_token': 'access-token',
-    'refresh_token': 'refresh-token',
-    'display_name': 'Jean Rakoto',
-    'avatar_url': null,
+    'token_type': 'bearer',
   };
 
   const tModel = AuthModel(
-    userId: 'user-001',
-    email: 'user@agrimada.mg',
     accessToken: 'access-token',
-    refreshToken: 'refresh-token',
-    displayName: 'Jean Rakoto',
+    tokenType: 'bearer',
   );
 
   group('AuthModel', () {
@@ -28,21 +21,15 @@ void main() {
 
     test('toJson produit la Map attendue', () {
       final json = tModel.toJson();
-      expect(json['user_id'], 'user-001');
-      expect(json['email'], 'user@agrimada.mg');
       expect(json['access_token'], 'access-token');
-      expect(json['refresh_token'], 'refresh-token');
-      expect(json['display_name'], 'Jean Rakoto');
+      expect(json['token_type'], 'bearer');
     });
 
-    test('toEntity retourne un AuthEntity cohérent', () {
+    test('toEntity retourne un AuthToken cohérent', () {
       final entity = tModel.toEntity();
-      expect(entity.userId, tModel.userId);
-      expect(entity.email, tModel.email);
       expect(entity.accessToken, tModel.accessToken);
-      expect(entity.refreshToken, tModel.refreshToken);
-      expect(entity.displayName, tModel.displayName);
-      expect(entity, isA<AuthEntity>());
+      expect(entity.tokenType, tModel.tokenType);
+      expect(entity, isA<AuthToken>());
     });
   });
 }

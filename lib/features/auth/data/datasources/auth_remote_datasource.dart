@@ -11,6 +11,15 @@ abstract class AuthRemoteDatasource {
   factory AuthRemoteDatasource(Dio dio, {String baseUrl}) =
       _AuthRemoteDatasource;
 
+  @FormUrlEncoded()
   @POST(ApiConstants.login)
-  Future<AuthModel> login(@Body() Map<String, dynamic> body);
+  Future<AuthModel> login(
+    @Field('username') String username,
+    @Field('password') String password,
+  );
+
+  @GET(ApiConstants.me)
+  Future<Map<String, dynamic>> getMe(
+    @Header('Authorization') String authorization,
+  );
 }

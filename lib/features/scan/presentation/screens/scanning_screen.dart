@@ -29,7 +29,8 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   Future<void> _pickAndAnalyze(ImageSource source) async {
     // 1. Sélectionner une parcelle si pas encore fait
     if (_selectedParcelle == null) {
-      final parcelles = await ref.read(parcelleRepositoryProvider).getAllParcelles();
+      final parcelles =
+          await ref.read(parcelleRepositoryProvider).getAllParcelles();
       if (!mounted) return;
       if (parcelles.isEmpty) {
         _showNoParcelleDailog();
@@ -51,15 +52,16 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
 
     // 3. Lancer l'analyse IA
     if (!mounted) return;
-    final result = await ref.read(scanNotifierProvider.notifier).analyzeImage(imageFile);
+    final result =
+        await ref.read(scanNotifierProvider.notifier).analyzeImage(imageFile);
     if (result == null) return;
 
     // 4. Sauvegarder dans Isar
     await ref.read(scanNotifierProvider.notifier).saveDiagnostic(
-      parcelleLocalId: _selectedParcelle!.id,
-      result: result,
-      imagePath: xFile.path,
-    );
+          parcelleLocalId: _selectedParcelle!.id,
+          result: result,
+          imagePath: xFile.path,
+        );
 
     // 5. Invalider le journal pour qu'il se recharge
     ref.invalidate(journalAgricoleProvider);
@@ -68,7 +70,8 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
     context.go(AppRoutes.scanResult);
   }
 
-  Future<ParcelleLocal?> _showParcelleSelector(List<ParcelleLocal> parcelles) async {
+  Future<ParcelleLocal?> _showParcelleSelector(
+      List<ParcelleLocal> parcelles) async {
     return showModalBottomSheet<ParcelleLocal>(
       context: context,
       backgroundColor: AppColors.background,
@@ -81,16 +84,24 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.textSecondary, borderRadius: BorderRadius.circular(2))),
+              Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: AppColors.textSecondary,
+                      borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
-              Text('Choisir une parcelle', style: AppTypography.headlineMedium),
+              const Text('Choisir une parcelle',
+                  style: AppTypography.headlineMedium),
               const SizedBox(height: 8),
               ...parcelles.map((p) => ListTile(
-                leading: const Icon(Icons.map_outlined, color: AppColors.primary),
-                title: Text(p.nomParcelle),
-                subtitle: p.surface != null ? Text('${p.surface} ha') : null,
-                onTap: () => Navigator.of(ctx).pop(p),
-              )),
+                    leading: const Icon(Icons.map_outlined,
+                        color: AppColors.primary),
+                    title: Text(p.nomParcelle),
+                    subtitle:
+                        p.surface != null ? Text('${p.surface} ha') : null,
+                    onTap: () => Navigator.of(ctx).pop(p),
+                  )),
               const SizedBox(height: 8),
             ],
           ),
@@ -104,11 +115,17 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Aucune parcelle'),
-        content: const Text('Créez d\'abord une parcelle dans votre journal agricole avant de scanner.'),
+        content: const Text(
+            'Créez d\'abord une parcelle dans votre journal agricole avant de scanner.'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
           TextButton(
-            onPressed: () { Navigator.of(context).pop(); context.go(AppRoutes.journal); },
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK')),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go(AppRoutes.journal);
+            },
             child: const Text('Aller au journal'),
           ),
         ],
@@ -181,24 +198,35 @@ class _CameraViewfinder extends StatelessWidget {
           if (isLoading) ...[
             const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: AppSpacing.md),
-            Text('Analyse en cours...', style: AppTypography.bodyMedium.copyWith(color: AppColors.textOnPrimary)),
+            Text('Analyse en cours...',
+                style: AppTypography.bodyMedium
+                    .copyWith(color: AppColors.textOnPrimary)),
           ] else ...[
-            const Icon(Icons.camera_alt_outlined, color: AppColors.primary, size: 64),
+            const Icon(Icons.camera_alt_outlined,
+                color: AppColors.primary, size: 64),
             const SizedBox(height: AppSpacing.md),
             if (selectedParcelle != null)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(color: AppColors.primary.withAlpha(40), borderRadius: BorderRadius.circular(8)),
-                child: Text('📍 ${selectedParcelle!.nomParcelle}', style: AppTypography.bodySmall.copyWith(color: AppColors.primary)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                    color: AppColors.primary.withAlpha(40),
+                    borderRadius: BorderRadius.circular(8)),
+                child: Text('📍 ${selectedParcelle!.nomParcelle}',
+                    style: AppTypography.bodySmall
+                        .copyWith(color: AppColors.primary)),
               ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Pointez la caméra vers\nla feuille de riz',
-              style: AppTypography.bodyMedium.copyWith(color: AppColors.textOnPrimary),
+              style: AppTypography.bodyMedium
+                  .copyWith(color: AppColors.textOnPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xs),
-            Text("L'analyse se fait hors ligne", style: AppTypography.bodySmall.copyWith(color: AppColors.primary)),
+            Text("L'analyse se fait hors ligne",
+                style:
+                    AppTypography.bodySmall.copyWith(color: AppColors.primary)),
             const SizedBox(height: AppSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -207,9 +235,14 @@ class _CameraViewfinder extends StatelessWidget {
                 GestureDetector(
                   onTap: onGallery,
                   child: Container(
-                    width: 50, height: 50,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withAlpha(30), border: Border.all(color: Colors.white, width: 2)),
-                    child: const Icon(Icons.photo_library_outlined, color: Colors.white, size: 24),
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withAlpha(30),
+                        border: Border.all(color: Colors.white, width: 2)),
+                    child: const Icon(Icons.photo_library_outlined,
+                        color: Colors.white, size: 24),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xl),
@@ -217,9 +250,14 @@ class _CameraViewfinder extends StatelessWidget {
                 GestureDetector(
                   onTap: onCamera,
                   child: Container(
-                    width: 72, height: 72,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.primary, border: Border.all(color: Colors.white, width: 3)),
-                    child: const Icon(Icons.circle, color: AppColors.textOnPrimary, size: 40),
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary,
+                        border: Border.all(color: Colors.white, width: 3)),
+                    child: const Icon(Icons.circle,
+                        color: AppColors.textOnPrimary, size: 40),
                   ),
                 ),
               ],
@@ -239,12 +277,15 @@ class _ScanHeader extends StatelessWidget {
     final topPadding = MediaQuery.of(context).padding.top;
     return Container(
       padding: EdgeInsets.fromLTRB(
-        AppSpacing.screenHorizontal, topPadding + AppSpacing.sm,
-        AppSpacing.screenHorizontal, AppSpacing.sm,
+        AppSpacing.screenHorizontal,
+        topPadding + AppSpacing.sm,
+        AppSpacing.screenHorizontal,
+        AppSpacing.sm,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topCenter, end: Alignment.bottomCenter,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [Colors.black.withAlpha(180), Colors.transparent],
         ),
       ),
@@ -252,10 +293,13 @@ class _ScanHeader extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () => context.go(AppRoutes.home),
-            child: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 22),
+            child:
+                const Icon(Icons.arrow_back_ios, color: Colors.white, size: 22),
           ),
           const SizedBox(width: AppSpacing.md),
-          Text('Scanner une feuille', style: AppTypography.headlineMedium.copyWith(color: AppColors.textOnPrimary)),
+          Text('Scanner une feuille',
+              style: AppTypography.headlineMedium
+                  .copyWith(color: AppColors.textOnPrimary)),
         ],
       ),
     );
@@ -278,7 +322,8 @@ class _CancelButton extends StatelessWidget {
           border: Border.all(color: Colors.white.withAlpha(80), width: 1),
         ),
         alignment: Alignment.center,
-        child: Text('ANNULER', style: AppTypography.labelMedium.copyWith(letterSpacing: 1.5)),
+        child: Text('ANNULER',
+            style: AppTypography.labelMedium.copyWith(letterSpacing: 1.5)),
       ),
     );
   }

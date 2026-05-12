@@ -1,8 +1,8 @@
 // Repository local - Gestion des diagnostics dans Isar (hors-ligne)
 
 import 'package:isar/isar.dart';
-import '../../../core/local_db/isar_service.dart';
-import '../../../core/local_db/models/diagnostic_local.dart';
+import '../../../../core/local_db/isar_service.dart';
+import '../../../../core/local_db/models/diagnostic_local.dart';
 
 class DiagnosticLocalRepository {
   Isar get _db => IsarService.instance.db;
