@@ -44,3 +44,9 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Supporte les modèles qui utilisent des opérations TensorFlow étendues.
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.14.0")
+}

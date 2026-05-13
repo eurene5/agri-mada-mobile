@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 
+import 'package:agri_mada/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:agri_mada/features/auth/presentation/providers/auth_provider.dart';
 import 'package:agri_mada/core/sync/providers/sync_provider.dart';
 import 'package:agri_mada/features/auth/presentation/providers/session_provider.dart';
 import 'package:agri_mada/features/home/presentation/screens/home_screen.dart';
@@ -46,6 +50,8 @@ class _FakeSyncNotifier extends SyncNotifier {
   SyncState build() => const SyncState.idle();
 }
 
+class _MockAuthRepositoryImpl extends Mock implements AuthRepositoryImpl {}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -53,6 +59,12 @@ void main() {
     final router = GoRouter(
       initialLocation: '/landing',
       routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const Scaffold(
+            body: Center(child: Text('Splash Target')),
+          ),
+        ),
         GoRoute(
           path: '/landing',
           builder: (context, state) => const HomeScreen(),
@@ -154,6 +166,93 @@ void main() {
       // Assert
       expect(find.text('Home Target'), findsOneWidget);
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('callback Déconnexion appelle logout et navigue vers /', (
+      tester,
+    ) async {
+      // Arrange
+      final mockAuthRepository = _MockAuthRepositoryImpl();
+      when(() => mockAuthRepository.logout()).thenAnswer(
+        (_) async => const Right(unit),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(mockAuthRepository),
+            syncNotifierProvider.overrideWith(_FakeSyncNotifier.new),
+            sessionProvider.overrideWith((ref) async {
+              return {'prenom': 'Jean'};
+            }),
+            journalAgricoleProvider.overrideWith((ref) async {
+              return <Map<String, dynamic>>[];
+            }),
+          ],
+          child: MaterialApp.router(
+            routerConfig: GoRouter(
+              initialLocation: '/landing',
+              routes: [
+                GoRoute(
+                  path: '/',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Splash Target')),
+                  ),
+                ),
+                GoRoute(
+                  path: '/landing',
+                  builder: (context, state) => const HomeScreen(),
+                ),
+                GoRoute(
+                  path: '/home',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Home Target')),
+                  ),
+                ),
+                GoRoute(
+                  path: '/scanning',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Scanning Target')),
+                  ),
+                ),
+                GoRoute(
+                  path: '/journal',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Journal Target')),
+                  ),
+                ),
+                GoRoute(
+                  path: '/settings',
+                  builder: (context, state) => const Scaffold(
+                    body: Center(child: Text('Settings Target')),
+                  ),
+                ),
+              ],
+            ),
+            locale: const Locale('fr'),
+            supportedLocales: const [Locale('fr'), Locale('mg')],
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              _MgMaterialLocalizationsDelegate(),
+              _MgCupertinoLocalizationsDelegate(),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Act
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Déconnexion'));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Splash Target'), findsOneWidget);
+      verify(() => mockAuthRepository.logout()).called(1);
     });
   });
 }

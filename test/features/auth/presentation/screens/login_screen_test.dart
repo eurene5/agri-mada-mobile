@@ -98,6 +98,23 @@ void main() {
   });
 
   group('LoginScreen callbacks', () {
+    testWidgets(
+      'admin comme identifiant ne declenche pas l erreur email invalide',
+      (tester) async {
+        // Arrange
+        await pumpLoginScreen(tester);
+
+        // Act
+        await tester.enterText(find.byType(TextFormField).at(0), 'admin');
+        await tester.tap(find.text('Se connecter'));
+        await tester.pump();
+
+        // Assert
+        expect(find.text('Email invalide'), findsNothing);
+        expect(find.text('Veuillez entrer votre mot de passe'), findsOneWidget);
+      },
+    );
+
     testWidgets('tap Mot de passe oublie affiche l ecran reset',
         (tester) async {
       // Arrange

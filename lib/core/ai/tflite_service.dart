@@ -93,8 +93,7 @@ class TFLiteService {
       }
 
       AppLogger.debug('TFLite model bytes: ${buffer.length}');
-      final options = InterpreterOptions()..threads = 4;
-      _interpreter = Interpreter.fromBuffer(buffer, options: options);
+      _interpreter = await _createInterpreterWithFallback(buffer);
 
       AppLogger.info('TFLite init: chargement des labels...');
       final labelsData = await rootBundle.loadString('assets/model/labels.txt');
@@ -124,6 +123,34 @@ class TFLiteService {
     } finally {
       _initFuture = null;
     }
+  }
+
+  Future<Interpreter> _createInterpreterWithFallback(Uint8List buffer) async {
+    // Essai 1: configuration performante (threads multiples).
+    try {
+      final options = InterpreterOptions()..threads = 4;
+      return Interpreter.fromBuffer(buffer, options: options);
+    } catch (firstError, firstStack) {
+      AppLogger.error(
+        'Creation Interpreter avec options echouee, tentative sans options',
+        error: firstError,
+        stackTrace: firstStack,
+      );
+    }
+
+    // Essai 2: configuration par defaut.
+    try {
+      return Interpreter.fromBuffer(buffer);
+    } catch (secondError, secondStack) {
+      AppLogger.error(
+        'Creation Interpreter depuis buffer echouee, tentative depuis asset',
+        error: secondError,
+        stackTrace: secondStack,
+      );
+    }
+
+    // Essai 3: chargement direct asset (path Flutter).
+      return Interpreter.fromAsset('assets/model/agrimada_model.tflite');
   }
 
   /// Analyse une image et retourne le diagnostic
