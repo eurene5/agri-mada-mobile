@@ -150,7 +150,7 @@ class TFLiteService {
     }
 
     // Essai 3: chargement direct asset (path Flutter).
-      return Interpreter.fromAsset('assets/model/agrimada_model.tflite');
+    return Interpreter.fromAsset('assets/model/agrimada_model.tflite');
   }
 
   /// Analyse une image et retourne le diagnostic
