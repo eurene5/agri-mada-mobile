@@ -4,15 +4,21 @@ import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:agri_mada/core/errors/failure.dart';
+import 'package:agri_mada/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:agri_mada/features/auth/domain/entities/auth_entity.dart';
 import 'package:agri_mada/features/auth/domain/usecases/login_usecase.dart';
 import 'package:agri_mada/features/auth/presentation/providers/auth_provider.dart';
 
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 
+class MockAuthRepositoryImpl extends Mock implements AuthRepositoryImpl {}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late ProviderContainer container;
   late MockLoginUseCase mockUseCase;
+  late MockAuthRepositoryImpl mockAuthRepository;
 
   const tEmail = 'user@agrimada.mg';
   const tPassword = 'password123';
@@ -24,8 +30,17 @@ void main() {
 
   setUp(() {
     mockUseCase = MockLoginUseCase();
+    mockAuthRepository = MockAuthRepositoryImpl();
+
+    when(() => mockAuthRepository.logout()).thenAnswer(
+      (_) async => const Right(unit),
+    );
+
     container = ProviderContainer(
-      overrides: [loginUseCaseProvider.overrideWithValue(mockUseCase)],
+      overrides: [
+        loginUseCaseProvider.overrideWithValue(mockUseCase),
+        authRepositoryProvider.overrideWithValue(mockAuthRepository),
+      ],
     );
   });
 

@@ -92,7 +92,7 @@ void main() {
           await repository.createParcelle(nomParcelle: 'A supprimer');
 
       // Act
-      await repository.deleteParcelle(parcelle.id);
+      await repository.deleteParcelle(parcelle.id.toString());
       final parcelles = await repository.getAllParcelles();
 
       // Assert

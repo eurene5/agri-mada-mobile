@@ -572,6 +572,84 @@ abstract class AppLocalizations {
   /// **'Recommandation'**
   String get scanRecommendationItemTitle;
 
+  /// Recommandation BLB 1
+  ///
+  /// In fr, this message translates to:
+  /// **'Évacuer l\'eau des rizières infectées'**
+  String get scanRecBlbEvacuateWater;
+
+  /// Recommandation BLB 2
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer du cuivre hydroxyde (2-3 g/L)'**
+  String get scanRecBlbApplyCopper;
+
+  /// Recommandation BLB 3
+  ///
+  /// In fr, this message translates to:
+  /// **'Éviter l\'excès d\'azote'**
+  String get scanRecBlbAvoidNitrogen;
+
+  /// Recommandation BLB 4
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser des variétés résistantes lors du prochain cycle'**
+  String get scanRecBlbUseResistantVarieties;
+
+  /// Recommandation Brown Spot 1
+  ///
+  /// In fr, this message translates to:
+  /// **'Améliorer la fertilisation (potassium)'**
+  String get scanRecBrownSpotFertilize;
+
+  /// Recommandation Brown Spot 2
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer un fongicide à base de mancozèbe'**
+  String get scanRecBrownSpotApplyFungicide;
+
+  /// Recommandation Brown Spot 3
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurer un drainage correct'**
+  String get scanRecBrownSpotDrainage;
+
+  /// Recommandation Brown Spot 4
+  ///
+  /// In fr, this message translates to:
+  /// **'Éviter le stress hydrique'**
+  String get scanRecBrownSpotAvoidStress;
+
+  /// Recommandation Leaf Smut 1
+  ///
+  /// In fr, this message translates to:
+  /// **'Traiter les semences avant plantation'**
+  String get scanRecLeafSmutTreatSeeds;
+
+  /// Recommandation Leaf Smut 2
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliquer des fongicides systémiques'**
+  String get scanRecLeafSmutApplyFungicide;
+
+  /// Recommandation Leaf Smut 3
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer et brûler les plants infectés'**
+  String get scanRecLeafSmutRemovePlants;
+
+  /// Recommandation Leaf Smut 4
+  ///
+  /// In fr, this message translates to:
+  /// **'Rotation des cultures recommandée'**
+  String get scanRecLeafSmutRotation;
+
+  /// Recommandation plante saine
+  ///
+  /// In fr, this message translates to:
+  /// **'Plante en bonne santé. Continuez les bonnes pratiques agricoles.'**
+  String get scanRecHealthy;
+
   /// Astuce resultat scan
   ///
   /// In fr, this message translates to:

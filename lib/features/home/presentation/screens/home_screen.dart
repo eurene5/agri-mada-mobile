@@ -18,9 +18,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = AppLocalizations.of(context)!;
-    // Initialise le service de synchronisation en arrière-plan
-    ref.watch(syncNotifierProvider);
+    final loc = AppLocalizations.of(context);
 
     void showComingSoonSnackBar(String message) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,128 +82,199 @@ class _HomeHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final syncState = ref.watch(syncNotifierProvider);
     final locale = ref.watch(localeProvider);
 
-    return Row(
-      children: [
-        // Menu hamburger
-        Semantics(
-          button: true,
-          label: loc.homeMenuSemantics,
-          child: GestureDetector(
-            onTap: onMenuTap,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.cardBackground,
-                borderRadius: BorderRadius.circular(AppSpacing.sm),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(15),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
+    final menuButton = Semantics(
+      button: true,
+      label: loc.homeMenuSemantics,
+      child: GestureDetector(
+        onTap: onMenuTap,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.cardBackground,
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Icon(Icons.menu, color: AppColors.textPrimary, size: 20),
+        ),
+      ),
+    );
+
+    final greeting = Consumer(
+      builder: (context, ref, _) {
+        final sessionAsync = ref.watch(sessionProvider);
+        final prenom =
+            sessionAsync.valueOrNull?['prenom'] ?? loc.homeFarmerDefault;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.homeHelloUser(prenom),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.headlineMedium.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              loc.homeReadyForAnalysis,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.primary,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    final actions = _HomeHeaderActions(
+      syncState: syncState,
+      locale: locale,
+      offlineLabel: loc.homeOfflineMode,
+      onLocaleSelected: (value) {
+        ref.read(localeProvider.notifier).setLocale(Locale(value));
+      },
+      onHelpTap: () => context.go('${AppRoutes.onboarding}?mode=help'),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 390;
+
+        if (isCompact) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  menuButton,
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: greeting),
                 ],
               ),
-              child: const Icon(Icons.menu,
-                  color: AppColors.textPrimary, size: 20),
+              const SizedBox(height: AppSpacing.xs),
+              Align(
+                alignment: Alignment.centerRight,
+                child: actions,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            menuButton,
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: greeting),
+            const SizedBox(width: AppSpacing.sm),
+            Flexible(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: actions,
+              ),
             ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Consumer(
-          builder: (context, ref, _) {
-            final sessionAsync = ref.watch(sessionProvider);
-            final prenom =
-                sessionAsync.valueOrNull?['prenom'] ?? loc.homeFarmerDefault;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  loc.homeHelloUser(prenom),
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  loc.homeReadyForAnalysis,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.primary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-        const Spacer(),
-        // Mode hors ligne
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _HomeHeaderActions extends StatelessWidget {
+  const _HomeHeaderActions({
+    required this.syncState,
+    required this.locale,
+    required this.offlineLabel,
+    required this.onLocaleSelected,
+    required this.onHelpTap,
+  });
+
+  final SyncState syncState;
+  final Locale locale;
+  final String offlineLabel;
+  final ValueChanged<String> onLocaleSelected;
+  final VoidCallback onHelpTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.xs,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      alignment: WrapAlignment.end,
+      children: [
         Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const SyncStatusIndicator(),
             if (syncState is! SyncIdle) const SizedBox(width: AppSpacing.sm),
             const Icon(Icons.wifi_off, color: AppColors.primary, size: 18),
             const SizedBox(width: 4),
             Text(
-              loc.homeOfflineMode,
+              offlineLabel,
               style: AppTypography.caption.copyWith(
                 color: AppColors.primary,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            PopupMenuButton<String>(
-              initialValue: locale.languageCode,
-              onSelected: (value) {
-                ref.read(localeProvider.notifier).setLocale(Locale(value));
-              },
-              itemBuilder: (_) => const [
-                PopupMenuItem(value: 'fr', child: Text('FR')),
-                PopupMenuItem(value: 'mg', child: Text('MG')),
-              ],
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xs,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary),
-                  borderRadius: BorderRadius.circular(AppSpacing.xs),
-                ),
-                child: Text(
-                  locale.languageCode.toUpperCase(),
-                  style:
-                      AppTypography.caption.copyWith(color: AppColors.primary),
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Semantics(
-              button: true,
-              label: 'Aide',
-              child: GestureDetector(
-                onTap: () => context.go('${AppRoutes.onboarding}?mode=help'),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.circular(AppSpacing.xs),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '?',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ],
+        ),
+        PopupMenuButton<String>(
+          initialValue: locale.languageCode,
+          onSelected: onLocaleSelected,
+          itemBuilder: (_) => const [
+            PopupMenuItem(value: 'fr', child: Text('FR')),
+            PopupMenuItem(value: 'mg', child: Text('MG')),
+          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xs,
+              vertical: 2,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.primary),
+              borderRadius: BorderRadius.circular(AppSpacing.xs),
+            ),
+            child: Text(
+              locale.languageCode.toUpperCase(),
+              style: AppTypography.caption.copyWith(color: AppColors.primary),
+            ),
+          ),
+        ),
+        Semantics(
+          button: true,
+          label: 'Aide',
+          child: GestureDetector(
+            onTap: onHelpTap,
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(AppSpacing.xs),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '?',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -217,7 +286,7 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -272,7 +341,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Container(
       height: 171,
       decoration: BoxDecoration(
@@ -365,7 +434,7 @@ class _ServicesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -476,7 +545,7 @@ class _ScanFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Semantics(
       button: true,
       label: loc.homeScanPlantSemantics,
@@ -514,7 +583,7 @@ class _HomeBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return BottomAppBar(
       height: 79,
       color: AppColors.navBar,

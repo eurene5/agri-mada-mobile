@@ -1,5 +1,7 @@
+import 'app_environment.dart';
+
 abstract final class ApiConstants {
-  static const String baseUrl = 'https://api.agrimada.mg/api';
+  static String get baseUrl => AppEnvironment.apiBaseUrl;
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 15);
 

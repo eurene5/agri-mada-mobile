@@ -4,13 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/api_constants.dart';
 import '../errors/failure.dart';
 import '../local_db/session_service.dart';
+import '../utils/logger.dart';
+
+final apiBaseUrlProvider = Provider<String>((_) => ApiConstants.baseUrl);
 
 final dioClientProvider = Provider<Dio>((ref) {
   final sessionService = SessionService.instance;
+  final baseUrl = ref.watch(apiBaseUrlProvider);
+
+  AppLogger.info('Dio baseUrl active: $baseUrl');
 
   final dio = Dio(
     BaseOptions(
-      baseUrl: ApiConstants.baseUrl,
+      baseUrl: baseUrl,
       connectTimeout: ApiConstants.connectTimeout,
       receiveTimeout: ApiConstants.receiveTimeout,
     ),

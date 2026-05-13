@@ -39,14 +39,14 @@ void main() {
     test('succes -> retourne une liste de ParcelleEntity', () async {
       // Arrange
       when(() => repository.getParcelles()).thenAnswer(
-        (_) async => const Right(tParcelles),
+        (_) async => const Right<Failure, List<ParcelleEntity>>(tParcelles),
       );
 
       // Act
       final result = await useCase();
 
       // Assert
-      expect(result, const Right(tParcelles));
+      expect(result, const Right<Failure, List<ParcelleEntity>>(tParcelles));
       verify(() => repository.getParcelles()).called(1);
       verifyNoMoreInteractions(repository);
     });

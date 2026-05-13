@@ -1,4 +1,5 @@
 import 'package:agri_mada/core/local_db/isar_service.dart';
+import 'package:agri_mada/core/local_db/models/diagnostic_local.dart';
 import 'package:agri_mada/core/local_db/session_service.dart';
 import 'package:agri_mada/core/sync/providers/sync_provider.dart';
 import 'package:agri_mada/features/home/presentation/screens/home_screen.dart';

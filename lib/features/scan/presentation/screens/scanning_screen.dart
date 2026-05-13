@@ -13,6 +13,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../../../../core/utils/logger.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../providers/scan_provider.dart';
@@ -28,9 +29,31 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   final _picker = ImagePicker();
   ParcelleLocal? _selectedParcelle;
 
+  Future<bool> _ensureAiReady() async {
+    final bootReady = ref.read(isTFLiteReadyProvider);
+    final tflite = ref.read(tfliteServiceProvider);
+
+    if (bootReady || tflite.isReady) {
+      return true;
+    }
+
+    try {
+      await tflite.init();
+    } catch (e, st) {
+      AppLogger.error(
+        'Echec re-initialisation TFLite depuis Scan',
+        error: e,
+        stackTrace: st,
+      );
+    }
+
+    return tflite.isReady;
+  }
+
   Future<void> _pickAndAnalyze(ImageSource source) async {
-    final loc = AppLocalizations.of(context)!;
-    if (!ref.read(isTFLiteReadyProvider)) {
+    final loc = AppLocalizations.of(context);
+    final isAiReady = await _ensureAiReady();
+    if (!isAiReady) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -85,7 +108,7 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
 
   Future<ParcelleLocal?> _showParcelleSelector(
       List<ParcelleLocal> parcelles) async {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return showModalBottomSheet<ParcelleLocal>(
       context: context,
       backgroundColor: AppColors.background,
@@ -124,7 +147,7 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
   }
 
   void _showNoParcelleDailog() {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
@@ -148,12 +171,12 @@ class _ScanningScreenState extends ConsumerState<ScanningScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final scanState = ref.watch(scanNotifierProvider);
     final isLoading = scanState is ScanLoading;
-    final isTFLiteReady = ref.watch(isTFLiteReadyProvider);
-    final hasEngineError = scanState is ScanError &&
-        scanState.message == 'Moteur IA non disponible';
+    final isTFLiteReady = ref.watch(isTFLiteReadyProvider) ||
+        ref.watch(tfliteServiceProvider).isReady;
+    final hasEngineError = scanState is ScanEngineUnavailable;
     final showDegradedMessage = !isTFLiteReady || hasEngineError;
 
     return Scaffold(
@@ -226,7 +249,7 @@ class _CameraViewfinder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.screenHorizontal,
@@ -322,7 +345,7 @@ class _ScanHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final topPadding = MediaQuery.of(context).padding.top;
     return Container(
       padding: EdgeInsets.fromLTRB(

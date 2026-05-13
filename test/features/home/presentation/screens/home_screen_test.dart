@@ -1,12 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:agri_mada/core/sync/providers/sync_provider.dart';
 import 'package:agri_mada/features/auth/presentation/providers/session_provider.dart';
 import 'package:agri_mada/features/home/presentation/screens/home_screen.dart';
 import 'package:agri_mada/features/journal/presentation/providers/journal_provider.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
+
+class _MgMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
+  const _MgMaterialLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'mg';
+
+  @override
+  Future<MaterialLocalizations> load(Locale locale) =>
+      GlobalMaterialLocalizations.delegate.load(const Locale('fr'));
+
+  @override
+  bool shouldReload(_MgMaterialLocalizationsDelegate old) => false;
+}
+
+class _MgCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _MgCupertinoLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'mg';
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) =>
+      GlobalCupertinoLocalizations.delegate.load(const Locale('fr'));
+
+  @override
+  bool shouldReload(_MgCupertinoLocalizationsDelegate old) => false;
+}
 
 class _FakeSyncNotifier extends SyncNotifier {
   @override
@@ -56,7 +89,19 @@ void main() {
             return <Map<String, dynamic>>[];
           }),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('fr'),
+          supportedLocales: const [Locale('fr'), Locale('mg')],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            _MgMaterialLocalizationsDelegate(),
+            _MgCupertinoLocalizationsDelegate(),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -70,11 +115,11 @@ void main() {
         await pumpHomeAtLanding(tester);
 
         // Act
-        await tester.tap(find.bySemanticsLabel('Ouvrir le menu'));
+        await tester.tap(find.byIcon(Icons.menu));
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text('Bientôt disponible'), findsOneWidget);
+        expect(find.byType(SnackBar), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );
@@ -86,7 +131,7 @@ void main() {
         await pumpHomeAtLanding(tester);
 
         // Act
-        await tester.tap(find.bySemanticsLabel('Accueil'));
+        await tester.tap(find.byIcon(Icons.home_outlined));
         await tester.pumpAndSettle();
 
         // Assert

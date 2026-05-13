@@ -16,7 +16,13 @@ void main() async {
   var isTFLiteReady = false;
   try {
     await TFLiteService.instance.init();
-    isTFLiteReady = true;
+    isTFLiteReady = TFLiteService.instance.isReady;
+    if (!isTFLiteReady) {
+      AppLogger.error(
+        'Initialisation TFLite terminee mais moteur non pret',
+        error: TFLiteService.instance.lastInitError,
+      );
+    }
   } catch (e, st) {
     AppLogger.error(
       'Initialisation TFLite échouée: démarrage en mode dégradé sans IA',

@@ -21,7 +21,7 @@ class JournalScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final journalAsync = ref.watch(journalAgricoleProvider);
     final journalData = journalAsync.valueOrNull;
 
@@ -220,7 +220,7 @@ class _QuickStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final saines = journal.where((e) => e['statut'] == 'sain').length;
     final malades = journal.where((e) => e['statut'] == 'malade').length;
     final total = journal.length;
@@ -288,7 +288,7 @@ class _ParcelleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final parcelle = entry['parcelle'] as ParcelleLocal;
     final statut = entry['statut'] as String;
     final dernierDiag = entry['dernier_diagnostic'] as DiagnosticLocal?;
@@ -457,7 +457,7 @@ class _EmptyJournal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -522,7 +522,7 @@ class _AddParcelleSheetState extends ConsumerState<_AddParcelleSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final state = ref.watch(parcelleNotifierProvider);
     final isLoading = state is AsyncLoading;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;

@@ -53,6 +53,8 @@ sealed class ScanState {
   const factory ScanState.initial() = ScanInitial;
   const factory ScanState.loading() = ScanLoading;
   const factory ScanState.success(DiagnosticResult result) = ScanSuccess;
+  const factory ScanState.engineUnavailable(String message) =
+      ScanEngineUnavailable;
   const factory ScanState.error(String message) = ScanError;
 }
 
@@ -68,6 +70,12 @@ class ScanSuccess extends ScanState {
   const ScanSuccess(this.result);
 
   final DiagnosticResult result;
+}
+
+class ScanEngineUnavailable extends ScanState {
+  const ScanEngineUnavailable(this.message);
+
+  final String message;
 }
 
 class ScanError extends ScanState {
@@ -103,7 +111,8 @@ class ScanNotifier extends StateNotifier<ScanState> {
     return result.fold((failure) {
       state = switch (failure) {
         ValidationFailure() => ScanState.error(failure.message),
-        NetworkFailure() => const ScanState.error('Moteur IA non disponible'),
+        NetworkFailure() =>
+          const ScanState.engineUnavailable('Moteur IA non disponible'),
         _ => const ScanState.error('Erreur pendant le diagnostic IA'),
       };
       return null;

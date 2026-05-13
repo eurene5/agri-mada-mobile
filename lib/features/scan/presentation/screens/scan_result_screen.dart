@@ -17,7 +17,7 @@ class ScanResultScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final scanState = ref.watch(scanNotifierProvider);
     final scanNotifier = ref.read(scanNotifierProvider.notifier);
     final result = switch (scanState) {
@@ -39,7 +39,7 @@ class ScanResultScreen extends ConsumerWidget {
       backgroundColor: AppColors.scaffoldBackground,
       body: Column(
         children: [
-          _ScanResultHeader(),
+          const _ScanResultHeader(),
           Expanded(
             child: Container(
               width: double.infinity,
@@ -61,7 +61,7 @@ class ScanResultScreen extends ConsumerWidget {
                     _RecommendationsCard(
                         recommandations: result.recommandations),
                     const SizedBox(height: AppSpacing.md),
-                    _TipCard(),
+                    const _TipCard(),
                     const SizedBox(height: AppSpacing.md),
                     _ActionButtons(
                       onSave: () async {
@@ -123,7 +123,7 @@ class _ScanResultHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final topPadding = MediaQuery.of(context).padding.top;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -178,7 +178,7 @@ class _DiagnosticCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final isHealthy = result.maladieDetectee.toLowerCase() == 'healthy';
     return Container(
       decoration: BoxDecoration(
@@ -262,7 +262,7 @@ String _buildShareText({
   required DiagnosticResult result,
   DiagnosticLocal? savedDiagnostic,
 }) {
-  final loc = AppLocalizations.of(context)!;
+  final loc = AppLocalizations.of(context);
   final date = DateFormat('dd/MM/yyyy').format(
     savedDiagnostic?.dateDiagnostic ?? DateTime.now(),
   );
@@ -283,6 +283,24 @@ String _buildShareText({
   ].join('\n');
 }
 
+/// Résout un identifiant de clé ARB de recommandation vers une chaîne localisée.
+String _resolveRecommendation(AppLocalizations loc, String key) =>
+    switch (key) {
+      'scanRecBlbEvacuateWater' => loc.scanRecBlbEvacuateWater,
+      'scanRecBlbApplyCopper' => loc.scanRecBlbApplyCopper,
+      'scanRecBlbAvoidNitrogen' => loc.scanRecBlbAvoidNitrogen,
+      'scanRecBlbUseResistantVarieties' => loc.scanRecBlbUseResistantVarieties,
+      'scanRecBrownSpotFertilize' => loc.scanRecBrownSpotFertilize,
+      'scanRecBrownSpotApplyFungicide' => loc.scanRecBrownSpotApplyFungicide,
+      'scanRecBrownSpotDrainage' => loc.scanRecBrownSpotDrainage,
+      'scanRecBrownSpotAvoidStress' => loc.scanRecBrownSpotAvoidStress,
+      'scanRecLeafSmutTreatSeeds' => loc.scanRecLeafSmutTreatSeeds,
+      'scanRecLeafSmutApplyFungicide' => loc.scanRecLeafSmutApplyFungicide,
+      'scanRecLeafSmutRemovePlants' => loc.scanRecLeafSmutRemovePlants,
+      'scanRecLeafSmutRotation' => loc.scanRecLeafSmutRotation,
+      _ => loc.scanRecHealthy,
+    };
+
 class _SeverityCard extends StatelessWidget {
   const _SeverityCard({required this.gravite});
   final String gravite;
@@ -291,12 +309,14 @@ class _SeverityCard extends StatelessWidget {
         'aucune' => 0.0,
         'faible' => 0.15,
         'modéré' => 0.55,
+        'sévère' => 0.95,
         _ => 0.95,
       };
 
   Color get _severityColor => switch (gravite) {
         'aucune' || 'faible' => AppColors.severityLow,
         'modéré' => AppColors.severityMedium,
+        'sévère' => AppColors.severityHigh,
         _ => AppColors.severityHigh,
       };
 
@@ -304,12 +324,13 @@ class _SeverityCard extends StatelessWidget {
         'aucune' => loc.scanSeverityNoneStatus,
         'faible' => loc.scanSeverityLowStatus,
         'modéré' => loc.scanSeverityMediumStatus,
+        'sévère' => loc.scanSeverityHighStatus,
         _ => loc.scanSeverityHighStatus,
       };
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -393,7 +414,7 @@ class _RecommendationsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -418,7 +439,7 @@ class _RecommendationsCard extends StatelessWidget {
                   _RecommendationItem(
                     icon: Icons.spa_outlined,
                     title: loc.scanRecommendationItemTitle,
-                    description: r,
+                    description: _resolveRecommendation(loc, r),
                   ),
                   if (r != recommandations.last)
                     const Divider(height: AppSpacing.xl),
@@ -483,7 +504,7 @@ class _TipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -521,7 +542,7 @@ class _ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -578,7 +599,7 @@ class _ShareButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Semantics(
       button: true,
       label: loc.scanShareSemantics,

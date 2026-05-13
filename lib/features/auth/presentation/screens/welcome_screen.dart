@@ -171,7 +171,7 @@ class _DecorativeCircle extends StatelessWidget {
 class _WelcomeTexts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Column(
       children: [
         Text(
@@ -201,7 +201,7 @@ class _WelcomeActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     return Column(
       children: [
         AppButton(

@@ -265,6 +265,52 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scanRecommendationItemTitle => 'Recommandation';
 
   @override
+  String get scanRecBlbEvacuateWater => 'Évacuer l\'eau des rizières infectées';
+
+  @override
+  String get scanRecBlbApplyCopper => 'Appliquer du cuivre hydroxyde (2-3 g/L)';
+
+  @override
+  String get scanRecBlbAvoidNitrogen => 'Éviter l\'excès d\'azote';
+
+  @override
+  String get scanRecBlbUseResistantVarieties =>
+      'Utiliser des variétés résistantes lors du prochain cycle';
+
+  @override
+  String get scanRecBrownSpotFertilize =>
+      'Améliorer la fertilisation (potassium)';
+
+  @override
+  String get scanRecBrownSpotApplyFungicide =>
+      'Appliquer un fongicide à base de mancozèbe';
+
+  @override
+  String get scanRecBrownSpotDrainage => 'Assurer un drainage correct';
+
+  @override
+  String get scanRecBrownSpotAvoidStress => 'Éviter le stress hydrique';
+
+  @override
+  String get scanRecLeafSmutTreatSeeds =>
+      'Traiter les semences avant plantation';
+
+  @override
+  String get scanRecLeafSmutApplyFungicide =>
+      'Appliquer des fongicides systémiques';
+
+  @override
+  String get scanRecLeafSmutRemovePlants =>
+      'Retirer et brûler les plants infectés';
+
+  @override
+  String get scanRecLeafSmutRotation => 'Rotation des cultures recommandée';
+
+  @override
+  String get scanRecHealthy =>
+      'Plante en bonne santé. Continuez les bonnes pratiques agricoles.';
+
+  @override
   String get scanTip => 'Astuce : evitez l\'arrosage excessif pendant 3 jours';
 
   @override

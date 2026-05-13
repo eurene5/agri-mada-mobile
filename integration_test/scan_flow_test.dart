@@ -51,7 +51,7 @@ void main() {
     await $(find.byIcon(Icons.circle)).tap();
     await $.pumpAndSettle();
     await $('Parcelle Test').tap();
-    await $.pumpAndSettle(const Duration(seconds: 10));
+    await $.pumpAndSettle(duration: const Duration(seconds: 10));
 
     // Étape 5 : vérifier le résultat.
     expect(find.byType(ScanResultScreen), findsOneWidget);
@@ -102,7 +102,7 @@ void main() {
     await $(find.byIcon(Icons.circle)).tap();
     await $.pumpAndSettle();
     await $('Parcelle Test').tap();
-    await $.pumpAndSettle(const Duration(seconds: 10));
+    await $.pumpAndSettle(duration: const Duration(seconds: 10));
     await $('Enregistrer').tap();
     await $.pumpAndSettle();
 
@@ -111,7 +111,7 @@ void main() {
 
     // Étape 5 : revenir en ligne et déclencher la sync.
     await $.platform.mobile.disableAirplaneMode();
-    await $.pumpAndSettle(const Duration(seconds: 5));
+    await $.pumpAndSettle(duration: const Duration(seconds: 5));
 
     final context = $.tester.element(find.byType(HomeScreen));
     final container = ProviderScope.containerOf(context, listen: false);
@@ -164,7 +164,7 @@ void main() {
     await $(find.byIcon(Icons.circle)).tap();
     await $.pumpAndSettle();
     await $('Parcelle Test').tap();
-    await $.pumpAndSettle(const Duration(seconds: 10));
+    await $.pumpAndSettle(duration: const Duration(seconds: 10));
 
     // Étape 2 : partager et vérifier qu'aucune exception n'est levée.
     await $('Partager le resultat').tap();

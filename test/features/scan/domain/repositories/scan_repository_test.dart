@@ -11,7 +11,7 @@ class MockScanRepository extends Mock implements ScanRepository {}
 void main() {
   late MockScanRepository repository;
 
-  const tResult = DiagnosticResult(
+  final tResult = DiagnosticResult(
     id: 'diag-1',
     culture: 'Riz',
     maladieDetectee: 'Leaf smut',
@@ -31,14 +31,14 @@ void main() {
     test('analyze() avec chemin valide retourne un DiagnosticResult', () async {
       // Arrange
       when(() => repository.analyze('/tmp/scan.jpg')).thenAnswer(
-        (_) async => const Right(tResult),
+        (_) async => Right<Failure, DiagnosticResult>(tResult),
       );
 
       // Act
       final result = await repository.analyze('/tmp/scan.jpg');
 
       // Assert
-      expect(result, const Right(tResult));
+      expect(result, Right<Failure, DiagnosticResult>(tResult));
       verify(() => repository.analyze('/tmp/scan.jpg')).called(1);
       verifyNoMoreInteractions(repository);
     });
@@ -66,14 +66,14 @@ void main() {
     test('save() retourne Unit', () async {
       // Arrange
       when(() => repository.save(tResult)).thenAnswer(
-        (_) async => const Right(unit),
+        (_) async => const Right<Failure, Unit>(unit),
       );
 
       // Act
       final result = await repository.save(tResult);
 
       // Assert
-      expect(result, const Right(unit));
+      expect(result, const Right<Failure, Unit>(unit));
       verify(() => repository.save(tResult)).called(1);
       verifyNoMoreInteractions(repository);
     });
@@ -81,14 +81,22 @@ void main() {
     test('getAll() retourne une liste de DiagnosticResult', () async {
       // Arrange
       when(() => repository.getAll()).thenAnswer(
-        (_) async => const Right(<DiagnosticResult>[tResult]),
+        (_) async =>
+            Right<Failure, List<DiagnosticResult>>(<DiagnosticResult>[tResult]),
       );
 
       // Act
       final result = await repository.getAll();
 
       // Assert
-      expect(result, const Right(<DiagnosticResult>[tResult]));
+      expect(result.isRight(), isTrue);
+      result.fold(
+        (_) => fail('Expected Right'),
+        (items) {
+          expect(items, hasLength(1));
+          expect(items.first.id, tResult.id);
+        },
+      );
       verify(() => repository.getAll()).called(1);
       verifyNoMoreInteractions(repository);
     });

@@ -12,14 +12,12 @@ import 'package:agri_mada/features/scan/presentation/providers/scan_provider.dar
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:patrol/patrol.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
 import 'mock_image_picker.dart';
 import 'mock_tflite.dart';
-import 'test_data.dart';
 
 class MockSessionService extends Mock implements SessionService {}
 

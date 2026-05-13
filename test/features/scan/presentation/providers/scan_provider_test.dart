@@ -91,7 +91,8 @@ void main() {
       expect((state as ScanSuccess).result, tResult);
     });
 
-    test('TFLite non pret -> ScanState.error("Moteur IA non disponible")',
+    test(
+        'TFLite non pret -> ScanState.engineUnavailable("Moteur IA non disponible")',
         () async {
       when(() => mockTfliteService.isReady).thenReturn(false);
 
@@ -102,7 +103,7 @@ void main() {
       expect(result, isNull);
       expect(
         container.read(scanNotifierProvider),
-        const ScanState.error('Moteur IA non disponible'),
+        const ScanState.engineUnavailable('Moteur IA non disponible'),
       );
       verifyNever(() => mockTfliteService.analyzeImage(any()));
     });

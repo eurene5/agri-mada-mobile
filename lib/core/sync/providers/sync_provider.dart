@@ -51,6 +51,14 @@ class SyncNotifier extends _$SyncNotifier {
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   static const int _maxAttempts = 2;
 
+  bool _isDnsLookupFailure(DioException exception) {
+    final details =
+        '${exception.message ?? ''} ${exception.error ?? ''}'.toLowerCase();
+    return details.contains('failed host lookup') ||
+        details.contains('name or service not known') ||
+        details.contains('no address associated with hostname');
+  }
+
   @override
   SyncState build() {
     _initConnectivityListener();
@@ -100,6 +108,13 @@ class SyncNotifier extends _$SyncNotifier {
         );
 
         if (attempt == _maxAttempts) {
+          if (_isDnsLookupFailure(e)) {
+            state = const SyncState.error(
+              'Serveur non joignable. Verifiez la configuration API.',
+            );
+            return;
+          }
+
           state = const SyncState.error('Erreur de synchronisation');
           return;
         }

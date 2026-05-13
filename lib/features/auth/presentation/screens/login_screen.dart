@@ -45,7 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _onForgotPasswordTap() async {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
@@ -106,13 +106,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _onRegisterTap() {
     // TODO(#register): créer RegisterScreen et la route /register
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.registerComingSoon)),
+      SnackBar(content: Text(AppLocalizations.of(context).registerComingSoon)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final authState = ref.watch(authNotifierProvider);
     final isLoading = authState is AuthLoading;
 
@@ -251,7 +251,7 @@ class _LoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
+    final loc = AppLocalizations.of(context);
     final topPadding = MediaQuery.of(context).padding.top;
     return SizedBox(
       height: topPadding + 160,

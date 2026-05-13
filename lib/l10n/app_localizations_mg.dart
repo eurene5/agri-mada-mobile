@@ -268,6 +268,52 @@ class AppLocalizationsMg extends AppLocalizations {
   String get scanRecommendationItemTitle => 'Soso-kevitra';
 
   @override
+  String get scanRecBlbEvacuateWater =>
+      'Avoahy ny rano ao amin\'ny tanimbary misy aretina';
+
+  @override
+  String get scanRecBlbApplyCopper => 'Ampiharo hydroxyde de cuivre (2-3 g/L)';
+
+  @override
+  String get scanRecBlbAvoidNitrogen => 'Hialao ny azota be loatra';
+
+  @override
+  String get scanRecBlbUseResistantVarieties =>
+      'Ampiasao karazana vary mafy orina amin\'ny fiainana manaraka';
+
+  @override
+  String get scanRecBrownSpotFertilize =>
+      'Hamafiso ny fanatsarana ny fertilisation (potassium)';
+
+  @override
+  String get scanRecBrownSpotApplyFungicide =>
+      'Ampiharo fongicide mifototra amin\'ny mancozèbe';
+
+  @override
+  String get scanRecBrownSpotDrainage => 'Antoka ny drainage tsara';
+
+  @override
+  String get scanRecBrownSpotAvoidStress => 'Hialao ny stress hydrique';
+
+  @override
+  String get scanRecLeafSmutTreatSeeds =>
+      'Tsabohy ny voan-bary alohan\'ny fambolena';
+
+  @override
+  String get scanRecLeafSmutApplyFungicide => 'Ampiharo fongicide systémique';
+
+  @override
+  String get scanRecLeafSmutRemovePlants =>
+      'Esory ary doavy ny zavamaniry misy aretina';
+
+  @override
+  String get scanRecLeafSmutRotation => 'Soso-kevitr\'ny fihodinana voly';
+
+  @override
+  String get scanRecHealthy =>
+      'Zavamaniry salama. Tohizy ny fanao tsara amin\'ny fambolena.';
+
+  @override
   String get scanTip =>
       'Torohevitra : aza manondraka be loatra mandritra ny 3 andro';
 

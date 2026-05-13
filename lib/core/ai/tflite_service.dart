@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
+import '../utils/logger.dart';
+
 class TFLiteNotInitializedException implements Exception {
   const TFLiteNotInitializedException();
 
@@ -42,29 +44,75 @@ class TFLiteService {
   Interpreter? _interpreter;
   List<String> _labels = [];
   int? lastInferenceTimeMs;
+  Future<void>? _initFuture;
+  String? _lastInitError;
 
   // Taille d'entrée du modèle (doit correspondre au modèle entraîné)
   static const int _inputSize = 224;
 
   bool get isReady => _interpreter != null && _labels.isNotEmpty;
 
+  String? get lastInitError => _lastInitError;
+
   /// À appeler une seule fois dans main() après IsarService.init()
-  Future<void> init() async {
-    if (isReady) return;
+  Future<void> init() {
+    if (isReady) return Future<void>.value();
+    return _initFuture ??= _doInit();
+  }
 
-    // Charger le modèle
-    final modelData =
-        await rootBundle.load('assets/model/agrimada_model.tflite');
-    final buffer = modelData.buffer.asUint8List();
-    _interpreter = Interpreter.fromBuffer(buffer);
+  Future<void> _doInit() async {
+    try {
+      AppLogger.info('TFLite init: chargement du modele...');
+      final modelData =
+          await rootBundle.load('assets/model/agrimada_model.tflite');
 
-    // Charger les labels
-    final labelsData = await rootBundle.loadString('assets/model/labels.txt');
-    _labels = labelsData
-        .split('\n')
-        .map((l) => l.trim())
-        .where((l) => l.isNotEmpty)
-        .toList();
+      if (modelData.lengthInBytes == 0) {
+        throw Exception('Fichier modele IA vide');
+      }
+
+      final buffer = modelData.buffer.asUint8List();
+      if (buffer.length < 4 ||
+          buffer[0] != 0x54 ||
+          buffer[1] != 0x46 ||
+          buffer[2] != 0x4C ||
+          buffer[3] != 0x33) {
+        throw Exception(
+          'Fichier modele IA invalide: signature TFLite absente',
+        );
+      }
+
+      AppLogger.debug('TFLite model bytes: ${buffer.length}');
+      final options = InterpreterOptions()..threads = 4;
+      _interpreter = Interpreter.fromBuffer(buffer, options: options);
+
+      AppLogger.info('TFLite init: chargement des labels...');
+      final labelsData = await rootBundle.loadString('assets/model/labels.txt');
+      _labels = labelsData
+          .split('\n')
+          .map((l) => l.trim())
+          .where((l) => l.isNotEmpty)
+          .toList();
+
+      if (_labels.isEmpty) {
+        throw Exception('Fichier labels vide ou invalide');
+      }
+
+      _lastInitError = null;
+      AppLogger.info('TFLite init: ok (${_labels.length} labels)');
+    } catch (e, st) {
+      _interpreter?.close();
+      _interpreter = null;
+      _labels = [];
+      _lastInitError = e.toString();
+      AppLogger.error(
+        'Initialisation TFLite echouee',
+        error: e,
+        stackTrace: st,
+      );
+      rethrow;
+    } finally {
+      _initFuture = null;
+    }
   }
 
   /// Analyse une image et retourne le diagnostic
@@ -130,28 +178,29 @@ class TFLiteService {
     return 'faible';
   }
 
-  /// Recommandations agricoles par type de maladie
+  /// Retourne les identifiants de clés ARB des recommandations pour un type de maladie.
+  /// La résolution en chaînes localisées est effectuée dans la couche présentation.
   List<String> _getRecommandations(String maladie) {
     return switch (maladie) {
       'Bacterial leaf blight' => [
-          'Évacuer l\'eau des rizières infectées',
-          'Appliquer du cuivre hydroxyde (2-3 g/L)',
-          'Éviter l\'excès d\'azote',
-          'Utiliser des variétés résistantes lors du prochain cycle',
+          'scanRecBlbEvacuateWater',
+          'scanRecBlbApplyCopper',
+          'scanRecBlbAvoidNitrogen',
+          'scanRecBlbUseResistantVarieties',
         ],
       'Brown spot' => [
-          'Améliorer la fertilisation (potassium)',
-          'Appliquer un fongicide à base de mancozèbe',
-          'Assurer un drainage correct',
-          'Éviter le stress hydrique',
+          'scanRecBrownSpotFertilize',
+          'scanRecBrownSpotApplyFungicide',
+          'scanRecBrownSpotDrainage',
+          'scanRecBrownSpotAvoidStress',
         ],
       'Leaf smut' => [
-          'Traiter les semences avant plantation',
-          'Appliquer des fongicides systémiques',
-          'Retirer et brûler les plants infectés',
-          'Rotation des cultures recommandée',
+          'scanRecLeafSmutTreatSeeds',
+          'scanRecLeafSmutApplyFungicide',
+          'scanRecLeafSmutRemovePlants',
+          'scanRecLeafSmutRotation',
         ],
-      _ => ['Plante en bonne santé. Continuez les bonnes pratiques agricoles.'],
+      _ => ['scanRecHealthy'],
     };
   }
 
@@ -175,5 +224,6 @@ class TFLiteService {
     _interpreter?.close();
     _interpreter = null;
     _labels = [];
+    _lastInitError = null;
   }
 }
