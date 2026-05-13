@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/auth/presentation/screens/welcome_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/register_screen.dart';
+import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
+import '../features/home/presentation/screens/settings_screen.dart';
 import '../features/scan/presentation/screens/scanning_screen.dart';
 import '../features/scan/presentation/screens/scan_result_screen.dart';
 import '../features/journal/presentation/screens/journal_screen.dart';
@@ -14,7 +17,10 @@ abstract final class AppRoutes {
   static const String splash = '/';
   static const String welcome = '/welcome';
   static const String login = '/login';
+  static const String register = '/register';
+  static const String reset = '/reset';
   static const String home = '/home';
+  static const String settings = '/settings';
   static const String scanning = '/scanning';
   static const String scanResult = '/scan-result';
   static const String journal = '/journal';
@@ -48,8 +54,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.reset,
+        builder: (context, state) => const ResetPasswordScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: AppRoutes.scanning,

@@ -8,11 +8,26 @@
 //   2 → Leaf smut
 
 import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../utils/logger.dart';
+
+@visibleForTesting
+bool hasValidTfliteModelHeader(Uint8List buffer) {
+  if (buffer.length < 8) {
+    return false;
+  }
+
+  return buffer[4] == 0x54 &&
+      buffer[5] == 0x46 &&
+      buffer[6] == 0x4C &&
+      buffer[7] == 0x33;
+}
 
 class TFLiteNotInitializedException implements Exception {
   const TFLiteNotInitializedException();
@@ -71,11 +86,7 @@ class TFLiteService {
       }
 
       final buffer = modelData.buffer.asUint8List();
-      if (buffer.length < 4 ||
-          buffer[0] != 0x54 ||
-          buffer[1] != 0x46 ||
-          buffer[2] != 0x4C ||
-          buffer[3] != 0x33) {
+      if (!hasValidTfliteModelHeader(buffer)) {
         throw Exception(
           'Fichier modele IA invalide: signature TFLite absente',
         );

@@ -10,6 +10,7 @@ import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth_entity.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/register_usecase.dart';
 
 part 'auth_provider.freezed.dart';
 part 'auth_provider.g.dart';
@@ -46,6 +47,10 @@ AuthRepositoryImpl authRepository(Ref ref) => AuthRepositoryImpl(
 @riverpod
 LoginUseCase loginUseCase(Ref ref) =>
     LoginUseCase(ref.watch(authRepositoryProvider));
+
+@riverpod
+RegisterUseCase registerUseCase(Ref ref) =>
+    RegisterUseCase(ref.watch(authRepositoryProvider));
 
 // ---------------------------------------------------------------------------
 // Notifier

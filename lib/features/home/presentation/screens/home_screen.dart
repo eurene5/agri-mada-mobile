@@ -12,6 +12,7 @@ import '../../../../core/providers/locale_provider.dart';
 import '../../../auth/presentation/providers/session_provider.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/sync/providers/sync_provider.dart';
+import 'home_drawer.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -19,14 +20,11 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
-
-    void showComingSoonSnackBar(String message) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    }
+    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
+      key: scaffoldKey,
+      drawer: const HomeDrawer(),
       backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
         child: CustomScrollView(
@@ -41,10 +39,7 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _HomeHeader(
-                      onMenuTap: () {
-                        // TODO(#feature-1): implémenter le menu latéral quand la feature Home sera disponible
-                        showComingSoonSnackBar(loc.homeSoonMessage);
-                      },
+                      onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
                     ),
                     SizedBox(height: AppSpacing.md),
                     _SearchBar(),

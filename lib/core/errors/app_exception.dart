@@ -24,7 +24,9 @@ final class NetworkException extends AppException {
       DioExceptionType.connectionError =>
         const NetworkException('Impossible de se connecter au serveur'),
       DioExceptionType.badResponse => NetworkException(
-          responseMap?['message'] as String? ?? 'Erreur serveur',
+          responseMap?['message'] as String? ??
+              responseMap?['detail'] as String? ??
+              'Erreur serveur',
         ),
       _ => NetworkException(e.message ?? 'Erreur réseau inconnue'),
     };

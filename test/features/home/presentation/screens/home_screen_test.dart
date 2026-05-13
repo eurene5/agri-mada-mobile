@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' show CupertinoLocalizations;
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:agri_mada/core/sync/providers/sync_provider.dart';
 import 'package:agri_mada/features/auth/presentation/providers/session_provider.dart';
@@ -75,6 +75,12 @@ void main() {
             body: Center(child: Text('Journal Target')),
           ),
         ),
+        GoRoute(
+          path: '/settings',
+          builder: (context, state) => const Scaffold(
+            body: Center(child: Text('Settings Target')),
+          ),
+        ),
       ],
     );
 
@@ -108,36 +114,46 @@ void main() {
   }
 
   group('HomeScreen callbacks', () {
-    testWidgets(
-      'callback menu ne crash pas et affiche une action visible (snackbar)',
-      (tester) async {
-        // Arrange
-        await pumpHomeAtLanding(tester);
+    testWidgets('callback menu ouvre le drawer', (tester) async {
+      // Arrange
+      await pumpHomeAtLanding(tester);
 
-        // Act
-        await tester.tap(find.byIcon(Icons.menu));
-        await tester.pumpAndSettle();
+      // Act
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
 
-        // Assert
-        expect(find.byType(SnackBar), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
-    );
+      // Assert
+      expect(find.text('AgriMada'), findsOneWidget);
+      expect(find.text('Paramètres'), findsOneWidget);
+    });
 
-    testWidgets(
-      'callback Accueil ne crash pas et navigue vers /home',
-      (tester) async {
-        // Arrange
-        await pumpHomeAtLanding(tester);
+    testWidgets('callback Paramètres navigue vers /settings', (tester) async {
+      // Arrange
+      await pumpHomeAtLanding(tester);
 
-        // Act
-        await tester.tap(find.byIcon(Icons.home_outlined));
-        await tester.pumpAndSettle();
+      // Act
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Paramètres'));
+      await tester.pumpAndSettle();
 
-        // Assert
-        expect(find.text('Home Target'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
-    );
+      // Assert
+      expect(find.text('Settings Target'), findsOneWidget);
+    });
+
+    testWidgets('callback Accueil ne crash pas et navigue vers /home', (
+      tester,
+    ) async {
+      // Arrange
+      await pumpHomeAtLanding(tester);
+
+      // Act
+      await tester.tap(find.byIcon(Icons.home_outlined));
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.text('Home Target'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

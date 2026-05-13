@@ -6,6 +6,7 @@ abstract final class ApiConstants {
   static const Duration receiveTimeout = Duration(seconds: 15);
 
   // Auth
+  static const String register = '/auth/register';
   static const String login = '/auth/login';
   static const String logout = '/auth/logout';
   static const String refreshToken = '/auth/refresh';

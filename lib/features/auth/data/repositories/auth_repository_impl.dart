@@ -17,6 +17,32 @@ class AuthRepositoryImpl implements AuthRepository {
   final SessionService _sessionService;
 
   @override
+  Future<Either<Failure, Unit>> register({
+    required String nom,
+    required String prenom,
+    required String region,
+    required String tel,
+    required String password,
+  }) async {
+    try {
+      await _remote.register(nom, prenom, region, tel, password);
+      return const Right(unit);
+    } on DioException catch (e, st) {
+      if (e.response?.statusCode == 400 || e.response?.statusCode == 409) {
+        AppLogger.error('Inscription échouée', error: e, stackTrace: st);
+        return Left(AuthFailure(NetworkException.fromDioError(e).message));
+      }
+
+      final exception = NetworkException.fromDioError(e);
+      AppLogger.error('Inscription échouée', error: exception, stackTrace: st);
+      return Left(NetworkFailure(exception.message));
+    } catch (e, st) {
+      AppLogger.error('Erreur inconnue', error: e, stackTrace: st);
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, AuthEntity>> login({
     required String email,
     required String password,

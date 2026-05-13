@@ -45,69 +45,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _onForgotPasswordTap() async {
-    final loc = AppLocalizations.of(context);
-    final emailController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    try {
-      await showDialog<void>(
-        context: context,
-        builder: (dialogContext) {
-          return AlertDialog(
-            title: Text(loc.loginForgotPasswordTitle),
-            content: Form(
-              key: formKey,
-              child: TextFormField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: loc.loginEmailLabel,
-                  hintText: loc.loginEmailHint,
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return loc.loginEmailRequired;
-                  }
-                  if (!value.contains('@')) {
-                    return loc.loginEmailInvalid;
-                  }
-                  return null;
-                },
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(loc.commonCancel),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (!(formKey.currentState?.validate() ?? false)) return;
-                  Navigator.of(dialogContext).pop();
-                  // TODO(#reset-password): brancher sur POST /auth/reset-password quand l'endpoint backend sera disponible
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(loc.featureComingSoon),
-                    ),
-                  );
-                },
-                child: Text(loc.commonSend),
-              ),
-            ],
-          );
-        },
-      );
-    } finally {
-      emailController.dispose();
-    }
+    context.go(AppRoutes.reset);
   }
 
   void _onRegisterTap() {
-    // TODO(#register): créer RegisterScreen et la route /register
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).registerComingSoon)),
-    );
+    context.go(AppRoutes.register);
   }
 
   @override

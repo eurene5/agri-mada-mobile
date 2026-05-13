@@ -12,6 +12,16 @@ abstract class AuthRemoteDatasource {
       _AuthRemoteDatasource;
 
   @FormUrlEncoded()
+  @POST(ApiConstants.register)
+  Future<Map<String, dynamic>> register(
+    @Field('nom') String nom,
+    @Field('prenom') String prenom,
+    @Field('region') String region,
+    @Field('tel') String tel,
+    @Field('password') String password,
+  );
+
+  @FormUrlEncoded()
   @POST(ApiConstants.login)
   Future<AuthModel> login(
     @Field('username') String username,
