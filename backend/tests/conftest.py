@@ -82,6 +82,18 @@ def test_user(db_session):
 
 
 @pytest.fixture
+def admin_user(db_session):
+    return create_user(
+        db=db_session,
+        nom='Admin',
+        prenom='Admin',
+        region='System',
+        tel='admin',
+        password='admin',
+    )
+
+
+@pytest.fixture
 def auth_token(test_user):
     return create_access_token({'sub': str(test_user.id)})
 

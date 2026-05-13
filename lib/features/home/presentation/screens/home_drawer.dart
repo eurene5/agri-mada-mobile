@@ -6,7 +6,7 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../auth/presentation/providers/session_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class HomeDrawer extends ConsumerWidget {
@@ -19,9 +19,9 @@ class HomeDrawer extends ConsumerWidget {
 
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     Navigator.of(context).pop();
-    await ref.read(sessionServiceProvider).clearSession();
+    await ref.read(authNotifierProvider.notifier).logout();
     if (!context.mounted) return;
-    context.go(AppRoutes.login);
+    context.go(AppRoutes.splash);
   }
 
   @override

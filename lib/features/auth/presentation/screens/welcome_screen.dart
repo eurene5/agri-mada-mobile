@@ -29,7 +29,7 @@ class WelcomeScreen extends StatelessWidget {
               _WelcomeTexts(),
               const SizedBox(height: AppSpacing.xl),
               _WelcomeActions(
-                onStart: () => context.go(AppRoutes.home),
+                onStart: () => context.go(AppRoutes.login),
                 onLogin: () => context.go(AppRoutes.login),
               ),
               const SizedBox(height: AppSpacing.xl),

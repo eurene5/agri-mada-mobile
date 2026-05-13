@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../../core/local_db/session_service.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -36,32 +33,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
     _controller.forward();
-    _navigateAfterDelay();
-  }
-
-  Future<void> _navigateAfterDelay() async {
-    await Future<void>.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
-
-    final onboardingDone = await SessionService.instance.isOnboardingDone();
-    if (!mounted) return;
-
-    if (!onboardingDone) {
-      context.go(AppRoutes.onboarding);
-      return;
-    }
-
-    // Vérification de la session locale — pas besoin d'internet
-    final isLoggedIn = await SessionService.instance.isLoggedIn();
-    if (!mounted) return;
-
-    if (isLoggedIn) {
-      // Session valide : aller directement à l'accueil (mode hors-ligne)
-      context.go(AppRoutes.home);
-    } else {
-      // Première utilisation : afficher l'écran de bienvenue
-      context.go(AppRoutes.welcome);
-    }
   }
 
   @override

@@ -32,10 +32,41 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     redirect: (context, state) async {
       final isOnboardingDone = await SessionService.instance.isOnboardingDone();
-      final isSplashRoute = state.matchedLocation == AppRoutes.splash;
+      final isLoggedIn = await SessionService.instance.isLoggedIn();
+      final route = state.matchedLocation;
+      final isSplashRoute = route == AppRoutes.splash;
+      final isAuthRoute = route == AppRoutes.welcome ||
+          route == AppRoutes.login ||
+          route == AppRoutes.register ||
+          route == AppRoutes.reset;
+      final isProtectedRoute = route == AppRoutes.home ||
+          route == AppRoutes.settings ||
+          route == AppRoutes.scanning ||
+          route == AppRoutes.scanResult ||
+          route == AppRoutes.journal;
+      final isOnboardingConsultationMode =
+          state.uri.queryParameters['mode'] == 'help';
 
-      if (isSplashRoute && !isOnboardingDone) {
+      if (!isOnboardingDone && route != AppRoutes.onboarding) {
         return AppRoutes.onboarding;
+      }
+
+      if (isOnboardingDone &&
+          route == AppRoutes.onboarding &&
+          !isOnboardingConsultationMode) {
+        return isLoggedIn ? AppRoutes.home : AppRoutes.welcome;
+      }
+
+      if (!isLoggedIn && isProtectedRoute) {
+        return AppRoutes.login;
+      }
+
+      if (isLoggedIn && (isSplashRoute || isAuthRoute)) {
+        return AppRoutes.home;
+      }
+
+      if (!isLoggedIn && isSplashRoute) {
+        return AppRoutes.welcome;
       }
 
       return null;
