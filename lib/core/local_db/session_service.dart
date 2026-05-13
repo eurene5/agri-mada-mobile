@@ -22,6 +22,7 @@ class SessionService {
   static const _keyTel = 'user_tel';
   static const _keyRegion = 'user_region';
   static const _keyLocale = 'app_locale';
+  static const _keyOnboardingDone = 'onboarding_done';
 
   // --- Sauvegarde (après connexion internet réussie) ---
 
@@ -68,6 +69,18 @@ class SessionService {
 
   Future<void> saveLocaleCode(String localeCode) {
     return _storage.write(key: _keyLocale, value: localeCode);
+  }
+
+  Future<bool> isOnboardingDone() async {
+    final value = await _storage.read(key: _keyOnboardingDone);
+    return value == 'true';
+  }
+
+  Future<void> setOnboardingDone(bool done) {
+    return _storage.write(
+      key: _keyOnboardingDone,
+      value: done ? 'true' : 'false',
+    );
   }
 
   /// Retourne true si l'utilisateur a déjà une session enregistrée

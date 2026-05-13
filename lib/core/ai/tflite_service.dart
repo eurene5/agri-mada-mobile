@@ -41,6 +41,7 @@ class TFLiteService {
 
   Interpreter? _interpreter;
   List<String> _labels = [];
+  int? lastInferenceTimeMs;
 
   // Taille d'entrée du modèle (doit correspondre au modèle entraîné)
   static const int _inputSize = 224;
@@ -71,6 +72,8 @@ class TFLiteService {
     if (!isReady) {
       throw const TFLiteNotInitializedException();
     }
+
+    final stopwatch = Stopwatch()..start();
 
     // 1. Lire et redimensionner l'image
     final bytes = await imageFile.readAsBytes();
@@ -107,6 +110,9 @@ class TFLiteService {
     final maladie = maxIndex < _labels.length ? _labels[maxIndex] : 'Inconnu';
     final gravite = _determineGravite(maladie, maxScore);
     final recommandations = _getRecommandations(maladie);
+
+    stopwatch.stop();
+    lastInferenceTimeMs = stopwatch.elapsedMilliseconds;
 
     return DiagnosticResult(
       maladieDetectee: maladie,

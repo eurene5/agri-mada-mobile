@@ -181,6 +181,30 @@ class _HomeHeader extends ConsumerWidget {
                 ),
               ),
             ),
+            const SizedBox(width: AppSpacing.sm),
+            Semantics(
+              button: true,
+              label: 'Aide',
+              child: GestureDetector(
+                onTap: () => context.go('${AppRoutes.onboarding}?mode=help'),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight,
+                    borderRadius: BorderRadius.circular(AppSpacing.xs),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '?',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ],

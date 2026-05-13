@@ -3,9 +3,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../../data/repositories/parcelle_local_repository.dart';
+import '../../data/services/export_service.dart';
 import '../../domain/entities/parcelle_entity.dart';
 import '../../domain/repositories/journal_repository.dart';
+import '../../domain/usecases/export_journal_usecase.dart';
 import '../../domain/usecases/get_parcelles_usecase.dart';
+import '../../../scan/data/repositories/diagnostic_local_repository.dart';
 
 /// Accès au repository des parcelles
 final parcelleRepositoryProvider = Provider<ParcelleLocalRepository>(
@@ -20,6 +23,21 @@ final journalRepositoryProvider = Provider<JournalRepository>(
 /// Use case de lecture des parcelles
 final getParcellesUseCaseProvider = Provider<GetParcellesUseCase>(
   (ref) => GetParcellesUseCase(ref.watch(journalRepositoryProvider)),
+);
+
+final exportServiceProvider = Provider<ExportService>(
+  (_) => ExportService(),
+);
+
+final diagnosticRepositoryForExportProvider =
+    Provider<DiagnosticLocalRepository>((_) => DiagnosticLocalRepository());
+
+final exportJournalUseCaseProvider = Provider<ExportJournalUseCase>(
+  (ref) => ExportJournalUseCase(
+    diagnosticRepository: ref.watch(diagnosticRepositoryForExportProvider),
+    parcelleRepository: ref.watch(parcelleRepositoryProvider),
+    exportService: ref.watch(exportServiceProvider),
+  ),
 );
 
 /// Journal agricole complet avec statut de santé de chaque parcelle

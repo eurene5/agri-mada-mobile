@@ -20,6 +20,7 @@ class DiagnosticLocal {
   String? niveauGravite; // faible / modéré / sévère
   String? recommandations;
   String? imagePath; // Chemin local de la photo prise
+  int? inferenceTimeMs;
 
   late DateTime dateDiagnostic;
 

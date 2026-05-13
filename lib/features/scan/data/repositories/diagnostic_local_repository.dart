@@ -84,6 +84,7 @@ class DiagnosticLocalRepository implements ScanRepository {
     String? niveauGravite,
     String? recommandations,
     String? imagePath,
+    int? inferenceTimeMs,
   }) async {
     final diagnostic = DiagnosticLocal()
       ..parcelleLocalId = parcelleLocalId
@@ -92,6 +93,7 @@ class DiagnosticLocalRepository implements ScanRepository {
       ..niveauGravite = niveauGravite
       ..recommandations = recommandations
       ..imagePath = imagePath
+      ..inferenceTimeMs = inferenceTimeMs
       ..dateDiagnostic = DateTime.now()
       ..isSynced = false;
 
@@ -114,6 +116,7 @@ class DiagnosticLocalRepository implements ScanRepository {
         niveauGravite: result.niveauGravite,
         recommandations: result.recommandations.join(' | '),
         imagePath: result.imagePath,
+        inferenceTimeMs: _tfliteService.lastInferenceTimeMs,
       );
       return const Right(unit);
     } catch (e) {

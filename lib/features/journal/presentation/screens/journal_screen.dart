@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:agri_mada/l10n/app_localizations.dart';
 import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
@@ -12,6 +13,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../../../../core/local_db/models/diagnostic_local.dart';
+import '../../domain/usecases/export_journal_usecase.dart';
 import '../providers/journal_provider.dart';
 
 class JournalScreen extends ConsumerWidget {
@@ -21,64 +23,93 @@ class JournalScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context)!;
     final journalAsync = ref.watch(journalAgricoleProvider);
+    final journalData = journalAsync.valueOrNull;
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      body: Column(
-        children: [
-          const _JournalHeader(),
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(AppSpacing.cardRadius),
-                  topRight: Radius.circular(AppSpacing.cardRadius),
-                ),
-              ),
-              child: journalAsync.when(
-                loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary)),
-                error: (e, _) =>
-                    Center(child: Text(loc.journalError(e.toString()))),
-                data: (journal) {
-                  if (journal.isEmpty) {
-                    return _EmptyJournal(
-                        onAdd: () => _showAddParcelleSheet(context, ref));
-                  }
-                  // Tri : malades en premier
-                  final sorted = [...journal]..sort((a, b) =>
-                      (a['statut'] == 'malade' ? 0 : 1)
-                          .compareTo(b['statut'] == 'malade' ? 0 : 1));
-
-                  return Column(
-                    children: [
-                      // Résumé rapide
-                      _QuickStats(journal: journal),
-                      // Liste des parcelles
-                      Expanded(
-                        child: ListView.separated(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.md,
-                          ),
-                          itemCount: sorted.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: AppSpacing.sm),
-                          itemBuilder: (context, index) => _ParcelleCard(
-                            entry: sorted[index],
-                            onScan: () => context.go(AppRoutes.scanning),
-                          ),
+      appBar: AppBar(
+        backgroundColor: AppColors.scaffoldBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: GestureDetector(
+          onTap: () => context.go(AppRoutes.home),
+          child: const Icon(Icons.arrow_back_ios, size: 22),
+        ),
+        titleSpacing: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(loc.journalTitle, style: AppTypography.headlineMedium),
+            Text(loc.journalSubtitle, style: AppTypography.bodySmall),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: journalData == null
+                ? null
+                : () {
+                    if (journalData.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Aucun diagnostic à exporter'),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
+                      );
+                      return;
+                    }
+                    _showExportSheet(context, ref, parcelleId: null);
+                  },
+            icon: const Icon(Icons.download_outlined),
+            tooltip: 'Exporter',
           ),
         ],
+      ),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(AppSpacing.cardRadius),
+            topRight: Radius.circular(AppSpacing.cardRadius),
+          ),
+        ),
+        child: journalAsync.when(
+          loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.primary)),
+          error: (e, _) => Center(child: Text(loc.journalError(e.toString()))),
+          data: (journal) {
+            if (journal.isEmpty) {
+              return _EmptyJournal(
+                  onAdd: () => _showAddParcelleSheet(context, ref));
+            }
+            // Tri : malades en premier
+            final sorted = [...journal]..sort((a, b) =>
+                (a['statut'] == 'malade' ? 0 : 1)
+                    .compareTo(b['statut'] == 'malade' ? 0 : 1));
+
+            return Column(
+              children: [
+                // Résumé rapide
+                _QuickStats(journal: journal),
+                // Liste des parcelles
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.md,
+                    ),
+                    itemCount: sorted.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, index) => _ParcelleCard(
+                      entry: sorted[index],
+                      onScan: () => context.go(AppRoutes.scanning),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddParcelleSheet(context, ref),
@@ -109,43 +140,77 @@ class JournalScreen extends ConsumerWidget {
       ),
     );
   }
-}
 
-// ─── En-tête ────────────────────────────────────────────────────────────────
-
-class _JournalHeader extends StatelessWidget {
-  const _JournalHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final topPadding = MediaQuery.of(context).padding.top;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.screenHorizontal,
-        topPadding + AppSpacing.md,
-        AppSpacing.screenHorizontal,
-        AppSpacing.md,
+  Future<void> _showExportSheet(
+    BuildContext context,
+    WidgetRef ref, {
+    int? parcelleId,
+  }) async {
+    final choice = await showModalBottomSheet<ExportFormat>(
+      context: context,
+      backgroundColor: AppColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => context.go(AppRoutes.home),
-            child: const Icon(Icons.arrow_back_ios, size: 22),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(loc.journalTitle, style: AppTypography.headlineMedium),
-              Text(loc.journalSubtitle, style: AppTypography.bodySmall),
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.textSecondary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.table_view_outlined),
+                title: const Text('Exporter en CSV'),
+                onTap: () => Navigator.of(sheetContext).pop(ExportFormat.csv),
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf_outlined),
+                title: const Text('Exporter en PDF'),
+                onTap: () => Navigator.of(sheetContext).pop(ExportFormat.pdf),
+              ),
+              const SizedBox(height: 8),
             ],
           ),
-        ],
-      ),
+        );
+      },
+    );
+
+    if (choice == null) {
+      return;
+    }
+
+    final result = await ref
+        .read(exportJournalUseCaseProvider)
+        .call(parcelleId: parcelleId, format: choice);
+
+    if (!context.mounted) return;
+
+    await result.fold(
+      (failure) async {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(failure.message)),
+        );
+      },
+      (path) async {
+        await Share.share('Export local AgriMada: $path');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Export terminé: $path')),
+        );
+      },
     );
   }
 }
+
+// ─── En-tête ────────────────────────────────────────────────────────────────
 
 // ─── Résumé rapide ──────────────────────────────────────────────────────────
 

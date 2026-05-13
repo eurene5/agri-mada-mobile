@@ -32,33 +32,38 @@ const DiagnosticLocalSchema = CollectionSchema(
       name: r'imagePath',
       type: IsarType.string,
     ),
-    r'isSynced': PropertySchema(
+    r'inferenceTimeMs': PropertySchema(
       id: 3,
+      name: r'inferenceTimeMs',
+      type: IsarType.long,
+    ),
+    r'isSynced': PropertySchema(
+      id: 4,
       name: r'isSynced',
       type: IsarType.bool,
     ),
     r'maladieDetectee': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'maladieDetectee',
       type: IsarType.string,
     ),
     r'niveauGravite': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'niveauGravite',
       type: IsarType.string,
     ),
     r'parcelleLocalId': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'parcelleLocalId',
       type: IsarType.long,
     ),
     r'recommandations': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'recommandations',
       type: IsarType.string,
     ),
     r'serverId': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'serverId',
       type: IsarType.long,
     )
@@ -114,12 +119,13 @@ void _diagnosticLocalSerialize(
   writer.writeDouble(offsets[0], object.confiance);
   writer.writeDateTime(offsets[1], object.dateDiagnostic);
   writer.writeString(offsets[2], object.imagePath);
-  writer.writeBool(offsets[3], object.isSynced);
-  writer.writeString(offsets[4], object.maladieDetectee);
-  writer.writeString(offsets[5], object.niveauGravite);
-  writer.writeLong(offsets[6], object.parcelleLocalId);
-  writer.writeString(offsets[7], object.recommandations);
-  writer.writeLong(offsets[8], object.serverId);
+  writer.writeLong(offsets[3], object.inferenceTimeMs);
+  writer.writeBool(offsets[4], object.isSynced);
+  writer.writeString(offsets[5], object.maladieDetectee);
+  writer.writeString(offsets[6], object.niveauGravite);
+  writer.writeLong(offsets[7], object.parcelleLocalId);
+  writer.writeString(offsets[8], object.recommandations);
+  writer.writeLong(offsets[9], object.serverId);
 }
 
 DiagnosticLocal _diagnosticLocalDeserialize(
@@ -133,12 +139,13 @@ DiagnosticLocal _diagnosticLocalDeserialize(
   object.dateDiagnostic = reader.readDateTime(offsets[1]);
   object.id = id;
   object.imagePath = reader.readStringOrNull(offsets[2]);
-  object.isSynced = reader.readBool(offsets[3]);
-  object.maladieDetectee = reader.readString(offsets[4]);
-  object.niveauGravite = reader.readStringOrNull(offsets[5]);
-  object.parcelleLocalId = reader.readLong(offsets[6]);
-  object.recommandations = reader.readStringOrNull(offsets[7]);
-  object.serverId = reader.readLongOrNull(offsets[8]);
+  object.inferenceTimeMs = reader.readLongOrNull(offsets[3]);
+  object.isSynced = reader.readBool(offsets[4]);
+  object.maladieDetectee = reader.readString(offsets[5]);
+  object.niveauGravite = reader.readStringOrNull(offsets[6]);
+  object.parcelleLocalId = reader.readLong(offsets[7]);
+  object.recommandations = reader.readStringOrNull(offsets[8]);
+  object.serverId = reader.readLongOrNull(offsets[9]);
   return object;
 }
 
@@ -156,16 +163,18 @@ P _diagnosticLocalDeserializeProp<P>(
     case 2:
       return (reader.readStringOrNull(offset)) as P;
     case 3:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 5:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 6:
-      return (reader.readLong(offset)) as P;
-    case 7:
       return (reader.readStringOrNull(offset)) as P;
+    case 7:
+      return (reader.readLong(offset)) as P;
     case 8:
+      return (reader.readStringOrNull(offset)) as P;
+    case 9:
       return (reader.readLongOrNull(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -613,6 +622,80 @@ extension DiagnosticLocalQueryFilter
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'imagePath',
         value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterFilterCondition>
+      inferenceTimeMsIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'inferenceTimeMs',
+      ));
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterFilterCondition>
+      inferenceTimeMsIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'inferenceTimeMs',
+      ));
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterFilterCondition>
+      inferenceTimeMsEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'inferenceTimeMs',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterFilterCondition>
+      inferenceTimeMsGreaterThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'inferenceTimeMs',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterFilterCondition>
+      inferenceTimeMsLessThan(
+    int? value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'inferenceTimeMs',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterFilterCondition>
+      inferenceTimeMsBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'inferenceTimeMs',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -1253,6 +1336,20 @@ extension DiagnosticLocalQuerySortBy
   }
 
   QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterSortBy>
+      sortByInferenceTimeMs() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inferenceTimeMs', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterSortBy>
+      sortByInferenceTimeMsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inferenceTimeMs', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterSortBy>
       sortByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -1394,6 +1491,20 @@ extension DiagnosticLocalQuerySortThenBy
   }
 
   QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterSortBy>
+      thenByInferenceTimeMs() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inferenceTimeMs', Sort.asc);
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterSortBy>
+      thenByInferenceTimeMsDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'inferenceTimeMs', Sort.desc);
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QAfterSortBy>
       thenByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSynced', Sort.asc);
@@ -1502,6 +1613,13 @@ extension DiagnosticLocalQueryWhereDistinct
   }
 
   QueryBuilder<DiagnosticLocal, DiagnosticLocal, QDistinct>
+      distinctByInferenceTimeMs() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'inferenceTimeMs');
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, DiagnosticLocal, QDistinct>
       distinctByIsSynced() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSynced');
@@ -1571,6 +1689,13 @@ extension DiagnosticLocalQueryProperty
   QueryBuilder<DiagnosticLocal, String?, QQueryOperations> imagePathProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'imagePath');
+    });
+  }
+
+  QueryBuilder<DiagnosticLocal, int?, QQueryOperations>
+      inferenceTimeMsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'inferenceTimeMs');
     });
   }
 

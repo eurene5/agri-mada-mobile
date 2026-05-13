@@ -7,6 +7,8 @@ import '../features/home/presentation/screens/home_screen.dart';
 import '../features/scan/presentation/screens/scanning_screen.dart';
 import '../features/scan/presentation/screens/scan_result_screen.dart';
 import '../features/journal/presentation/screens/journal_screen.dart';
+import '../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../core/local_db/session_service.dart';
 
 abstract final class AppRoutes {
   static const String splash = '/';
@@ -16,11 +18,22 @@ abstract final class AppRoutes {
   static const String scanning = '/scanning';
   static const String scanResult = '/scan-result';
   static const String journal = '/journal';
+  static const String onboarding = '/onboarding';
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
+    redirect: (context, state) async {
+      final isOnboardingDone = await SessionService.instance.isOnboardingDone();
+      final isSplashRoute = state.matchedLocation == AppRoutes.splash;
+
+      if (isSplashRoute && !isOnboardingDone) {
+        return AppRoutes.onboarding;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -49,6 +62,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.journal,
         builder: (context, state) => const JournalScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => OnboardingScreen(
+          consultationMode: state.uri.queryParameters['mode'] == 'help',
+        ),
       ),
     ],
   );

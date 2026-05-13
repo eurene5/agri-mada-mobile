@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "date": "2025-01-01",
+  "maladies_supportees": [
+    "blast",
+    "helminthosporiose",
+    "bacteriose",
+    "tungro"
+  ]
+}

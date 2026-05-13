@@ -85,8 +85,7 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
           baseUrl,
         )));
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    final _value = _result.data!;
-    return _value;
+    return _result.data!;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

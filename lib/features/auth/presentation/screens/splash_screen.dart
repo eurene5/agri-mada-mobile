@@ -43,6 +43,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future<void>.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
+    final onboardingDone = await SessionService.instance.isOnboardingDone();
+    if (!mounted) return;
+
+    if (!onboardingDone) {
+      context.go(AppRoutes.onboarding);
+      return;
+    }
+
     // Vérification de la session locale — pas besoin d'internet
     final isLoggedIn = await SessionService.instance.isLoggedIn();
     if (!mounted) return;
