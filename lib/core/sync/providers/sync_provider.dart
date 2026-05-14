@@ -152,7 +152,9 @@ class SyncNotifier extends _$SyncNotifier {
             .toList(),
       };
 
-      final response = await remoteDataSource.syncParcelles(payload);
+      final response = Map<String, dynamic>.from(
+        await remoteDataSource.syncParcelles(payload) as Map,
+      );
       final createdList = response['parcelles_creees'] as List<dynamic>;
 
       for (int index = 0; index < unsyncedParcelles.length; index++) {
@@ -189,8 +191,10 @@ class SyncNotifier extends _$SyncNotifier {
       return;
     }
 
-    final response = await remoteDataSource.syncDiagnostics(
-      {'diagnostics': payloadDiagnostics},
+    final response = Map<String, dynamic>.from(
+      await remoteDataSource.syncDiagnostics(
+        {'diagnostics': payloadDiagnostics},
+      ) as Map,
     );
     final createdList = response['diagnostics_crees'] as List<dynamic>;
 

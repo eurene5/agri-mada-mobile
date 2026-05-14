@@ -25,7 +25,13 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      await _remote.register(nom, prenom, region, tel, password);
+      await _remote.register({
+        'nom': nom,
+        'prenom': prenom,
+        'region': region,
+        'tel': tel,
+        'password': password,
+      });
       return const Right(unit);
     } on DioException catch (e, st) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 409) {
@@ -35,6 +41,38 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final exception = NetworkException.fromDioError(e);
       AppLogger.error('Inscription échouée', error: exception, stackTrace: st);
+      return Left(NetworkFailure(exception.message));
+    } catch (e, st) {
+      AppLogger.error('Erreur inconnue', error: e, stackTrace: st);
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> forgotPassword({
+    required String tel,
+  }) async {
+    try {
+      await _remote.forgotPassword({'tel': tel});
+      return const Right(unit);
+    } on DioException catch (e, st) {
+      if (e.response?.statusCode == 400 ||
+          e.response?.statusCode == 422 ||
+          e.response?.statusCode == 429) {
+        AppLogger.error(
+          'Demande de reinitialisation echouee',
+          error: e,
+          stackTrace: st,
+        );
+        return Left(AuthFailure(NetworkException.fromDioError(e).message));
+      }
+
+      final exception = NetworkException.fromDioError(e);
+      AppLogger.error(
+        'Demande de reinitialisation echouee',
+        error: exception,
+        stackTrace: st,
+      );
       return Left(NetworkFailure(exception.message));
     } catch (e, st) {
       AppLogger.error('Erreur inconnue', error: e, stackTrace: st);

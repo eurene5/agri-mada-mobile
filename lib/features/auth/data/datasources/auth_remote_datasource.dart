@@ -11,14 +11,9 @@ abstract class AuthRemoteDatasource {
   factory AuthRemoteDatasource(Dio dio, {String baseUrl}) =
       _AuthRemoteDatasource;
 
-  @FormUrlEncoded()
   @POST(ApiConstants.register)
-  Future<Map<String, dynamic>> register(
-    @Field('nom') String nom,
-    @Field('prenom') String prenom,
-    @Field('region') String region,
-    @Field('tel') String tel,
-    @Field('password') String password,
+  Future<dynamic> register(
+    @Body() Map<String, dynamic> payload,
   );
 
   @FormUrlEncoded()
@@ -29,7 +24,12 @@ abstract class AuthRemoteDatasource {
   );
 
   @GET(ApiConstants.me)
-  Future<Map<String, dynamic>> getMe(
+  Future<dynamic> getMe(
     @Header('Authorization') String authorization,
+  );
+
+  @POST(ApiConstants.forgotPassword)
+  Future<dynamic> forgotPassword(
+    @Body() Map<String, dynamic> payload,
   );
 }

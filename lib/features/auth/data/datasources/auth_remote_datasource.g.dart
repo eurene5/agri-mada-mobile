@@ -22,28 +22,16 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Map<String, dynamic>> register(
-    String nom,
-    String prenom,
-    String region,
-    String tel,
-    String password,
-  ) async {
+  Future<dynamic> register(Map<String, dynamic> payload) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = {
-      'nom': nom,
-      'prenom': prenom,
-      'region': region,
-      'tel': tel,
-      'password': password,
-    };
-    final _options = _setStreamType<Map<String, dynamic>>(Options(
+    final _data = <String, dynamic>{};
+    _data.addAll(payload);
+    final _options = _setStreamType<dynamic>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
-      contentType: 'application/x-www-form-urlencoded',
     )
         .compose(
           _dio.options,
@@ -56,14 +44,8 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Map<String, dynamic> _value;
-    try {
-      _value = _result.data!;
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
     return _value;
   }
 
@@ -108,13 +90,13 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> getMe(String authorization) async {
+  Future<dynamic> getMe(String authorization) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{r'Authorization': authorization};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<Map<String, dynamic>>(Options(
+    final _options = _setStreamType<dynamic>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -130,8 +112,37 @@ class _AuthRemoteDatasource implements AuthRemoteDatasource {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    return _result.data!;
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    return _value;
+  }
+
+  @override
+  Future<dynamic> forgotPassword(Map<String, dynamic> payload) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(payload);
+    final _options = _setStreamType<dynamic>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/auth/forgot-password',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

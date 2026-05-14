@@ -23,7 +23,7 @@ final syncRemoteDatasourceProvider =
 );
 
 typedef SyncRemoteDatasourceRef = AutoDisposeProviderRef<SyncRemoteDatasource>;
-String _$syncNotifierHash() => r'dd7853a69fa1522652aa0a6a75f3f68696f4d176';
+String _$syncNotifierHash() => r'ba04d775eacc72c60eff214923d27a14d1e1ec29';
 
 /// See also [SyncNotifier].
 @ProviderFor(SyncNotifier)

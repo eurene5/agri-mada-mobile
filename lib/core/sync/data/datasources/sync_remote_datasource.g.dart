@@ -22,13 +22,13 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<Map<String, dynamic>> syncParcelles(Map<String, dynamic> body) async {
+  Future<dynamic> syncParcelles(Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<Map<String, dynamic>>(Options(
+    final _options = _setStreamType<dynamic>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -44,19 +44,19 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    return _result.data!;
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    return _value;
   }
 
   @override
-  Future<Map<String, dynamic>> syncDiagnostics(
-      Map<String, dynamic> body) async {
+  Future<dynamic> syncDiagnostics(Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<Map<String, dynamic>>(Options(
+    final _options = _setStreamType<dynamic>(Options(
       method: 'POST',
       headers: _headers,
       extra: _extra,
@@ -72,8 +72,9 @@ class _SyncRemoteDatasource implements SyncRemoteDatasource {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    return _result.data!;
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {

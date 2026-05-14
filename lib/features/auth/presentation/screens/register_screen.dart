@@ -23,7 +23,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _regionController = TextEditingController();
   final _telController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -37,39 +36,41 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _register() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    setState(() => _isLoading = true);
-    final result = await ref.read(registerUseCaseProvider).call(
+    await ref.read(registerNotifierProvider.notifier).register(
           nom: _nomController.text.trim(),
           prenom: _prenomController.text.trim(),
           region: _regionController.text.trim(),
           tel: _telController.text.trim(),
           password: _passwordController.text,
         );
-    if (!mounted) return;
-
-    setState(() => _isLoading = false);
-
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(failure.message),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      },
-      (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Inscription reussie')),
-        );
-        context.go(AppRoutes.login);
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<RegisterState>(registerNotifierProvider, (_, next) {
+      next.whenOrNull(
+        error: (message) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        success: () {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Inscription reussie')),
+          );
+          context.go(AppRoutes.login);
+        },
+      );
+    });
+
+    final registerState = ref.watch(registerNotifierProvider);
+    final isLoading = registerState is RegisterLoading;
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
@@ -79,60 +80,82 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Inscription agriculteur',
-              style: AppTypography.headlineMedium,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Renseignez vos informations pour créer votre accès.',
-              style: AppTypography.bodySmall,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            _Field(controller: _nomController, label: 'Nom', hint: 'Rakoto'),
-            const SizedBox(height: AppSpacing.md),
-            _Field(
-              controller: _prenomController,
-              label: 'Prénom',
-              hint: 'Jean',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _Field(
-              controller: _regionController,
-              label: 'Région',
-              hint: 'Analamanga',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _Field(
-              controller: _telController,
-              label: 'Téléphone',
-              hint: '0341234567',
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _Field(
-              controller: _passwordController,
-              label: 'Mot de passe',
-              hint: '••••••••',
-              obscureText: true,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            AppButton(
-              label: 'Créer mon compte',
-              onPressed: _isLoading ? null : _register,
-              isLoading: _isLoading,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Center(
-              child: TextButton(
-                onPressed: () => context.go(AppRoutes.login),
-                child: const Text('J’ai déjà un compte'),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Inscription agriculteur',
+                style: AppTypography.headlineMedium,
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Renseignez vos informations pour créer votre accès.',
+                style: AppTypography.bodySmall,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _Field(controller: _nomController, label: 'Nom', hint: 'Rakoto'),
+              const SizedBox(height: AppSpacing.md),
+              _Field(
+                controller: _prenomController,
+                label: 'Prénom',
+                hint: 'Jean',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Field(
+                controller: _regionController,
+                label: 'Région',
+                hint: 'Analamanga',
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Field(
+                controller: _telController,
+                label: 'Téléphone',
+                hint: '0341234567',
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Champ requis';
+                  }
+                  final normalized = value.replaceAll(RegExp(r'\s+'), '');
+                  if (!RegExp(r'^[0-9]{6,20}$').hasMatch(normalized)) {
+                    return 'Numero invalide';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Field(
+                controller: _passwordController,
+                label: 'Mot de passe',
+                hint: '••••••••',
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Champ requis';
+                  }
+                  if (value.length < 6) {
+                    return 'Minimum 6 caracteres';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              AppButton(
+                label: 'Créer mon compte',
+                onPressed: isLoading ? null : _register,
+                isLoading: isLoading,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Center(
+                child: TextButton(
+                  onPressed: () => context.go(AppRoutes.login),
+                  child: const Text('J’ai déjà un compte'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -146,6 +169,7 @@ class _Field extends StatelessWidget {
     required this.hint,
     this.keyboardType,
     this.obscureText = false,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -153,6 +177,7 @@ class _Field extends StatelessWidget {
   final String hint;
   final TextInputType? keyboardType;
   final bool obscureText;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -164,12 +189,13 @@ class _Field extends StatelessWidget {
         labelText: label,
         hintText: hint,
       ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return 'Champ requis';
-        }
-        return null;
-      },
+      validator: validator ??
+          (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Champ requis';
+            }
+            return null;
+          },
     );
   }
 }

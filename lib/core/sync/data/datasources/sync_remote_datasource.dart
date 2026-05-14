@@ -10,9 +10,8 @@ abstract class SyncRemoteDatasource {
       _SyncRemoteDatasource;
 
   @POST('/sync/parcelles')
-  Future<Map<String, dynamic>> syncParcelles(@Body() Map<String, dynamic> body);
+  Future<dynamic> syncParcelles(@Body() Map<String, dynamic> body);
 
   @POST('/sync/diagnostics')
-  Future<Map<String, dynamic>> syncDiagnostics(
-      @Body() Map<String, dynamic> body);
+  Future<dynamic> syncDiagnostics(@Body() Map<String, dynamic> body);
 }

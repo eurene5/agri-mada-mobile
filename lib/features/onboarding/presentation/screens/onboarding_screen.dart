@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
@@ -8,17 +9,18 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../core/ai/model_version_service.dart';
 import '../../../../core/local_db/session_service.dart';
 import '../../../../core/widgets/app_button/app_button.dart';
+import '../../../auth/presentation/providers/session_provider.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key, this.consultationMode = false});
 
   final bool consultationMode;
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   late final PageController _pageController;
   int _currentIndex = 0;
 
@@ -90,6 +92,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bootstrapAsync = ref.watch(appBootstrapProvider);
+    final bootstrap = bootstrapAsync.valueOrNull;
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
@@ -123,6 +128,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               _ModelVersionCard(),
+              const SizedBox(height: AppSpacing.sm),
+              _RuntimeStatusCard(bootstrap: bootstrap),
               const SizedBox(height: AppSpacing.lg),
               if (!widget.consultationMode)
                 AppButton(
@@ -296,6 +303,48 @@ class _ModelVersionCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _RuntimeStatusCard extends StatelessWidget {
+  const _RuntimeStatusCard({required this.bootstrap});
+
+  final AppBootstrapSnapshot? bootstrap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isAiReady = bootstrap?.isAiReady ?? false;
+    final modelVersion = bootstrap?.modelVersion?.version;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Statut de l\'application', style: AppTypography.bodyMedium),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            isAiReady
+                ? 'IA disponible sur cet appareil'
+                : 'IA indisponible, mode degrade',
+            style: AppTypography.bodySmall,
+          ),
+          if (modelVersion != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Version active: v$modelVersion',
+              style: AppTypography.bodySmall.copyWith(color: AppColors.primary),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

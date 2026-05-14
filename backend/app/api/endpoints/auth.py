@@ -14,7 +14,13 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.core.config import settings
 from app.core.security import create_access_token
-from app.schemas.user import UserCreate, UserResponse, Token
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    Token,
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
+)
 from app.crud import create_user, get_user_by_tel, authenticate_user
 from app.deps import get_current_user
 from app.models.user import User
@@ -89,3 +95,22 @@ def login(
 def read_current_user(current_user: User = Depends(get_current_user)):
     """Consulter le profil de l'utilisateur connecté."""
     return current_user
+
+
+@router.post(
+    "/forgot-password",
+    response_model=ForgotPasswordResponse,
+    summary="Initier la réinitialisation du mot de passe",
+    description=(
+        "Accepte un numéro de téléphone et retourne toujours un message "
+        "générique pour éviter l'énumération des comptes."
+    ),
+)
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """MVP sans OTP/SMS: confirmation générique côté client."""
+    _ = get_user_by_tel(db, payload.tel)
+    return {
+        "message": (
+            "Si ce numéro est associé à un compte, des instructions seront envoyées."
+        )
+    }

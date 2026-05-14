@@ -17,5 +17,9 @@ abstract interface class AuthRepository {
     required String password,
   });
 
+  Future<Either<Failure, Unit>> forgotPassword({
+    required String tel,
+  });
+
   Future<Either<Failure, Unit>> logout();
 }

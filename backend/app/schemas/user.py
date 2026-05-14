@@ -31,6 +31,17 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    """Données pour initier une réinitialisation du mot de passe."""
+    tel: str = Field(
+        ...,
+        min_length=6,
+        max_length=20,
+        examples=["0341234567"],
+        description="Numéro de téléphone associé au compte",
+    )
+
+
 # --- Schémas de sortie ---
 
 class UserResponse(BaseModel):
@@ -56,3 +67,8 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Données extraites d'un token JWT."""
     user_id: Optional[int] = None
+
+
+class ForgotPasswordResponse(BaseModel):
+    """Réponse générique pour limiter l'énumération de comptes."""
+    message: str

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import '../providers/session_provider.dart';
 import 'package:agri_mada/l10n/app_localizations.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -44,6 +45,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bootstrapAsync = ref.watch(appBootstrapProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
@@ -51,7 +54,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           opacity: _fadeAnimation,
           child: ScaleTransition(
             scale: _scaleAnimation,
-            child: const _SplashContent(),
+            child: _SplashContent(bootstrapAsync: bootstrapAsync),
           ),
         ),
       ),
@@ -60,7 +63,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 }
 
 class _SplashContent extends StatelessWidget {
-  const _SplashContent();
+  const _SplashContent({required this.bootstrapAsync});
+
+  final AsyncValue<AppBootstrapSnapshot> bootstrapAsync;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +90,35 @@ class _SplashContent extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
+        const SizedBox(height: AppSpacing.sm),
+        _SplashStatus(bootstrapAsync: bootstrapAsync),
       ],
+    );
+  }
+}
+
+class _SplashStatus extends StatelessWidget {
+  const _SplashStatus({required this.bootstrapAsync});
+
+  final AsyncValue<AppBootstrapSnapshot> bootstrapAsync;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = AppTypography.bodySmall.copyWith(
+      color: AppColors.textSecondary,
+      fontSize: 12,
+    );
+
+    return bootstrapAsync.when(
+      loading: () => Text('Initialisation en cours...', style: style),
+      error: (_, __) =>
+          Text('Initialisation partielle, mode degrade.', style: style),
+      data: (snapshot) {
+        final mode = snapshot.isAiReady ? 'IA prete' : 'IA indisponible';
+        final session =
+            snapshot.isLoggedIn ? 'Session active' : 'Session invite';
+        return Text('$mode • $session', style: style);
+      },
     );
   }
 }

@@ -1,17 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:mocktail/mocktail.dart';
 
+import 'package:agri_mada/core/errors/failure.dart';
+import 'package:agri_mada/features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:agri_mada/features/auth/presentation/providers/auth_provider.dart';
 import 'package:agri_mada/features/auth/presentation/screens/reset_password_screen.dart';
+
+class MockForgotPasswordUseCase extends Mock implements ForgotPasswordUseCase {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('ResetPasswordScreen', () {
+    late MockForgotPasswordUseCase mockForgotPasswordUseCase;
+
+    setUp(() {
+      mockForgotPasswordUseCase = MockForgotPasswordUseCase();
+      when(() => mockForgotPasswordUseCase.call(tel: any(named: 'tel')))
+          .thenAnswer((_) async => const Right<Failure, Unit>(unit));
+    });
+
     testWidgets('affiche le formulaire de telephone', (tester) async {
       // Arrange
       await tester.pumpWidget(
-        const MaterialApp(home: ResetPasswordScreen()),
+        ProviderScope(
+          overrides: [
+            forgotPasswordUseCaseProvider
+                .overrideWithValue(mockForgotPasswordUseCase),
+          ],
+          child: const MaterialApp(home: ResetPasswordScreen()),
+        ),
       );
 
       // Assert
@@ -24,14 +46,20 @@ void main() {
     ) async {
       // Arrange
       await tester.pumpWidget(
-        const MaterialApp(
-          home: ResetPasswordScreen(),
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+        ProviderScope(
+          overrides: [
+            forgotPasswordUseCaseProvider
+                .overrideWithValue(mockForgotPasswordUseCase),
           ],
-          supportedLocales: [Locale('fr')],
+          child: MaterialApp(
+            home: ResetPasswordScreen(),
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [Locale('fr')],
+          ),
         ),
       );
       await tester.enterText(find.byType(TextFormField), '0341234567');
@@ -42,7 +70,12 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       // Assert
-      expect(find.text('Fonctionnalite bientot disponible'), findsOneWidget);
+      expect(
+        find.text(
+          'Si ce numero est associe a un compte, des instructions seront envoyees.',
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

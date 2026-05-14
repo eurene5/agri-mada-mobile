@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,16 +30,18 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp.router(
-        routerConfig: router,
-        locale: const Locale('fr'),
-        supportedLocales: const [Locale('fr'), Locale('mg')],
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+      ProviderScope(
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('fr'),
+          supportedLocales: const [Locale('fr'), Locale('mg')],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        ),
       ),
     );
 
@@ -50,6 +53,7 @@ void main() {
     await pumpWelcomeScreen(tester);
 
     // Act
+    await tester.ensureVisible(find.text('Commencer'));
     await tester.tap(find.text('Commencer'));
     await tester.pumpAndSettle();
 
@@ -62,6 +66,7 @@ void main() {
     await pumpWelcomeScreen(tester);
 
     // Act
+    await tester.ensureVisible(find.text('Se connecter'));
     await tester.tap(find.text('Se connecter'));
     await tester.pumpAndSettle();
 

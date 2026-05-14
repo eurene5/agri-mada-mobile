@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router.dart';
@@ -6,18 +7,19 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/widgets/app_button/app_button.dart';
+import '../providers/auth_provider.dart';
 
-class ResetPasswordScreen extends StatefulWidget {
+class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
 
   @override
-  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -27,18 +29,36 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    setState(() => _isLoading = true);
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Fonctionnalité bientôt disponible')),
-    );
+    await ref.read(forgotPasswordNotifierProvider.notifier).submit(
+          tel: _phoneController.text.trim(),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<ForgotPasswordState>(forgotPasswordNotifierProvider, (_, next) {
+      next.whenOrNull(
+        error: (message) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        },
+        success: (message) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        },
+      );
+    });
+
+    final state = ref.watch(forgotPasswordNotifierProvider);
+    final isLoading = state is ForgotPasswordLoading;
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
@@ -72,6 +92,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Champ requis';
                   }
+                  final normalized = value.replaceAll(RegExp(r'\s+'), '');
+                  if (!RegExp(r'^[0-9]{6,20}$').hasMatch(normalized)) {
+                    return 'Numero invalide';
+                  }
                   return null;
                 },
               ),
@@ -79,8 +103,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             const SizedBox(height: AppSpacing.lg),
             AppButton(
               label: 'Envoyer',
-              onPressed: _isLoading ? null : _submit,
-              isLoading: _isLoading,
+              onPressed: isLoading ? null : _submit,
+              isLoading: isLoading,
             ),
             const SizedBox(height: AppSpacing.md),
             Center(

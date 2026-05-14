@@ -9,6 +9,7 @@ import '../../../../core/network/dio_client.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth_entity.dart';
+import '../../domain/usecases/forgot_password_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
 
@@ -25,6 +26,23 @@ class AuthState with _$AuthState {
   const factory AuthState.loading() = AuthLoading;
   const factory AuthState.authenticated(AuthEntity user) = AuthAuthenticated;
   const factory AuthState.error(String message) = AuthError;
+}
+
+@freezed
+class RegisterState with _$RegisterState {
+  const factory RegisterState.initial() = RegisterInitial;
+  const factory RegisterState.loading() = RegisterLoading;
+  const factory RegisterState.success() = RegisterSuccess;
+  const factory RegisterState.error(String message) = RegisterError;
+}
+
+@freezed
+class ForgotPasswordState with _$ForgotPasswordState {
+  const factory ForgotPasswordState.initial() = ForgotPasswordInitial;
+  const factory ForgotPasswordState.loading() = ForgotPasswordLoading;
+  const factory ForgotPasswordState.success(String message) =
+      ForgotPasswordSuccess;
+  const factory ForgotPasswordState.error(String message) = ForgotPasswordError;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,6 +69,10 @@ LoginUseCase loginUseCase(Ref ref) =>
 @riverpod
 RegisterUseCase registerUseCase(Ref ref) =>
     RegisterUseCase(ref.watch(authRepositoryProvider));
+
+@riverpod
+ForgotPasswordUseCase forgotPasswordUseCase(Ref ref) =>
+    ForgotPasswordUseCase(ref.watch(authRepositoryProvider));
 
 // ---------------------------------------------------------------------------
 // Notifier
@@ -89,4 +111,60 @@ class AuthNotifier extends _$AuthNotifier {
         NetworkFailure() => const AuthState.error('Pas de connexion internet'),
         _ => AuthState.error(failure.message),
       };
+}
+
+@riverpod
+class RegisterNotifier extends _$RegisterNotifier {
+  @override
+  RegisterState build() => const RegisterState.initial();
+
+  Future<void> register({
+    required String nom,
+    required String prenom,
+    required String region,
+    required String tel,
+    required String password,
+  }) async {
+    state = const RegisterState.loading();
+
+    final result = await ref.read(registerUseCaseProvider).call(
+          nom: nom,
+          prenom: prenom,
+          region: region,
+          tel: tel,
+          password: password,
+        );
+
+    state = result.fold(
+      (failure) => RegisterState.error(failure.message),
+      (_) => const RegisterState.success(),
+    );
+  }
+
+  void reset() {
+    state = const RegisterState.initial();
+  }
+}
+
+@riverpod
+class ForgotPasswordNotifier extends _$ForgotPasswordNotifier {
+  @override
+  ForgotPasswordState build() => const ForgotPasswordState.initial();
+
+  Future<void> submit({required String tel}) async {
+    state = const ForgotPasswordState.loading();
+
+    final result = await ref.read(forgotPasswordUseCaseProvider).call(tel: tel);
+
+    state = result.fold(
+      (failure) => ForgotPasswordState.error(failure.message),
+      (_) => const ForgotPasswordState.success(
+        'Si ce numero est associe a un compte, des instructions seront envoyees.',
+      ),
+    );
+  }
+
+  void reset() {
+    state = const ForgotPasswordState.initial();
+  }
 }
