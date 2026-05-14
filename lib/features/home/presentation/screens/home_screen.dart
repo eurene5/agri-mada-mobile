@@ -21,7 +21,8 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -41,7 +42,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   }
 
   Widget _buildAnimatedItem(Widget child, int index) {
-    final animation = Tween<Offset>(begin: const Offset(0, 30), end: Offset.zero).animate(
+    final animation =
+        Tween<Offset>(begin: const Offset(0, 30), end: Offset.zero).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Interval(
@@ -93,18 +95,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAnimatedItem(_HomeHeader(
-                      onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
-                    ), 0),
+                    _buildAnimatedItem(
+                        _HomeHeader(
+                          onMenuTap: () =>
+                              scaffoldKey.currentState?.openDrawer(),
+                        ),
+                        0),
                     SizedBox(height: AppSpacing.md),
                     _buildAnimatedItem(_SearchBar(), 1),
                     SizedBox(height: AppSpacing.lg),
                     _buildAnimatedItem(_SummaryCard(), 2),
                     SizedBox(height: AppSpacing.lg),
-                    _buildAnimatedItem(Text(
-                      loc.homeServicesTitle,
-                      style: AppTypography.headlineMedium,
-                    ), 3),
+                    _buildAnimatedItem(
+                        Text(
+                          loc.homeServicesTitle,
+                          style: AppTypography.headlineMedium,
+                        ),
+                        3),
                     SizedBox(height: AppSpacing.md),
                     _buildAnimatedItem(_ServicesGrid(), 4),
                     SizedBox(height: 100),
@@ -114,7 +121,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
             ),
           ],
         ),
-      ),
       ),
     );
   }
@@ -582,5 +588,3 @@ class _ServiceCard extends StatelessWidget {
     );
   }
 }
-
-

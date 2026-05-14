@@ -9,6 +9,9 @@ class AppLocalizationsMg extends AppLocalizations {
   AppLocalizationsMg([String locale = 'mg']) : super(locale);
 
   @override
+  String get splashSubtitle => 'Mamorona aretina vary, tsy misy aterineto';
+
+  @override
   String get loginForgotPasswordTitle => 'Hadino ny teny miafina ?';
 
   @override

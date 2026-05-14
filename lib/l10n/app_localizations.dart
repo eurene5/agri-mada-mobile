@@ -98,6 +98,12 @@ abstract class AppLocalizations {
     Locale('mg')
   ];
 
+  /// Sous-titre ecran splash
+  ///
+  /// In fr, this message translates to:
+  /// **'Diagnostiquer les maladies du riz, hors ligne'**
+  String get splashSubtitle;
+
   /// Titre de la fenetre mot de passe oublie
   ///
   /// In fr, this message translates to:

@@ -14,6 +14,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/utils/logger.dart';
+import '../../../../core/providers/tflite_provider.dart';
 import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../providers/scan_provider.dart';
@@ -409,7 +410,8 @@ class _ScanningAnimation extends StatefulWidget {
   State<_ScanningAnimation> createState() => _ScanningAnimationState();
 }
 
-class _ScanningAnimationState extends State<_ScanningAnimation> with SingleTickerProviderStateMixin {
+class _ScanningAnimationState extends State<_ScanningAnimation>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
@@ -439,7 +441,8 @@ class _ScanningAnimationState extends State<_ScanningAnimation> with SingleTicke
       child: Stack(
         children: [
           Center(
-            child: Icon(Icons.camera_alt_outlined, color: AppColors.primary.withAlpha(100), size: 60),
+            child: Icon(Icons.camera_alt_outlined,
+                color: AppColors.primary.withAlpha(100), size: 60),
           ),
           AnimatedBuilder(
             animation: _controller,

@@ -9,6 +9,9 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get splashSubtitle => 'Diagnostiquer les maladies du riz, hors ligne';
+
+  @override
   String get loginForgotPasswordTitle => 'Mot de passe oublie ?';
 
   @override
