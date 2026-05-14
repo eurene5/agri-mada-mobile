@@ -4,15 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app/app.dart';
 import 'core/ai/tflite_service.dart';
 import 'core/local_db/isar_service.dart';
+import 'core/local_db/session_service.dart';
+import 'core/providers/locale_provider.dart';
+import 'core/providers/tflite_provider.dart';
 import 'core/utils/logger.dart';
-
-final isTFLiteReadyProvider = Provider<bool>((_) => false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // --- Initialisation des services hors-ligne ---
   await IsarService.instance.init();
+  
+  final localeCode = await SessionService.instance.getLocaleCode() ?? 'fr';
+  final initialLocale = Locale(localeCode);
   var isTFLiteReady = false;
   try {
     await TFLiteService.instance.init();
@@ -40,6 +44,7 @@ void main() async {
     ProviderScope(
       overrides: [
         isTFLiteReadyProvider.overrideWithValue(isTFLiteReady),
+        initialLocaleProvider.overrideWithValue(initialLocale),
       ],
       child: const AgriMadaApp(),
     ),

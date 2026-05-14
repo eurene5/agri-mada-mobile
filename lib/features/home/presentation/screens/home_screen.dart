@@ -14,11 +14,66 @@ import '../../../journal/presentation/providers/journal_provider.dart';
 import '../../../../core/sync/providers/sync_provider.dart';
 import 'home_drawer.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _buildAnimatedItem(Widget child, int index) {
+    final animation = Tween<Offset>(begin: const Offset(0, 30), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(
+          (index * 0.1).clamp(0.0, 1.0),
+          (index * 0.1 + 0.6).clamp(0.0, 1.0),
+          curve: Curves.easeOutCubic,
+        ),
+      ),
+    );
+    final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(
+          (index * 0.1).clamp(0.0, 1.0),
+          (index * 0.1 + 0.6).clamp(0.0, 1.0),
+          curve: Curves.easeOut,
+        ),
+      ),
+    );
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) => Transform.translate(
+        offset: animation.value,
+        child: Opacity(opacity: fadeAnimation.value, child: child),
+      ),
+      child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -38,20 +93,20 @@ class HomeScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _HomeHeader(
+                    _buildAnimatedItem(_HomeHeader(
                       onMenuTap: () => scaffoldKey.currentState?.openDrawer(),
-                    ),
+                    ), 0),
                     SizedBox(height: AppSpacing.md),
-                    _SearchBar(),
+                    _buildAnimatedItem(_SearchBar(), 1),
                     SizedBox(height: AppSpacing.lg),
-                    _SummaryCard(),
+                    _buildAnimatedItem(_SummaryCard(), 2),
                     SizedBox(height: AppSpacing.lg),
-                    Text(
+                    _buildAnimatedItem(Text(
                       loc.homeServicesTitle,
                       style: AppTypography.headlineMedium,
-                    ),
+                    ), 3),
                     SizedBox(height: AppSpacing.md),
-                    _ServicesGrid(),
+                    _buildAnimatedItem(_ServicesGrid(), 4),
                     SizedBox(height: 100),
                   ],
                 ),
@@ -60,11 +115,6 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton:
-          _ScanFab(onTap: () => context.go(AppRoutes.scanning)),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _HomeBottomNav(
-        onHomeTap: () => context.go(AppRoutes.home),
       ),
     );
   }
@@ -533,113 +583,4 @@ class _ServiceCard extends StatelessWidget {
   }
 }
 
-class _ScanFab extends StatelessWidget {
-  const _ScanFab({required this.onTap});
 
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return Semantics(
-      button: true,
-      label: loc.homeScanPlantSemantics,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withAlpha(100),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.camera_alt_outlined,
-            color: AppColors.textOnPrimary,
-            size: 36,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HomeBottomNav extends StatelessWidget {
-  const _HomeBottomNav({required this.onHomeTap});
-
-  final VoidCallback onHomeTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context);
-    return BottomAppBar(
-      height: 79,
-      color: AppColors.navBar,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavItem(
-            icon: Icons.home_outlined,
-            label: loc.homeTabHome,
-            isSelected: true,
-            onTap: onHomeTap,
-          ),
-          const SizedBox(width: 60),
-          _NavItem(
-            icon: Icons.book_outlined,
-            label: loc.homeTabJournal,
-            isSelected: false,
-            onTap: () => context.go(AppRoutes.journal),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isSelected ? AppColors.primary : AppColors.textSecondary;
-    return Semantics(
-      button: true,
-      label: label,
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 22),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: AppTypography.caption.copyWith(color: color),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

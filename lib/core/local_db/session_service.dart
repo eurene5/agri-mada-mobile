@@ -11,6 +11,10 @@ class SessionService {
 
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+      accountName: 'agrimada_secure_storage',
+    ),
   );
 
   // Clés de stockage
@@ -110,6 +114,8 @@ class SessionService {
       _storage.delete(key: _keyPrenom),
       _storage.delete(key: _keyTel),
       _storage.delete(key: _keyRegion),
+      _storage.delete(key: _keyLocale),
+      _storage.delete(key: _keyOnboardingDone),
     ]);
   }
 }

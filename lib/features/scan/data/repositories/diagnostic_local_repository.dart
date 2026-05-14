@@ -1,5 +1,6 @@
 // Repository local - Gestion des diagnostics dans Isar (hors-ligne)
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
@@ -114,7 +115,7 @@ class DiagnosticLocalRepository implements ScanRepository {
         maladieDetectee: result.maladieDetectee,
         confiance: result.confiance,
         niveauGravite: result.niveauGravite,
-        recommandations: result.recommandations.join(' | '),
+        recommandations: jsonEncode(result.recommandations),
         imagePath: result.imagePath,
         inferenceTimeMs: _tfliteService.lastInferenceTimeMs,
       );
@@ -151,9 +152,8 @@ class DiagnosticLocalRepository implements ScanRepository {
       recommandations: diagnostic.recommandations == null ||
               diagnostic.recommandations!.isEmpty
           ? const <String>[]
-          : diagnostic.recommandations!
-              .split(' | ')
-              .where((item) => item.isNotEmpty)
+          : (jsonDecode(diagnostic.recommandations!) as List)
+              .map((e) => e.toString())
               .toList(),
     );
   }

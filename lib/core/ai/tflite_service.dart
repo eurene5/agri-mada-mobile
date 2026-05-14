@@ -19,10 +19,7 @@ import '../utils/logger.dart';
 
 @visibleForTesting
 bool hasValidTfliteModelHeader(Uint8List buffer) {
-  if (buffer.length < 8) {
-    return false;
-  }
-
+  if (buffer.length < 8) return false;
   return buffer[4] == 0x54 &&
       buffer[5] == 0x46 &&
       buffer[6] == 0x4C &&
@@ -37,14 +34,15 @@ class TFLiteNotInitializedException implements Exception {
       'TFLiteService non initialisé. Appelez init() avant analyzeImage().';
 }
 
-// Résultat d'une analyse IA
-class DiagnosticResult {
+// ─── Résultat interne TFLite (type privé au service) ────────────────────────
+// Renommé depuis DiagnosticResult pour éviter la collision avec l'entité domain.
+class TFLiteInferenceResult {
   final String maladieDetectee;
   final double confiance;
   final String niveauGravite;
   final List<String> recommandations;
 
-  const DiagnosticResult({
+  const TFLiteInferenceResult({
     required this.maladieDetectee,
     required this.confiance,
     required this.niveauGravite,
@@ -52,6 +50,42 @@ class DiagnosticResult {
   });
 }
 
+// ─── Paramètres passés à l'isolate de conversion image ──────────────────────
+class _ImageConvertParams {
+  const _ImageConvertParams(this.imageBytes, this.inputSize);
+  final Uint8List imageBytes;
+  final int inputSize;
+}
+
+// ─── Fonction top-level pour compute() — doit être hors de toute classe ─────
+// Retourne un Float32List [1, inputSize, inputSize, 3] aplati.
+Float32List _convertImageToFloat32(Object params) {
+  final p = params as _ImageConvertParams;
+  final originalImage = img.decodeImage(p.imageBytes);
+  if (originalImage == null) throw Exception('Image invalide ou corrompue');
+
+  final resized = img.copyResize(
+    originalImage,
+    width: p.inputSize,
+    height: p.inputSize,
+  );
+
+  final size = p.inputSize;
+  // Float32List : 1 (batch) × size × size × 3 (RGB)
+  final buffer = Float32List(size * size * 3);
+  var i = 0;
+  for (var y = 0; y < size; y++) {
+    for (var x = 0; x < size; x++) {
+      final pixel = resized.getPixel(x, y);
+      buffer[i++] = pixel.rNormalized.toDouble();
+      buffer[i++] = pixel.gNormalized.toDouble();
+      buffer[i++] = pixel.bNormalized.toDouble();
+    }
+  }
+  return buffer;
+}
+
+// ─── Service principal ───────────────────────────────────────────────────────
 class TFLiteService {
   TFLiteService._();
   static final TFLiteService instance = TFLiteService._();
@@ -62,7 +96,6 @@ class TFLiteService {
   Future<void>? _initFuture;
   String? _lastInitError;
 
-  // Taille d'entrée du modèle (doit correspondre au modèle entraîné)
   static const int _inputSize = 224;
 
   bool get isReady => _interpreter != null && _labels.isNotEmpty;
@@ -126,7 +159,7 @@ class TFLiteService {
   }
 
   Future<Interpreter> _createInterpreterWithFallback(Uint8List buffer) async {
-    // Essai 1: configuration performante (threads multiples).
+    // Essai 1 : configuration performante (threads multiples).
     try {
       final options = InterpreterOptions()..threads = 4;
       return Interpreter.fromBuffer(buffer, options: options);
@@ -138,7 +171,7 @@ class TFLiteService {
       );
     }
 
-    // Essai 2: configuration par defaut.
+    // Essai 2 : configuration par défaut.
     try {
       return Interpreter.fromBuffer(buffer);
     } catch (secondError, secondStack) {
@@ -149,44 +182,42 @@ class TFLiteService {
       );
     }
 
-    // Essai 3: chargement direct asset (path Flutter).
+    // Essai 3 : chargement direct asset (path Flutter).
     return Interpreter.fromAsset('assets/model/agrimada_model.tflite');
   }
 
-  /// Analyse une image et retourne le diagnostic
-  Future<DiagnosticResult> analyzeImage(File imageFile) async {
-    if (!isReady) {
-      throw const TFLiteNotInitializedException();
-    }
+  /// Analyse une image et retourne le résultat d'inférence.
+  /// La conversion pixel → Float32 est déportée sur un isolate via compute()
+  /// pour éviter de geler le thread UI (fix #6).
+  Future<TFLiteInferenceResult> analyzeImage(File imageFile) async {
+    if (!isReady) throw const TFLiteNotInitializedException();
 
     final stopwatch = Stopwatch()..start();
 
-    // 1. Lire et redimensionner l'image
+    // 1. Lire les bytes de l'image
     final bytes = await imageFile.readAsBytes();
-    final originalImage = img.decodeImage(bytes);
-    if (originalImage == null) throw Exception('Image invalide');
 
-    final resized = img.copyResize(
-      originalImage,
-      width: _inputSize,
-      height: _inputSize,
+    // 2. Convertir en Float32List dans un isolate séparé (pas de freeze UI)
+    final inputData = await compute(
+      _convertImageToFloat32,
+      _ImageConvertParams(bytes, _inputSize),
     );
 
-    // 2. Convertir en Float32List normalisé (valeurs entre 0.0 et 1.0)
-    final inputData = _imageToFloat32(resized);
-
-    // 3. Préparer la sortie
+    // 3. Préparer le tenseur de sortie
     final output = List.filled(_labels.length, 0.0);
-    final outputList = [output]; // Envelopper en liste 2D pour l'inférence
+    final outputList = [output];
 
-    // 4. Inférence
-    _interpreter!.run([inputData], outputList);
+    // 4. Inférence (TFLite gère son propre threading interne)
+    _interpreter!.run(
+      inputData.reshape([1, _inputSize, _inputSize, 3]),
+      outputList,
+    );
 
     // 5. Trouver le label avec le score le plus élevé
     final scores = outputList[0];
     double maxScore = 0;
     int maxIndex = 0;
-    for (int i = 0; i < scores.length; i++) {
+    for (var i = 0; i < scores.length; i++) {
       if (scores[i] > maxScore) {
         maxScore = scores[i];
         maxIndex = i;
@@ -200,7 +231,7 @@ class TFLiteService {
     stopwatch.stop();
     lastInferenceTimeMs = stopwatch.elapsedMilliseconds;
 
-    return DiagnosticResult(
+    return TFLiteInferenceResult(
       maladieDetectee: maladie,
       confiance: maxScore,
       niveauGravite: gravite,
@@ -208,7 +239,6 @@ class TFLiteService {
     );
   }
 
-  /// Détermine le niveau de gravité basé sur la maladie et le score
   String _determineGravite(String maladie, double confiance) {
     if (maladie.toLowerCase() == 'healthy') return 'aucune';
     if (confiance >= 0.85) return 'sévère';
@@ -216,8 +246,7 @@ class TFLiteService {
     return 'faible';
   }
 
-  /// Retourne les identifiants de clés ARB des recommandations pour un type de maladie.
-  /// La résolution en chaînes localisées est effectuée dans la couche présentation.
+  /// Retourne les identifiants de clés ARB des recommandations.
   List<String> _getRecommandations(String maladie) {
     return switch (maladie) {
       'Bacterial leaf blight' => [
@@ -240,22 +269,6 @@ class TFLiteService {
         ],
       _ => ['scanRecHealthy'],
     };
-  }
-
-  /// Convertit une image redimensionnée en Float32 normalisé
-  List<List<List<List<double>>>> _imageToFloat32(img.Image image) {
-    return List.generate(1, (_) {
-      return List.generate(_inputSize, (y) {
-        return List.generate(_inputSize, (x) {
-          final pixel = image.getPixel(x, y);
-          return [
-            pixel.rNormalized.toDouble(),
-            pixel.gNormalized.toDouble(),
-            pixel.bNormalized.toDouble(),
-          ];
-        });
-      });
-    });
   }
 
   void dispose() {

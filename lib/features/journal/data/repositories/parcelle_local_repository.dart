@@ -23,14 +23,20 @@ class ParcelleLocalRepository implements JournalRepository {
   Future<Either<Failure, List<ParcelleEntity>>> getParcelles() async {
     try {
       final parcelles = await getAllParcelles();
+      final allDiagnostics = await _db.diagnosticLocals
+          .where()
+          .sortByDateDiagnosticDesc()
+          .findAll();
+          
+      final latestDiagsMap = <int, DiagnosticLocal>{};
+      for (final diag in allDiagnostics) {
+        latestDiagsMap.putIfAbsent(diag.parcelleLocalId, () => diag);
+      }
+
       final entities = <ParcelleEntity>[];
 
       for (final parcelle in parcelles) {
-        final latestDiagnostic = await _db.diagnosticLocals
-            .filter()
-            .parcelleLocalIdEqualTo(parcelle.id)
-            .sortByDateDiagnosticDesc()
-            .findFirst();
+        final latestDiagnostic = latestDiagsMap[parcelle.id];
 
         entities.add(
           ParcelleEntity(
@@ -84,11 +90,21 @@ class ParcelleLocalRepository implements JournalRepository {
   @override
   Future<Either<Failure, Unit>> saveParcelle(ParcelleEntity parcelle) async {
     try {
+      final parsedId = int.tryParse(parcelle.id);
+      DateTime createdAt = DateTime.now();
+
+      if (parsedId != null) {
+        final existing = await _db.parcelleLocals.get(parsedId);
+        if (existing != null) {
+          createdAt = existing.createdAt;
+        }
+      }
+
       final localParcelle = ParcelleLocal()
-        ..id = int.tryParse(parcelle.id) ?? Isar.autoIncrement
+        ..id = parsedId ?? Isar.autoIncrement
         ..nomParcelle = parcelle.nom
         ..surface = parcelle.surface
-        ..createdAt = parcelle.lastDiagnosticDate ?? DateTime.now()
+        ..createdAt = createdAt
         ..isSynced = parcelle.isSynced;
 
       await _db.writeTxn(() => _db.parcelleLocals.put(localParcelle));
@@ -130,15 +146,21 @@ class ParcelleLocalRepository implements JournalRepository {
   /// Construit le journal agricole : chaque parcelle avec son statut de santé
   Future<List<Map<String, dynamic>>> getJournalAgricole() async {
     final parcelles = await getAllParcelles();
+    final allDiagnostics = await _db.diagnosticLocals
+        .where()
+        .sortByDateDiagnosticDesc()
+        .findAll();
+
+    final diagMap = <int, List<DiagnosticLocal>>{};
+    for (final diag in allDiagnostics) {
+      diagMap.putIfAbsent(diag.parcelleLocalId, () => []).add(diag);
+    }
+
     final journal = <Map<String, dynamic>>[];
 
     for (final parcelle in parcelles) {
-      // Récupère le dernier diagnostic de cette parcelle
-      final diagnostics = await _db.diagnosticLocals
-          .filter()
-          .parcelleLocalIdEqualTo(parcelle.id)
-          .sortByDateDiagnosticDesc()
-          .findAll();
+      // Récupère les diagnostics de cette parcelle via la map
+      final diagnostics = diagMap[parcelle.id] ?? [];
 
       final nb = diagnostics.length;
       final dernierDiag = nb > 0 ? diagnostics.first : null;

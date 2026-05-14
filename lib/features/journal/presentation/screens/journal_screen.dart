@@ -100,9 +100,23 @@ class JournalScreen extends ConsumerWidget {
                     itemCount: sorted.length,
                     separatorBuilder: (_, __) =>
                         const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, index) => _ParcelleCard(
-                      entry: sorted[index],
-                      onScan: () => context.go(AppRoutes.scanning),
+                    itemBuilder: (context, index) => TweenAnimationBuilder<double>(
+                      key: ValueKey(sorted[index]['parcelle'].id),
+                      duration: Duration(milliseconds: 400 + (index * 100).clamp(0, 500)),
+                      curve: Curves.easeOutCubic,
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      builder: (context, value, _) {
+                        return Transform.translate(
+                          offset: Offset(0, 30 * (1 - value)),
+                          child: Opacity(
+                            opacity: value,
+                            child: _ParcelleCard(
+                              entry: sorted[index],
+                              onScan: () => context.go(AppRoutes.scanning),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),

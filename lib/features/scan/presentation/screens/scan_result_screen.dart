@@ -8,15 +8,70 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../../core/ai/tflite_service.dart';
 import '../../../../core/local_db/models/diagnostic_local.dart';
+import '../../domain/entities/diagnostic_result.dart';
 import '../providers/scan_provider.dart';
 
-class ScanResultScreen extends ConsumerWidget {
+class ScanResultScreen extends ConsumerStatefulWidget {
   const ScanResultScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ScanResultScreen> createState() => _ScanResultScreenState();
+}
+
+class _ScanResultScreenState extends ConsumerState<ScanResultScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Widget _buildAnimatedItem(Widget child, int index) {
+    final animation = Tween<Offset>(begin: const Offset(0, 30), end: Offset.zero).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(
+          (index * 0.1).clamp(0.0, 1.0),
+          (index * 0.1 + 0.6).clamp(0.0, 1.0),
+          curve: Curves.easeOutCubic,
+        ),
+      ),
+    );
+    final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Interval(
+          (index * 0.1).clamp(0.0, 1.0),
+          (index * 0.1 + 0.6).clamp(0.0, 1.0),
+          curve: Curves.easeOut,
+        ),
+      ),
+    );
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) => Transform.translate(
+        offset: animation.value,
+        child: Opacity(opacity: fadeAnimation.value, child: child),
+      ),
+      child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final scanState = ref.watch(scanNotifierProvider);
     final scanNotifier = ref.read(scanNotifierProvider.notifier);
@@ -27,8 +82,8 @@ class ScanResultScreen extends ConsumerWidget {
     final lastSavedDiagnostic = scanNotifier.lastSavedDiagnostic;
 
     if (result == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
+      ref.listen<ScanState>(scanNotifierProvider, (_, next) {
+        if (next is! ScanSuccess && context.mounted) {
           context.go(AppRoutes.scanning);
         }
       });
@@ -54,16 +109,16 @@ class ScanResultScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Column(
                   children: [
-                    _DiagnosticCard(result: result),
+                    _buildAnimatedItem(_DiagnosticCard(result: result), 0),
                     const SizedBox(height: AppSpacing.md),
-                    _SeverityCard(gravite: result.niveauGravite),
+                    _buildAnimatedItem(_SeverityCard(gravite: result.niveauGravite ?? 'aucune'), 1),
                     const SizedBox(height: AppSpacing.md),
-                    _RecommendationsCard(
-                        recommandations: result.recommandations),
+                    _buildAnimatedItem(_RecommendationsCard(
+                        recommandations: result.recommandations), 2),
                     const SizedBox(height: AppSpacing.md),
-                    const _TipCard(),
+                    _buildAnimatedItem(const _TipCard(), 3),
                     const SizedBox(height: AppSpacing.md),
-                    _ActionButtons(
+                    _buildAnimatedItem(_ActionButtons(
                       onSave: () async {
                         final savedDiagnostic =
                             await scanNotifier.persistLastDiagnostic();
@@ -89,9 +144,9 @@ class ScanResultScreen extends ConsumerWidget {
                         ref.read(scanNotifierProvider.notifier).reset();
                         context.go(AppRoutes.scanning);
                       },
-                    ),
+                    ), 4),
                     const SizedBox(height: AppSpacing.md),
-                    _ShareButton(
+                    _buildAnimatedItem(_ShareButton(
                       onShare: () async {
                         try {
                           await Share.share(
@@ -105,7 +160,7 @@ class ScanResultScreen extends ConsumerWidget {
                           // Partage annulé ou indisponible.
                         }
                       },
-                    ),
+                    ), 5),
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
@@ -365,18 +420,25 @@ class _SeverityCard extends StatelessWidget {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
-                  Positioned(
-                    left: (constraints.maxWidth * _severityPosition)
-                        .clamp(0.0, constraints.maxWidth - 11),
-                    top: 4,
-                    child: Container(
-                      width: 11,
-                      height: 11,
-                      decoration: BoxDecoration(
-                          color: _severityColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2)),
-                    ),
+                  TweenAnimationBuilder<double>(
+                    duration: const Duration(milliseconds: 1200),
+                    curve: Curves.easeOutCubic,
+                    tween: Tween<double>(begin: 0.0, end: _severityPosition),
+                    builder: (context, value, child) {
+                      return Positioned(
+                        left: (constraints.maxWidth * value)
+                            .clamp(0.0, constraints.maxWidth - 11),
+                        top: 4,
+                        child: Container(
+                          width: 11,
+                          height: 11,
+                          decoration: BoxDecoration(
+                              color: _severityColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2)),
+                        ),
+                      );
+                    },
                   ),
                 ],
               );

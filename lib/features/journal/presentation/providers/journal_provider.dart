@@ -68,7 +68,7 @@ final parcellesProvider = FutureProvider<List<ParcelleLocal>>((ref) async {
 class ParcelleNotifier extends StateNotifier<AsyncValue<void>> {
   ParcelleNotifier(this._repo) : super(const AsyncValue.data(null));
 
-  final JournalRepository _repo;
+  final ParcelleLocalRepository _repo;
 
   Future<ParcelleLocal?> createParcelle({
     required String nom,
@@ -95,7 +95,7 @@ class ParcelleNotifier extends StateNotifier<AsyncValue<void>> {
           return null;
         },
         (_) async {
-          final parcelles = await _legacyRepo.getAllParcelles();
+          final parcelles = await _repo.getAllParcelles();
           parcelles.sort((a, b) => a.id.compareTo(b.id));
           final parcelle = parcelles.isEmpty ? null : parcelles.last;
           state = const AsyncValue.data(null);
@@ -107,11 +107,9 @@ class ParcelleNotifier extends StateNotifier<AsyncValue<void>> {
       return null;
     }
   }
-
-  ParcelleLocalRepository get _legacyRepo => _repo as ParcelleLocalRepository;
 }
 
 final parcelleNotifierProvider =
     StateNotifierProvider<ParcelleNotifier, AsyncValue<void>>(
-  (ref) => ParcelleNotifier(ref.read(journalRepositoryProvider)),
+  (ref) => ParcelleNotifier(ref.watch(parcelleRepositoryProvider)),
 );

@@ -15,7 +15,7 @@ dependencies:
   riverpod_annotation: ^2.3.5
   go_router: ^13.2.0
   dio: ^5.4.3+1
-  retrofit: 4.7.2
+  retrofit: ^4.7.2
   json_annotation: ^4.9.0
   freezed_annotation: ^2.4.1
   fpdart: ^1.1.0
@@ -63,10 +63,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/model/agrimada_model.tflite
-    - assets/model/labels.txt
     - assets/model/
-    - assets/model/model_version.json
     - assets/l10n/
 
   fonts:

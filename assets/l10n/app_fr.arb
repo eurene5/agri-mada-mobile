@@ -1,5 +1,7 @@
 {
   "@@locale": "fr",
+  "splashSubtitle": "Diagnostiquer les maladies du riz, hors ligne",
+  "@splashSubtitle": { "description": "Sous-titre ecran splash" },
   "loginForgotPasswordTitle": "Mot de passe oublie ?",
   "@loginForgotPasswordTitle": { "description": "Titre de la fenetre mot de passe oublie" },
   "loginEmailLabel": "Email",

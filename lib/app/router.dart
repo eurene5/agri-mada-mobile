@@ -12,6 +12,8 @@ import '../features/scan/presentation/screens/scan_result_screen.dart';
 import '../features/journal/presentation/screens/journal_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../core/local_db/session_service.dart';
+import '../core/widgets/main_layout.dart';
+import 'package:flutter/material.dart';
 
 abstract final class AppRoutes {
   static const String splash = '/';
@@ -28,11 +30,16 @@ abstract final class AppRoutes {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
+  ref.keepAlive();
   return GoRouter(
     initialLocation: AppRoutes.splash,
     redirect: (context, state) async {
-      final isOnboardingDone = await SessionService.instance.isOnboardingDone();
-      final isLoggedIn = await SessionService.instance.isLoggedIn();
+      final results = await Future.wait([
+        SessionService.instance.isOnboardingDone(),
+        SessionService.instance.isLoggedIn(),
+      ]);
+      final isOnboardingDone = results[0] as bool;
+      final isLoggedIn = results[1] as bool;
       final route = state.matchedLocation;
       final isSplashRoute = route == AppRoutes.splash;
       final isAuthRoute = route == AppRoutes.welcome ||
@@ -92,9 +99,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.reset,
         builder: (context, state) => const ResetPasswordScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+      ShellRoute(
+        builder: (context, state, child) => MainLayout(child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutes.home,
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const HomeScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.journal,
+            pageBuilder: (context, state) => CustomTransitionPage(
+              key: state.pageKey,
+              child: const JournalScreen(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.settings,
@@ -107,10 +135,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.scanResult,
         builder: (context, state) => const ScanResultScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.journal,
-        builder: (context, state) => const JournalScreen(),
       ),
       GoRoute(
         path: AppRoutes.onboarding,

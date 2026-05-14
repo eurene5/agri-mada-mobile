@@ -5,8 +5,7 @@ import '../../domain/entities/auth_entity.dart';
 part 'auth_model.freezed.dart';
 part 'auth_model.g.dart';
 
-@freezed
-@JsonSerializable(fieldRename: FieldRename.snake)
+@Freezed(fieldRename: FieldRename.snake)
 class AuthModel with _$AuthModel {
   const factory AuthModel({
     required String accessToken,

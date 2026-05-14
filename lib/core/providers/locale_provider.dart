@@ -3,21 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../local_db/session_service.dart';
 
+final initialLocaleProvider = Provider<Locale>((_) => const Locale('fr'));
+
 final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>(
-  (_) => LocaleNotifier(),
+  (ref) => LocaleNotifier(ref.watch(initialLocaleProvider)),
 );
 
 class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(const Locale('fr')) {
-    _init();
-  }
-
-  Future<void> _init() async {
-    final code = await SessionService.instance.getLocaleCode();
-    if (code == 'fr' || code == 'mg') {
-      state = Locale(code!);
-    }
-  }
+  LocaleNotifier(Locale initial) : super(initial);
 
   Future<void> setLocale(Locale locale) async {
     state = locale;

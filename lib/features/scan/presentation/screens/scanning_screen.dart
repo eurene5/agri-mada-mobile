@@ -263,8 +263,8 @@ class _CameraViewfinder extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (isLoading) ...[
-            const CircularProgressIndicator(color: AppColors.primary),
-            const SizedBox(height: AppSpacing.md),
+            const _ScanningAnimation(),
+            const SizedBox(height: AppSpacing.xl),
             Text(loc.scanLoading,
                 style: AppTypography.bodyMedium
                     .copyWith(color: AppColors.textOnPrimary)),
@@ -397,6 +397,74 @@ class _CancelButton extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(label,
             style: AppTypography.labelMedium.copyWith(letterSpacing: 1.5)),
+      ),
+    );
+  }
+}
+
+class _ScanningAnimation extends StatefulWidget {
+  const _ScanningAnimation();
+
+  @override
+  State<_ScanningAnimation> createState() => _ScanningAnimationState();
+}
+
+class _ScanningAnimationState extends State<_ScanningAnimation> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 150,
+      height: 150,
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.primary.withAlpha(100), width: 2),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Icon(Icons.camera_alt_outlined, color: AppColors.primary.withAlpha(100), size: 60),
+          ),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Positioned(
+                top: _controller.value * 146,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withAlpha(200),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

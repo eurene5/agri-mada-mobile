@@ -16,14 +16,56 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
 
+  late final AnimationController _slideController;
+  late final Animation<Offset> _slideAnimation;
+  late final Animation<double> _fadeAnimation;
+
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.15),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
+        .animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0, end: -10), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10, end: -10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -10, end: 10), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 10, end: 0), weight: 1),
+    ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.linear));
+
+    _slideController.forward();
+  }
+
   @override
   void dispose() {
+    _slideController.dispose();
+    _shakeController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -35,12 +77,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           email: _usernameController.text.trim(),
           password: _passwordController.text,
         );
+    if (!mounted) return;
     final authState = ref.read(authNotifierProvider);
     authState.whenOrNull(
       authenticated: (_) => context.go(AppRoutes.home),
-      error: (message) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: AppColors.error),
-      ),
+      error: (message) {
+        _shakeController.forward(from: 0.0);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: AppColors.error),
+        );
+      },
     );
   }
 
@@ -80,8 +126,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   horizontal: AppSpacing.screenHorizontal,
                   vertical: AppSpacing.xl,
                 ),
-                child: Form(
-                  key: _formKey,
+                child: AnimatedBuilder(
+                  animation: _shakeAnimation,
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(_shakeAnimation.value, 0),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: child,
+                      ),
+                    ),
+                  ),
+                  child: Form(
+                    key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -175,6 +233,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ],
                   ),
+                ),
                 ),
               ),
             ),

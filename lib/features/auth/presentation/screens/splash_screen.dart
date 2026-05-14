@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
+import 'package:agri_mada/l10n/app_localizations.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -77,7 +78,7 @@ class _SplashContent extends StatelessWidget {
         const _AgriMadaLogo(),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Diagnostiquer les maladies du riz, hors ligne',
+          AppLocalizations.of(context).splashSubtitle,
           style: AppTypography.bodySmall.copyWith(
             color: AppColors.textSecondary,
             fontSize: 13,

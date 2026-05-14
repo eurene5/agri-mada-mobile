@@ -1,5 +1,7 @@
 {
   "@@locale": "mg",
+  "splashSubtitle": "Mamorona aretina vary, tsy misy aterineto",
+  "@splashSubtitle": { "description": "Sous-titre ecran splash" },
   "loginForgotPasswordTitle": "Hadino ny teny miafina ?",
   "loginEmailLabel": "Mailaka",
   "loginEmailHint": "anarana@ohatra.com",

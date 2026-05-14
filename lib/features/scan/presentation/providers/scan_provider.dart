@@ -14,7 +14,7 @@ import '../../domain/usecases/analyze_image_usecase.dart';
 
 // Le résultat du dernier diagnostic
 final lastDiagnosticResultProvider =
-    StateProvider<DiagnosticResult?>((ref) => null);
+    StateProvider<domain.DiagnosticResult?>((ref) => null);
 
 /// Accès au repository des diagnostics
 final diagnosticRepositoryProvider = Provider<DiagnosticLocalRepository>(
@@ -52,7 +52,7 @@ sealed class ScanState {
 
   const factory ScanState.initial() = ScanInitial;
   const factory ScanState.loading() = ScanLoading;
-  const factory ScanState.success(DiagnosticResult result) = ScanSuccess;
+  const factory ScanState.success(domain.DiagnosticResult result) = ScanSuccess;
   const factory ScanState.engineUnavailable(String message) =
       ScanEngineUnavailable;
   const factory ScanState.error(String message) = ScanError;
@@ -69,7 +69,7 @@ class ScanLoading extends ScanState {
 class ScanSuccess extends ScanState {
   const ScanSuccess(this.result);
 
-  final DiagnosticResult result;
+  final domain.DiagnosticResult result;
 }
 
 class ScanEngineUnavailable extends ScanState {
@@ -92,19 +92,17 @@ class ScanNotifier extends StateNotifier<ScanState> {
   final AnalyzeImageUseCase _analyzeImage;
   final ScanRepository _scanRepository;
   final DiagnosticLocalRepository _diagRepo;
+  
   int? _lastParcelleLocalId;
-  DiagnosticResult? _lastDiagnosticResult;
-  domain.DiagnosticResult? _lastDomainDiagnosticResult;
+  domain.DiagnosticResult? _lastDiagnosticResult;
   DiagnosticLocal? _lastSavedDiagnostic;
 
   int? get lastParcelleLocalId => _lastParcelleLocalId;
-
-  DiagnosticResult? get lastDiagnosticResult => _lastDiagnosticResult;
-
+  domain.DiagnosticResult? get lastDiagnosticResult => _lastDiagnosticResult;
   DiagnosticLocal? get lastSavedDiagnostic => _lastSavedDiagnostic;
 
   /// Analyse une image et retourne le résultat
-  Future<DiagnosticResult?> analyzeImage(File imageFile) async {
+  Future<domain.DiagnosticResult?> analyzeImage(File imageFile) async {
     state = const ScanState.loading();
     final result = await _analyzeImage(imageFile.path);
 
@@ -117,31 +115,16 @@ class ScanNotifier extends StateNotifier<ScanState> {
       };
       return null;
     }, (diagnostic) {
-      _lastDomainDiagnosticResult = diagnostic;
-      final mappedResult = _scanRepository is _ScanRepositoryAdapter
-          ? (_scanRepository as _ScanRepositoryAdapter).lastRawResult ??
-              DiagnosticResult(
-                maladieDetectee: diagnostic.maladieDetectee,
-                confiance: diagnostic.confiance,
-                niveauGravite: diagnostic.niveauGravite ?? '',
-                recommandations: diagnostic.recommandations,
-              )
-          : DiagnosticResult(
-              maladieDetectee: diagnostic.maladieDetectee,
-              confiance: diagnostic.confiance,
-              niveauGravite: diagnostic.niveauGravite ?? '',
-              recommandations: diagnostic.recommandations,
-            );
-      _lastDiagnosticResult = mappedResult;
-      state = ScanState.success(mappedResult);
-      return mappedResult;
+      _lastDiagnosticResult = diagnostic;
+      state = ScanState.success(diagnostic);
+      return diagnostic;
     });
   }
 
   /// Sauvegarde le diagnostic dans Isar (hors-ligne)
   Future<DiagnosticLocal?> saveDiagnostic({
     int? parcelleLocalId,
-    required DiagnosticResult result,
+    required domain.DiagnosticResult result,
     String? imagePath,
   }) async {
     try {
@@ -151,11 +134,9 @@ class ScanNotifier extends StateNotifier<ScanState> {
       }
 
       final saveResult = await _scanRepository.save(
-        _toDomainResult(
-          result,
-          imagePath: imagePath ?? _lastDomainDiagnosticResult?.imagePath,
-        ).copyWith(
+        result.copyWith(
           parcelleId: resolvedParcelleLocalId.toString(),
+          imagePath: imagePath ?? result.imagePath,
         ),
       );
 
@@ -166,12 +147,9 @@ class ScanNotifier extends StateNotifier<ScanState> {
             return null;
           }
           _lastParcelleLocalId = resolvedParcelleLocalId;
-          _lastDiagnosticResult = result;
-          _lastDomainDiagnosticResult = _toDomainResult(
-            result,
-            imagePath: imagePath ?? _lastDomainDiagnosticResult?.imagePath,
-          ).copyWith(
+          _lastDiagnosticResult = result.copyWith(
             parcelleId: resolvedParcelleLocalId.toString(),
+            imagePath: imagePath ?? result.imagePath,
           );
           _lastSavedDiagnostic = diagnostic;
           return diagnostic;
@@ -207,26 +185,8 @@ class ScanNotifier extends StateNotifier<ScanState> {
   void reset() {
     _lastParcelleLocalId = null;
     _lastDiagnosticResult = null;
-    _lastDomainDiagnosticResult = null;
     _lastSavedDiagnostic = null;
     state = const ScanState.initial();
-  }
-
-  domain.DiagnosticResult _toDomainResult(
-    DiagnosticResult result, {
-    String? imagePath,
-  }) {
-    return _lastDomainDiagnosticResult ??
-        domain.DiagnosticResult(
-          culture: 'Riz',
-          maladieDetectee: result.maladieDetectee,
-          confiance: result.confiance,
-          imagePath: imagePath ?? _lastDomainDiagnosticResult?.imagePath,
-          createdAt: DateTime.now(),
-          niveauGravite:
-              result.niveauGravite.isEmpty ? null : result.niveauGravite,
-          recommandations: result.recommandations,
-        );
   }
 }
 
@@ -235,9 +195,6 @@ class _ScanRepositoryAdapter implements ScanRepository {
 
   final TFLiteService _tfliteService;
   final DiagnosticLocalRepository _repository;
-  DiagnosticResult? _lastRawResult;
-
-  DiagnosticResult? get lastRawResult => _lastRawResult;
 
   @override
   Future<fpdart.Either<Failure, domain.DiagnosticResult>> analyze(
@@ -249,7 +206,6 @@ class _ScanRepositoryAdapter implements ScanRepository {
 
     try {
       final result = await _tfliteService.analyzeImage(File(imagePath));
-      _lastRawResult = result;
       return fpdart.Right(
         domain.DiagnosticResult(
           culture: 'Riz',
@@ -281,8 +237,8 @@ class _ScanRepositoryAdapter implements ScanRepository {
 
 final scanNotifierProvider = StateNotifierProvider<ScanNotifier, ScanState>(
   (ref) => ScanNotifier(
-    ref.read(analyzeImageUseCaseProvider),
-    ref.read(scanRepositoryProvider),
-    ref.read(diagnosticRepositoryProvider),
+    ref.watch(analyzeImageUseCaseProvider),
+    ref.watch(scanRepositoryProvider),
+    ref.watch(diagnosticRepositoryProvider),
   ),
 );
