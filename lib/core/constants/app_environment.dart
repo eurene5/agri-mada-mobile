@@ -6,7 +6,7 @@ abstract final class AppEnvironment {
 
   static const String _apiBaseUrlOverride = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: '',
+    defaultValue: 'https://agri-mada-mobile-production.up.railway.app/api',
   );
 
   static bool get isProduction => _appEnv == 'prod';
@@ -14,19 +14,19 @@ abstract final class AppEnvironment {
   static bool get isStaging => _appEnv == 'staging';
 
   static String get apiBaseUrl {
-    if (_apiBaseUrlOverride.isNotEmpty) {
+    if (_apiBaseUrlOverride.isNotEmpty && _apiBaseUrlOverride != 'https://agri-mada-mobile-production.up.railway.app/api') {
       return _apiBaseUrlOverride;
     }
 
     if (isProduction) {
-      return 'https://api.agrimada.mg/api';
+      return 'https://agri-mada-mobile-production.up.railway.app/api';
     }
 
     if (isStaging) {
       return 'https://staging-api.agrimada.mg/api';
     }
 
-    // Android emulator loopback vers machine hote de developpement.
-    return 'http://10.0.2.2:8000/api';
+    // Par défaut, on utilise maintenant l'URL de production Railway si rien n'est spécifié.
+    return 'https://agri-mada-mobile-production.up.railway.app/api';
   }
 }
