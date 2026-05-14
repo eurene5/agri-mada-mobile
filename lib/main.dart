@@ -14,7 +14,7 @@ void main() async {
 
   // --- Initialisation des services hors-ligne ---
   await IsarService.instance.init();
-  
+
   final localeCode = await SessionService.instance.getLocaleCode() ?? 'fr';
   final initialLocale = Locale(localeCode);
   var isTFLiteReady = false;
@@ -23,7 +23,7 @@ void main() async {
     isTFLiteReady = TFLiteService.instance.isReady;
     if (!isTFLiteReady) {
       AppLogger.error(
-        'Initialisation TFLite terminee mais moteur non pret',
+        'Initialisation TFLite terminée mais moteur non prêt',
         error: TFLiteService.instance.lastInitError,
       );
     }

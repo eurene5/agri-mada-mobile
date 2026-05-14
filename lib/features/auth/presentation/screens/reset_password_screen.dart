@@ -33,7 +33,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     setState(() => _isLoading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Fonctionnalite bientot disponible')),
+      const SnackBar(content: Text('Fonctionnalité bientôt disponible')),
     );
   }
 

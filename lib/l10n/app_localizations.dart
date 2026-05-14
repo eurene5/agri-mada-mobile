@@ -98,19 +98,19 @@ abstract class AppLocalizations {
     Locale('mg')
   ];
 
-  /// Sous-titre ecran splash
+  /// Sous-titre écran splash
   ///
   /// In fr, this message translates to:
   /// **'Diagnostiquer les maladies du riz, hors ligne'**
   String get splashSubtitle;
 
-  /// Titre de la fenetre mot de passe oublie
+  /// Titre de la fenêtre mot de passe oublié
   ///
   /// In fr, this message translates to:
-  /// **'Mot de passe oublie ?'**
+  /// **'Mot de passe oublié ?'**
   String get loginForgotPasswordTitle;
 
-  /// Libelle du champ email
+  /// Libellé du champ email
   ///
   /// In fr, this message translates to:
   /// **'Email'**
@@ -146,25 +146,25 @@ abstract class AppLocalizations {
   /// **'Envoyer'**
   String get commonSend;
 
-  /// Message fonctionnalite bientot disponible
+  /// Message fonctionnalité bientôt disponible
   ///
   /// In fr, this message translates to:
-  /// **'Fonctionnalite bientot disponible'**
+  /// **'Fonctionnalité bientôt disponible'**
   String get featureComingSoon;
 
-  /// Message inscription bientot disponible
+  /// Message inscription bientôt disponible
   ///
   /// In fr, this message translates to:
-  /// **'Inscription bientot disponible'**
+  /// **'Inscription bientôt disponible'**
   String get registerComingSoon;
 
-  /// Titre ecran login
+  /// Titre écran login
   ///
   /// In fr, this message translates to:
   /// **'Connexion'**
   String get loginTitle;
 
-  /// Libelle mot de passe
+  /// Libellé mot de passe
   ///
   /// In fr, this message translates to:
   /// **'Mot de passe'**
@@ -176,10 +176,10 @@ abstract class AppLocalizations {
   /// **'Veuillez entrer votre mot de passe'**
   String get loginPasswordRequired;
 
-  /// Lien mot de passe oublie
+  /// Lien mot de passe oublié
   ///
   /// In fr, this message translates to:
-  /// **'Mot de passe oublie ?'**
+  /// **'Mot de passe oublié ?'**
   String get loginForgotPassword;
 
   /// Bouton connexion
@@ -215,13 +215,13 @@ abstract class AppLocalizations {
   /// Titre ecran bienvenue
   ///
   /// In fr, this message translates to:
-  /// **'L\'intelligence au service de vos rizieres'**
+  /// **'L\'intelligence au service de vos rizières'**
   String get welcomeHeadline;
 
   /// Description ecran bienvenue
   ///
   /// In fr, this message translates to:
-  /// **'Un riz sain et protege grace a l\'expertise AgriMada.'**
+  /// **'Un riz sain et protégé grâce à l\'expertise AgriMada.'**
   String get welcomeBody;
 
   /// Bouton commencer
@@ -230,10 +230,10 @@ abstract class AppLocalizations {
   /// **'Commencer'**
   String get welcomeStart;
 
-  /// Snack bar bientot disponible
+  /// Snack bar bientôt disponible
   ///
   /// In fr, this message translates to:
-  /// **'Bientot disponible'**
+  /// **'Bientôt disponible'**
   String get homeSoonMessage;
 
   /// Titre section services
@@ -254,7 +254,7 @@ abstract class AppLocalizations {
   /// **'Bonjour, {name}!'**
   String homeHelloUser(String name);
 
-  /// Prenom par defaut si absent
+  /// Prénom par défaut si absent
   ///
   /// In fr, this message translates to:
   /// **'Agriculteur'**
@@ -263,7 +263,7 @@ abstract class AppLocalizations {
   /// Sous-texte accueil
   ///
   /// In fr, this message translates to:
-  /// **'Pret pour une analyse ?'**
+  /// **'Prêt pour une analyse ?'**
   String get homeReadyForAnalysis;
 
   /// Indicateur mode hors ligne
@@ -278,22 +278,22 @@ abstract class AppLocalizations {
   /// **'recherche...'**
   String get homeSearchPlaceholder;
 
-  /// Titre carte resume
+  /// Titre carte résumé
   ///
   /// In fr, this message translates to:
-  /// **'Resume de votre exploitation'**
+  /// **'Résumé de votre exploitation'**
   String get homeSummaryTitle;
 
-  /// Statut systeme pret
+  /// Statut système prêt
   ///
   /// In fr, this message translates to:
-  /// **'Systeme pret'**
+  /// **'Système prêt'**
   String get homeSystemReady;
 
   /// Nombre de parcelles
   ///
   /// In fr, this message translates to:
-  /// **'{count} parcelle(s) enregistree(s)'**
+  /// **'{count} parcelle(s) enregistrée(s)'**
   String homeRegisteredPlots(int count);
 
   /// Service mes parcelles
@@ -305,19 +305,19 @@ abstract class AppLocalizations {
   /// Description service mes parcelles
   ///
   /// In fr, this message translates to:
-  /// **'Suivez vos rizieres, surfaces cultivees et l\'etat sanitaire de chaque parcelle'**
+  /// **'Suivez vos rizières, surfaces cultivées et l\'état sanitaire de chaque parcelle'**
   String get homeServicePlotsDescription;
 
-  /// Service etat des cultures
+  /// Service état des cultures
   ///
   /// In fr, this message translates to:
-  /// **'Etat des cultures'**
+  /// **'État des cultures'**
   String get homeServiceCropsTitle;
 
-  /// Description service etat cultures
+  /// Description service état cultures
   ///
   /// In fr, this message translates to:
-  /// **'Consultez l\'etat global de vos cultures et les niveaux de risque actuels'**
+  /// **'Consultez l\'état global de vos cultures et les niveaux de risque actuels'**
   String get homeServiceCropsDescription;
 
   /// Service solutions agricoles
@@ -329,19 +329,19 @@ abstract class AppLocalizations {
   /// Description service solutions
   ///
   /// In fr, this message translates to:
-  /// **'Decouvrez les traitements biologiques et solutions locales recommandees'**
+  /// **'Découvrez les traitements biologiques et solutions locales recommandées'**
   String get homeServiceSolutionsDescription;
 
   /// Service prevention
   ///
   /// In fr, this message translates to:
-  /// **'Prevenir les maladies'**
+  /// **'Prévenir les maladies'**
   String get homeServicePreventionTitle;
 
   /// Description service prevention
   ///
   /// In fr, this message translates to:
-  /// **'Apprenez les bonnes pratiques pour proteger vos rizieres et eviter les pertes'**
+  /// **'Apprenez les bonnes pratiques pour protéger vos rizières et éviter les pertes'**
   String get homeServicePreventionDescription;
 
   /// Semantique bouton scan
@@ -365,7 +365,7 @@ abstract class AppLocalizations {
   /// Message indisponibilite IA
   ///
   /// In fr, this message translates to:
-  /// **'Diagnostic IA indisponible, veuillez reessayer'**
+  /// **'Diagnostic IA indisponible, veuillez réessayer'**
   String get scanIaUnavailable;
 
   /// Titre selection parcelle
@@ -383,7 +383,7 @@ abstract class AppLocalizations {
   /// Description dialogue aucune parcelle
   ///
   /// In fr, this message translates to:
-  /// **'Creez d\'abord une parcelle dans votre journal agricole avant de scanner.'**
+  /// **'Créez d\'abord une parcelle dans votre journal agricole avant de scanner.'**
   String get scanNoPlotDescription;
 
   /// Action OK
@@ -404,10 +404,10 @@ abstract class AppLocalizations {
   /// **'Analyse en cours...'**
   String get scanLoading;
 
-  /// Instruction camera
+  /// Instruction caméra
   ///
   /// In fr, this message translates to:
-  /// **'Pointez la camera vers\nla feuille de riz'**
+  /// **'Pointez la caméra vers\nla feuille de riz'**
   String get scanPointCamera;
 
   /// Info analyse hors ligne
@@ -434,10 +434,10 @@ abstract class AppLocalizations {
   /// **'Impossible d\'enregistrer le diagnostic'**
   String get scanResultSaveFailed;
 
-  /// Message sauvegarde diagnostic reussie
+  /// Message sauvegarde diagnostic réussie
   ///
   /// In fr, this message translates to:
-  /// **'Diagnostic enregistre'**
+  /// **'Diagnostic enregistré'**
   String get scanResultSaved;
 
   /// Semantique bouton retour
@@ -446,37 +446,37 @@ abstract class AppLocalizations {
   /// **'Retour'**
   String get scanResultBackSemantics;
 
-  /// Titre ecran resultat
+  /// Titre écran résultat
   ///
   /// In fr, this message translates to:
-  /// **'Resultat de l\'analyse'**
+  /// **'Résultat de l\'analyse'**
   String get scanResultTitle;
 
-  /// Sous-titre ecran resultat
+  /// Sous-titre écran résultat
   ///
   /// In fr, this message translates to:
-  /// **'Analyse hors ligne terminee'**
+  /// **'Analyse hors ligne terminée'**
   String get scanResultSubtitle;
 
-  /// Nom localise maladie BLB
+  /// Nom localisé maladie BLB
   ///
   /// In fr, this message translates to:
-  /// **'Brulure bacterienne'**
+  /// **'Brûlure bactérienne'**
   String get diseaseBacterialLeafBlight;
 
-  /// Nom localise maladie brown spot
+  /// Nom localisé maladie brown spot
   ///
   /// In fr, this message translates to:
   /// **'Tache brune'**
   String get diseaseBrownSpot;
 
-  /// Nom localise maladie leaf smut
+  /// Nom localisé maladie leaf smut
   ///
   /// In fr, this message translates to:
   /// **'Charbon foliaire'**
   String get diseaseLeafSmut;
 
-  /// Nom localise etat sain
+  /// Nom localisé état sain
   ///
   /// In fr, this message translates to:
   /// **'Plante saine'**
@@ -518,10 +518,10 @@ abstract class AppLocalizations {
   /// **'Date: {date}'**
   String scanShareDate(String date);
 
-  /// Titre carte gravite
+  /// Titre carte gravité
   ///
   /// In fr, this message translates to:
-  /// **'Niveau de gravite'**
+  /// **'Niveau de gravité'**
   String get scanSeverityTitle;
 
   /// Niveau faible
@@ -536,40 +536,40 @@ abstract class AppLocalizations {
   /// **'Moyen'**
   String get scanSeverityMedium;
 
-  /// Niveau eleve
+  /// Niveau élevé
   ///
   /// In fr, this message translates to:
-  /// **'Eleve'**
+  /// **'Élevé'**
   String get scanSeverityHigh;
 
-  /// Texte statut gravite aucune
+  /// Texte statut gravité aucune
   ///
   /// In fr, this message translates to:
   /// **'Aucune - Plante saine'**
   String get scanSeverityNoneStatus;
 
-  /// Texte statut gravite faible
+  /// Texte statut gravité faible
   ///
   /// In fr, this message translates to:
   /// **'Faible - Surveiller'**
   String get scanSeverityLowStatus;
 
-  /// Texte statut gravite moderee
+  /// Texte statut gravité modérée
   ///
   /// In fr, this message translates to:
-  /// **'Modere - Intervention conseillee'**
+  /// **'Modéré - Intervention conseillée'**
   String get scanSeverityMediumStatus;
 
-  /// Texte statut gravite elevee
+  /// Texte statut gravité élevée
   ///
   /// In fr, this message translates to:
-  /// **'Eleve - Intervention urgente'**
+  /// **'Élevé - Intervention urgente'**
   String get scanSeverityHighStatus;
 
   /// Titre recommandations
   ///
   /// In fr, this message translates to:
-  /// **'Recommandations adaptees'**
+  /// **'Recommandations adaptées'**
   String get scanRecommendationsTitle;
 
   /// Titre item recommandation
@@ -656,13 +656,13 @@ abstract class AppLocalizations {
   /// **'Plante en bonne santé. Continuez les bonnes pratiques agricoles.'**
   String get scanRecHealthy;
 
-  /// Astuce resultat scan
+  /// Astuce résultat scan
   ///
   /// In fr, this message translates to:
-  /// **'Astuce : evitez l\'arrosage excessif pendant 3 jours'**
+  /// **'Astuce : évitez l\'arrosage excessif pendant 3 jours'**
   String get scanTip;
 
-  /// Semantique bouton refaire scan
+  /// Sémantique bouton refaire scan
   ///
   /// In fr, this message translates to:
   /// **'Refaire un scan'**
@@ -674,7 +674,7 @@ abstract class AppLocalizations {
   /// **'Refaire un scan'**
   String get scanRescan;
 
-  /// Semantique bouton enregistrer journal
+  /// Sémantique bouton enregistrer journal
   ///
   /// In fr, this message translates to:
   /// **'Enregistrer dans le journal'**
@@ -686,19 +686,19 @@ abstract class AppLocalizations {
   /// **'Enregistrer'**
   String get commonSave;
 
-  /// Semantique bouton partager
+  /// Sémantique bouton partager
   ///
   /// In fr, this message translates to:
-  /// **'Partager le resultat'**
+  /// **'Partager le résultat'**
   String get scanShareSemantics;
 
   /// Bouton partager
   ///
   /// In fr, this message translates to:
-  /// **'Partager le resultat'**
+  /// **'Partager le résultat'**
   String get scanShare;
 
-  /// Message d'erreur ecran journal
+  /// Message d'erreur écran journal
   ///
   /// In fr, this message translates to:
   /// **'Erreur: {error}'**
@@ -710,13 +710,13 @@ abstract class AppLocalizations {
   /// **'Nouvelle parcelle'**
   String get journalNewPlot;
 
-  /// Titre ecran journal
+  /// Titre écran journal
   ///
   /// In fr, this message translates to:
   /// **'Journal agricole'**
   String get journalTitle;
 
-  /// Sous-titre ecran journal
+  /// Sous-titre écran journal
   ///
   /// In fr, this message translates to:
   /// **'Suivi de vos parcelles'**
@@ -752,10 +752,10 @@ abstract class AppLocalizations {
   /// **'Sain'**
   String get journalStatusHealthy;
 
-  /// Badge statut non analyse
+  /// Badge statut non analysé
   ///
   /// In fr, this message translates to:
-  /// **'Non analyse'**
+  /// **'Non analysé'**
   String get journalStatusNotAnalyzed;
 
   /// Affichage surface en hectares
@@ -794,16 +794,16 @@ abstract class AppLocalizations {
   /// **'Scanner maintenant'**
   String get journalScanNow;
 
-  /// Titre etat vide journal
+  /// Titre état vide journal
   ///
   /// In fr, this message translates to:
   /// **'Aucune parcelle'**
   String get journalEmptyTitle;
 
-  /// Description etat vide journal
+  /// Description état vide journal
   ///
   /// In fr, this message translates to:
-  /// **'Ajoutez votre premiere parcelle\npour commencer le suivi.'**
+  /// **'Ajoutez votre première parcelle\npour commencer le suivi.'**
   String get journalEmptyDescription;
 
   /// Bouton ajouter une parcelle
@@ -812,19 +812,19 @@ abstract class AppLocalizations {
   /// **'Ajouter une parcelle'**
   String get journalAddPlot;
 
-  /// Libelle nom parcelle
+  /// Libellé nom parcelle
   ///
   /// In fr, this message translates to:
   /// **'Nom de la parcelle *'**
   String get journalPlotNameLabel;
 
-  /// Libelle description optionnelle
+  /// Libellé description optionnelle
   ///
   /// In fr, this message translates to:
   /// **'Description (optionnel)'**
   String get journalDescriptionOptional;
 
-  /// Libelle surface optionnelle
+  /// Libellé surface optionnelle
   ///
   /// In fr, this message translates to:
   /// **'Surface (ha, optionnel)'**

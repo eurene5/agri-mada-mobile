@@ -12,7 +12,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get splashSubtitle => 'Diagnostiquer les maladies du riz, hors ligne';
 
   @override
-  String get loginForgotPasswordTitle => 'Mot de passe oublie ?';
+  String get loginForgotPasswordTitle => 'Mot de passe oublié ?';
 
   @override
   String get loginEmailLabel => 'Email';
@@ -33,10 +33,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonSend => 'Envoyer';
 
   @override
-  String get featureComingSoon => 'Fonctionnalite bientot disponible';
+  String get featureComingSoon => 'Fonctionnalité bientôt disponible';
 
   @override
-  String get registerComingSoon => 'Inscription bientot disponible';
+  String get registerComingSoon => 'Inscription bientôt disponible';
 
   @override
   String get loginTitle => 'Connexion';
@@ -48,7 +48,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginPasswordRequired => 'Veuillez entrer votre mot de passe';
 
   @override
-  String get loginForgotPassword => 'Mot de passe oublie ?';
+  String get loginForgotPassword => 'Mot de passe oublié ?';
 
   @override
   String get loginSubmit => 'Se connecter';
@@ -66,17 +66,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loginWelcome => 'Bienvenue sur AgriMada';
 
   @override
-  String get welcomeHeadline => 'L\'intelligence au service de vos rizieres';
+  String get welcomeHeadline => 'L\'intelligence au service de vos rizières';
 
   @override
   String get welcomeBody =>
-      'Un riz sain et protege grace a l\'expertise AgriMada.';
+      'Un riz sain et protégé grâce à l\'expertise AgriMada.';
 
   @override
   String get welcomeStart => 'Commencer';
 
   @override
-  String get homeSoonMessage => 'Bientot disponible';
+  String get homeSoonMessage => 'Bientôt disponible';
 
   @override
   String get homeServicesTitle => 'Nos Services';
@@ -93,7 +93,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeFarmerDefault => 'Agriculteur';
 
   @override
-  String get homeReadyForAnalysis => 'Pret pour une analyse ?';
+  String get homeReadyForAnalysis => 'Prêt pour une analyse ?';
 
   @override
   String get homeOfflineMode => 'Mode hors ligne';
@@ -102,14 +102,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeSearchPlaceholder => 'recherche...';
 
   @override
-  String get homeSummaryTitle => 'Resume de votre exploitation';
+  String get homeSummaryTitle => 'Résumé de votre exploitation';
 
   @override
-  String get homeSystemReady => 'Systeme pret';
+  String get homeSystemReady => 'Système prêt';
 
   @override
   String homeRegisteredPlots(int count) {
-    return '$count parcelle(s) enregistree(s)';
+    return '$count parcelle(s) enregistrée(s)';
   }
 
   @override
@@ -117,28 +117,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeServicePlotsDescription =>
-      'Suivez vos rizieres, surfaces cultivees et l\'etat sanitaire de chaque parcelle';
+      'Suivez vos rizières, surfaces cultivées et l\'état sanitaire de chaque parcelle';
 
   @override
-  String get homeServiceCropsTitle => 'Etat des cultures';
+  String get homeServiceCropsTitle => 'État des cultures';
 
   @override
   String get homeServiceCropsDescription =>
-      'Consultez l\'etat global de vos cultures et les niveaux de risque actuels';
+      'Consultez l\'état global de vos cultures et les niveaux de risque actuels';
 
   @override
   String get homeServiceSolutionsTitle => 'Solutions agricoles';
 
   @override
   String get homeServiceSolutionsDescription =>
-      'Decouvrez les traitements biologiques et solutions locales recommandees';
+      'Découvrez les traitements biologiques et solutions locales recommandées';
 
   @override
-  String get homeServicePreventionTitle => 'Prevenir les maladies';
+  String get homeServicePreventionTitle => 'Prévenir les maladies';
 
   @override
   String get homeServicePreventionDescription =>
-      'Apprenez les bonnes pratiques pour proteger vos rizieres et eviter les pertes';
+      'Apprenez les bonnes pratiques pour protéger vos rizières et éviter les pertes';
 
   @override
   String get homeScanPlantSemantics => 'Scanner une plante';
@@ -151,7 +151,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get scanIaUnavailable =>
-      'Diagnostic IA indisponible, veuillez reessayer';
+      'Diagnostic IA indisponible, veuillez réessayer';
 
   @override
   String get scanSelectPlot => 'Choisir une parcelle';
@@ -161,7 +161,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get scanNoPlotDescription =>
-      'Creez d\'abord une parcelle dans votre journal agricole avant de scanner.';
+      'Créez d\'abord une parcelle dans votre journal agricole avant de scanner.';
 
   @override
   String get commonOk => 'OK';
@@ -173,7 +173,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scanLoading => 'Analyse en cours...';
 
   @override
-  String get scanPointCamera => 'Pointez la camera vers\nla feuille de riz';
+  String get scanPointCamera => 'Pointez la caméra vers\nla feuille de riz';
 
   @override
   String get scanOfflineAnalysis => 'L\'analyse se fait hors ligne';
@@ -188,19 +188,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scanResultSaveFailed => 'Impossible d\'enregistrer le diagnostic';
 
   @override
-  String get scanResultSaved => 'Diagnostic enregistre';
+  String get scanResultSaved => 'Diagnostic enregistré';
 
   @override
   String get scanResultBackSemantics => 'Retour';
 
   @override
-  String get scanResultTitle => 'Resultat de l\'analyse';
+  String get scanResultTitle => 'Résultat de l\'analyse';
 
   @override
-  String get scanResultSubtitle => 'Analyse hors ligne terminee';
+  String get scanResultSubtitle => 'Analyse hors ligne terminée';
 
   @override
-  String get diseaseBacterialLeafBlight => 'Brulure bacterienne';
+  String get diseaseBacterialLeafBlight => 'Brûlure bactérienne';
 
   @override
   String get diseaseBrownSpot => 'Tache brune';
@@ -238,7 +238,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get scanSeverityTitle => 'Niveau de gravite';
+  String get scanSeverityTitle => 'Niveau de gravité';
 
   @override
   String get scanSeverityLow => 'Faible';
@@ -247,7 +247,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scanSeverityMedium => 'Moyen';
 
   @override
-  String get scanSeverityHigh => 'Eleve';
+  String get scanSeverityHigh => 'Élevé';
 
   @override
   String get scanSeverityNoneStatus => 'Aucune - Plante saine';
@@ -256,13 +256,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scanSeverityLowStatus => 'Faible - Surveiller';
 
   @override
-  String get scanSeverityMediumStatus => 'Modere - Intervention conseillee';
+  String get scanSeverityMediumStatus => 'Modéré - Intervention conseillée';
 
   @override
-  String get scanSeverityHighStatus => 'Eleve - Intervention urgente';
+  String get scanSeverityHighStatus => 'Élevé - Intervention urgente';
 
   @override
-  String get scanRecommendationsTitle => 'Recommandations adaptees';
+  String get scanRecommendationsTitle => 'Recommandations adaptées';
 
   @override
   String get scanRecommendationItemTitle => 'Recommandation';
@@ -314,7 +314,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Plante en bonne santé. Continuez les bonnes pratiques agricoles.';
 
   @override
-  String get scanTip => 'Astuce : evitez l\'arrosage excessif pendant 3 jours';
+  String get scanTip => 'Astuce : évitez l\'arrosage excessif pendant 3 jours';
 
   @override
   String get scanRescanSemantics => 'Refaire un scan';
@@ -329,10 +329,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonSave => 'Enregistrer';
 
   @override
-  String get scanShareSemantics => 'Partager le resultat';
+  String get scanShareSemantics => 'Partager le résultat';
 
   @override
-  String get scanShare => 'Partager le resultat';
+  String get scanShare => 'Partager le résultat';
 
   @override
   String journalError(String error) {
@@ -364,7 +364,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get journalStatusHealthy => 'Sain';
 
   @override
-  String get journalStatusNotAnalyzed => 'Non analyse';
+  String get journalStatusNotAnalyzed => 'Non analysé';
 
   @override
   String journalAreaHa(String surface) {
@@ -395,7 +395,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get journalEmptyDescription =>
-      'Ajoutez votre premiere parcelle\npour commencer le suivi.';
+      'Ajoutez votre première parcelle\npour commencer le suivi.';
 
   @override
   String get journalAddPlot => 'Ajouter une parcelle';
