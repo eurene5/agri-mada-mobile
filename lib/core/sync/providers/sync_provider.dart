@@ -8,11 +8,17 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/utils/logger.dart';
 import '../../../features/auth/presentation/providers/auth_provider.dart';
-import '../../../features/journal/data/repositories/parcelle_local_repository.dart';
-import '../../../features/scan/data/repositories/diagnostic_local_repository.dart';
+import '../../../features/journal/presentation/providers/journal_provider.dart'
+    show parcelleRepositoryProvider;
+import '../../../features/scan/presentation/providers/scan_provider.dart'
+    show diagnosticRepositoryProvider;
 import '../data/datasources/sync_remote_datasource.dart';
 
 part 'sync_provider.g.dart';
+
+/// Alias providers for sync layer readability
+final parcelleLocalRepositoryProvider = parcelleRepositoryProvider;
+final diagnosticLocalRepositoryProvider = diagnosticRepositoryProvider;
 
 sealed class SyncState {
   const SyncState();
@@ -62,8 +68,20 @@ class SyncNotifier extends _$SyncNotifier {
   @override
   SyncState build() {
     _initConnectivityListener();
+    _syncOnStartup();
     ref.onDispose(() => _connectivitySubscription?.cancel());
     return const SyncState.idle();
+  }
+
+  Future<void> _syncOnStartup() async {
+    try {
+      final results = await Connectivity().checkConnectivity();
+      if (results.contains(ConnectivityResult.mobile) ||
+          results.contains(ConnectivityResult.wifi)) {
+        syncData();
+      }
+    } catch (_) {
+    }
   }
 
   void _initConnectivityListener() {
@@ -134,8 +152,8 @@ class SyncNotifier extends _$SyncNotifier {
   }
 
   Future<void> _syncParcellesAndDiagnostics() async {
-    final parcelleRepo = ParcelleLocalRepository();
-    final diagnosticRepo = DiagnosticLocalRepository();
+    final parcelleRepo = ref.read(parcelleLocalRepositoryProvider);
+    final diagnosticRepo = ref.read(diagnosticLocalRepositoryProvider);
     final remoteDataSource = ref.read(syncRemoteDatasourceProvider);
 
     final unsyncedParcelles = await parcelleRepo.getUnsyncedParcelles();

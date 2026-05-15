@@ -48,7 +48,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     final bootstrapAsync = ref.watch(appBootstrapProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.primary,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -72,12 +72,16 @@ class _SplashContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Image.asset(
-          'assets/images/splash_rice.png',
-          width: 180,
-          height: 237,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const _RicePlaceholder(),
+        Semantics(
+          label: 'AgriMada logo',
+          image: true,
+          child: Image.asset(
+            'assets/images/splash_rice.png',
+            width: 180,
+            height: 237,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const _RicePlaceholder(),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         const _AgriMadaLogo(),
@@ -86,7 +90,6 @@ class _SplashContent extends StatelessWidget {
           AppLocalizations.of(context).splashSubtitle,
           style: AppTypography.bodySmall.copyWith(
             color: AppColors.textSecondary,
-            fontSize: 13,
           ),
           textAlign: TextAlign.center,
         ),
@@ -106,17 +109,17 @@ class _SplashStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = AppTypography.bodySmall.copyWith(
       color: AppColors.textSecondary,
-      fontSize: 12,
     );
 
     return bootstrapAsync.when(
-      loading: () => Text('Initialisation en cours...', style: style),
+      loading: () => Text(AppLocalizations.of(context).splashStatusInitializing, style: style),
       error: (_, __) =>
-          Text('Initialisation partielle, mode degrade.', style: style),
+          Text(AppLocalizations.of(context).splashStatusDegraded, style: style),
       data: (snapshot) {
-        final mode = snapshot.isAiReady ? 'IA prete' : 'IA indisponible';
+        final loc = AppLocalizations.of(context);
+        final mode = snapshot.isAiReady ? loc.splashStatusAiReady : loc.splashStatusAiUnavailable;
         final session =
-            snapshot.isLoggedIn ? 'Session active' : 'Session invite';
+            snapshot.isLoggedIn ? loc.splashStatusSessionActive : loc.splashStatusSessionGuest;
         return Text('$mode • $session', style: style);
       },
     );
@@ -154,7 +157,7 @@ class _AgriMadaLogo extends StatelessWidget {
       children: [
         const Text(
           'AgriMada',
-          style: AppTypography.displayMedium,
+          style: AppTypography.brandTitle,
         ),
         const SizedBox(width: AppSpacing.xs),
         Container(

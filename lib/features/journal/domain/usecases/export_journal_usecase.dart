@@ -24,6 +24,7 @@ class ExportJournalUseCase {
   Future<Either<Failure, String>> call({
     int? parcelleId,
     required ExportFormat format,
+    required ExportStrings strings,
   }) async {
     try {
       final diagnostics = await _loadDiagnostics(parcelleId);
@@ -44,11 +45,13 @@ class ExportJournalUseCase {
             diagnostics: orderedDiagnostics,
             parcellesById: parcellesById,
             parcelleId: parcelleId,
+            strings: strings,
           ),
         ExportFormat.pdf => await _exportService.exportPdf(
             diagnostics: orderedDiagnostics,
             parcellesById: parcellesById,
             parcelleId: parcelleId,
+            strings: strings,
           ),
       };
 

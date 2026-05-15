@@ -11,9 +11,9 @@ import '../../../../app/router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
-import '../../../../core/local_db/models/parcelle_local.dart';
-import '../../../../core/local_db/models/diagnostic_local.dart';
+import '../../domain/entities/journal_entry.dart';
 import '../../domain/usecases/export_journal_usecase.dart';
+import '../../data/services/export_service.dart';
 import '../providers/journal_provider.dart';
 
 class JournalScreen extends ConsumerWidget {
@@ -83,8 +83,8 @@ class JournalScreen extends ConsumerWidget {
             }
             // Tri : malades en premier
             final sorted = [...journal]..sort((a, b) =>
-                (a['statut'] == 'malade' ? 0 : 1)
-                    .compareTo(b['statut'] == 'malade' ? 0 : 1));
+                (a.statut == 'malade' ? 0 : 1)
+                    .compareTo(b.statut == 'malade' ? 0 : 1));
 
             return Column(
               children: [
@@ -101,7 +101,7 @@ class JournalScreen extends ConsumerWidget {
                     separatorBuilder: (_, __) =>
                         const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, index) => TweenAnimationBuilder<double>(
-                      key: ValueKey(sorted[index]['parcelle'].id),
+                      key: ValueKey(sorted[index].parcelle.id),
                       duration: Duration(milliseconds: 400 + (index * 100).clamp(0, 500)),
                       curve: Curves.easeOutCubic,
                       tween: Tween(begin: 0.0, end: 1.0),
@@ -198,13 +198,26 @@ class JournalScreen extends ConsumerWidget {
       },
     );
 
-    if (choice == null) {
-      return;
-    }
+    if (choice == null || !context.mounted) return;
+    final loc = AppLocalizations.of(context);
+    final strings = ExportStrings(
+      csvDate: loc.exportCsvDate,
+      csvPlot: loc.exportCsvPlot,
+      csvDisease: loc.exportCsvDisease,
+      csvSeverity: loc.exportCsvSeverity,
+      csvConfidence: loc.exportCsvConfidence,
+      csvRecommendations: loc.exportCsvRecommendations,
+      csvTreatment: loc.exportCsvTreatment,
+      pdfGeneratedBy: loc.exportPdfGeneratedBy,
+      pdfTitle: loc.exportPdfTitle,
+      pdfAllPlots: loc.exportPdfAllPlots,
+      pdfPlotLabel: loc.exportPdfPlotLabel,
+      pdfDateLabel: loc.exportPdfDateLabel,
+    );
 
     final result = await ref
         .read(exportJournalUseCaseProvider)
-        .call(parcelleId: parcelleId, format: choice);
+        .call(parcelleId: parcelleId, format: choice, strings: strings);
 
     if (!context.mounted) return;
 
@@ -216,6 +229,7 @@ class JournalScreen extends ConsumerWidget {
       },
       (path) async {
         await Share.share('Export local AgriMada: $path');
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Export terminé: $path')),
         );
@@ -230,13 +244,13 @@ class JournalScreen extends ConsumerWidget {
 
 class _QuickStats extends StatelessWidget {
   const _QuickStats({required this.journal});
-  final List<Map<String, dynamic>> journal;
+  final List<JournalEntry> journal;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final saines = journal.where((e) => e['statut'] == 'sain').length;
-    final malades = journal.where((e) => e['statut'] == 'malade').length;
+    final saines = journal.where((e) => e.statut == 'sain').length;
+    final malades = journal.where((e) => e.statut == 'malade').length;
     final total = journal.length;
 
     return Container(
@@ -297,16 +311,16 @@ class _StatItem extends StatelessWidget {
 
 class _ParcelleCard extends StatelessWidget {
   const _ParcelleCard({required this.entry, required this.onScan});
-  final Map<String, dynamic> entry;
+  final JournalEntry entry;
   final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final parcelle = entry['parcelle'] as ParcelleLocal;
-    final statut = entry['statut'] as String;
-    final dernierDiag = entry['dernier_diagnostic'] as DiagnosticLocal?;
-    final nbDiag = entry['nb_diagnostics'] as int;
+    final parcelle = entry.parcelle;
+    final statut = entry.statut;
+    final dernierDiag = entry.dernierDiagnostic;
+    final nbDiag = entry.nbDiagnostics;
 
     final isHealthy = statut == 'sain';
     final isMalade = statut == 'malade';

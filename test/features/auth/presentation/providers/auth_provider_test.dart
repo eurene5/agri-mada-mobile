@@ -20,12 +20,12 @@ void main() {
   late MockLoginUseCase mockUseCase;
   late MockAuthRepositoryImpl mockAuthRepository;
 
-  const tEmail = 'user@agrimada.mg';
+  const tTel = '0341234567';
   const tPassword = 'password123';
   const UserProfile tUser = UserProfile(
     userId: 'user-001',
-    email: tEmail,
-    phoneNumber: '0341234567',
+    email: 'user@agrimada.mg',
+    phoneNumber: tTel,
   );
 
   setUp(() {
@@ -55,8 +55,7 @@ void main() {
     });
 
     test('passe par loading puis authenticated après login réussi', () async {
-      // Arrange
-      when(() => mockUseCase.call(email: tEmail, password: tPassword))
+      when(() => mockUseCase.call(tel: tTel, password: tPassword))
           .thenAnswer(
         (_) async => const Right<Failure, UserProfile>(tUser),
       );
@@ -64,12 +63,10 @@ void main() {
       final states = <AuthState>[];
       container.listen(authNotifierProvider, (_, s) => states.add(s));
 
-      // Act
       await container
           .read(authNotifierProvider.notifier)
-          .login(email: tEmail, password: tPassword);
+          .login(tel: tTel, password: tPassword);
 
-      // Assert
       expect(states, [
         const AuthState.loading(),
         const AuthState.authenticated(tUser),
@@ -77,21 +74,18 @@ void main() {
     });
 
     test('passe en error() en cas de AuthFailure', () async {
-      // Arrange
       when(() => mockUseCase.call(
-          email: any(named: 'email'),
+          tel: any(named: 'tel'),
           password: any(named: 'password'))).thenAnswer(
         (_) async => const Left<Failure, UserProfile>(
           AuthFailure('Identifiants incorrects'),
         ),
       );
 
-      // Act
       await container
           .read(authNotifierProvider.notifier)
-          .login(email: tEmail, password: tPassword);
+          .login(tel: tTel, password: tPassword);
 
-      // Assert
       expect(
         container.read(authNotifierProvider),
         const AuthState.error('Identifiants incorrects'),
@@ -100,21 +94,18 @@ void main() {
 
     test('passe en error() avec message réseau en cas de NetworkFailure',
         () async {
-      // Arrange
       when(() => mockUseCase.call(
-          email: any(named: 'email'),
+          tel: any(named: 'tel'),
           password: any(named: 'password'))).thenAnswer(
         (_) async => const Left<Failure, UserProfile>(
           NetworkFailure('No connection'),
         ),
       );
 
-      // Act
       await container
           .read(authNotifierProvider.notifier)
-          .login(email: tEmail, password: tPassword);
+          .login(tel: tTel, password: tPassword);
 
-      // Assert
       expect(
         container.read(authNotifierProvider),
         const AuthState.error('Pas de connexion internet'),
@@ -122,19 +113,16 @@ void main() {
     });
 
     test('logout remet l\'état à initial', () async {
-      // Arrange
-      when(() => mockUseCase.call(email: tEmail, password: tPassword))
+      when(() => mockUseCase.call(tel: tTel, password: tPassword))
           .thenAnswer(
         (_) async => const Right<Failure, UserProfile>(tUser),
       );
       await container
           .read(authNotifierProvider.notifier)
-          .login(email: tEmail, password: tPassword);
+          .login(tel: tTel, password: tPassword);
 
-      // Act
       await container.read(authNotifierProvider.notifier).logout();
 
-      // Assert
       expect(
         container.read(authNotifierProvider),
         const AuthState.initial(),

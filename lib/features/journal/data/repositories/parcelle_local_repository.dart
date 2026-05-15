@@ -8,6 +8,7 @@ import '../../../../core/local_db/isar_service.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../../../../core/local_db/models/diagnostic_local.dart';
 import '../../domain/entities/parcelle_entity.dart';
+import '../../domain/entities/journal_entry.dart';
 import '../../domain/repositories/journal_repository.dart';
 
 class ParcelleLocalRepository implements JournalRepository {
@@ -144,7 +145,7 @@ class ParcelleLocalRepository implements JournalRepository {
   }
 
   /// Construit le journal agricole : chaque parcelle avec son statut de santé
-  Future<List<Map<String, dynamic>>> getJournalAgricole() async {
+  Future<List<JournalEntry>> getJournalAgricole() async {
     final parcelles = await getAllParcelles();
     final allDiagnostics = await _db.diagnosticLocals
         .where()
@@ -156,7 +157,7 @@ class ParcelleLocalRepository implements JournalRepository {
       diagMap.putIfAbsent(diag.parcelleLocalId, () => []).add(diag);
     }
 
-    final journal = <Map<String, dynamic>>[];
+    final journal = <JournalEntry>[];
 
     for (final parcelle in parcelles) {
       // Récupère les diagnostics de cette parcelle via la map
@@ -169,13 +170,13 @@ class ParcelleLocalRepository implements JournalRepository {
           ? 'aucun_diagnostic'
           : (derniereMaladie?.toLowerCase() == 'healthy' ? 'sain' : 'malade');
 
-      journal.add({
-        'parcelle': parcelle,
-        'nb_diagnostics': nb,
-        'derniere_maladie': derniereMaladie,
-        'dernier_diagnostic': dernierDiag,
-        'statut': statut,
-      });
+      journal.add(JournalEntry(
+        parcelle: parcelle,
+        nbDiagnostics: nb,
+        derniereMaladie: derniereMaladie,
+        dernierDiagnostic: dernierDiag,
+        statut: statut,
+      ));
     }
 
     return journal;

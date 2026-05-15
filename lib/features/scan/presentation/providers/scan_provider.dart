@@ -10,6 +10,7 @@ import '../../../../core/local_db/models/diagnostic_local.dart';
 import '../../data/repositories/diagnostic_local_repository.dart';
 import '../../domain/entities/diagnostic_result.dart' as domain;
 import '../../domain/repositories/scan_repository.dart';
+import '../../../../core/providers/tflite_provider.dart';
 import '../../domain/usecases/analyze_image_usecase.dart';
 
 // Le résultat du dernier diagnostic
@@ -21,10 +22,6 @@ final diagnosticRepositoryProvider = Provider<DiagnosticLocalRepository>(
   (_) => DiagnosticLocalRepository(),
 );
 
-/// Accès au service TFLite pour compatibilité des tests existants.
-final tfliteServiceProvider = Provider<TFLiteService>(
-  (_) => TFLiteService.instance,
-);
 
 /// Contrat domain du scan
 final scanRepositoryProvider = Provider<ScanRepository>(

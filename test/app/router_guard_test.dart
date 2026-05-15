@@ -9,6 +9,7 @@ import 'package:agri_mada/app/router.dart';
 import 'package:agri_mada/core/sync/providers/sync_provider.dart';
 import 'package:agri_mada/features/auth/presentation/providers/session_provider.dart';
 import 'package:agri_mada/features/journal/presentation/providers/journal_provider.dart';
+import 'package:agri_mada/features/journal/domain/entities/journal_entry.dart';
 
 class _FakeSyncNotifier extends SyncNotifier {
   @override
@@ -62,7 +63,7 @@ void main() {
           return {'prenom': 'Jean'};
         }),
         journalAgricoleProvider.overrideWith((ref) async {
-          return <Map<String, dynamic>>[];
+          return <JournalEntry>[];
         }),
       ],
     );

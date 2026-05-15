@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agri_mada/core/ai/tflite_service.dart';
+import 'package:agri_mada/features/scan/domain/entities/diagnostic_result.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'test_data.dart';
@@ -15,9 +16,15 @@ MockTFLiteService buildMockTfliteService({
 
   when(() => mock.isReady).thenReturn(isReady);
   if (isReady) {
-    when(() => mock.analyzeImage(any())).thenAnswer(
-      (_) async => result ?? mockTfliteResult,
-    );
+    when(() => mock.analyzeImage(any())).thenAnswer((_) async {
+      final r = result ?? mockTfliteResult;
+      return TFLiteInferenceResult(
+        maladieDetectee: r.maladieDetectee,
+        confiance: r.confiance,
+        niveauGravite: r.niveauGravite ?? 'modéré',
+        recommandations: r.recommandations,
+      );
+    });
   }
 
   return mock;

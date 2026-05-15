@@ -13,6 +13,7 @@ import 'package:agri_mada/core/sync/providers/sync_provider.dart';
 import 'package:agri_mada/features/auth/presentation/providers/session_provider.dart';
 import 'package:agri_mada/features/home/presentation/screens/home_screen.dart';
 import 'package:agri_mada/features/journal/presentation/providers/journal_provider.dart';
+import 'package:agri_mada/features/journal/domain/entities/journal_entry.dart';
 import 'package:agri_mada/l10n/app_localizations.dart';
 
 class _MgMaterialLocalizationsDelegate
@@ -104,7 +105,7 @@ void main() {
             return {'prenom': 'Jean'};
           }),
           journalAgricoleProvider.overrideWith((ref) async {
-            return <Map<String, dynamic>>[];
+            return <JournalEntry>[];
           }),
         ],
         child: MaterialApp.router(
@@ -186,7 +187,7 @@ void main() {
               return {'prenom': 'Jean'};
             }),
             journalAgricoleProvider.overrideWith((ref) async {
-              return <Map<String, dynamic>>[];
+              return <JournalEntry>[];
             }),
           ],
           child: MaterialApp.router(

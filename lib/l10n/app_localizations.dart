@@ -209,7 +209,7 @@ abstract class AppLocalizations {
   /// Sous-titre login
   ///
   /// In fr, this message translates to:
-  /// **'Bienvenue sur AgriMada'**
+  /// **'Ravie de vous revoir sur AgriMada'**
   String get loginWelcome;
 
   /// Titre ecran bienvenue
@@ -656,6 +656,30 @@ abstract class AppLocalizations {
   /// **'Plante en bonne santé. Continuez les bonnes pratiques agricoles.'**
   String get scanRecHealthy;
 
+  /// Recommandation plante saine eau
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenir une bonne gestion de l\'eau'**
+  String get scanRecHealthyWater;
+
+  /// Recommandation plante saine fertilisation
+  ///
+  /// In fr, this message translates to:
+  /// **'Fertilisation équilibrée'**
+  String get scanRecHealthyFertilization;
+
+  /// Recommandation plante saine surveillance
+  ///
+  /// In fr, this message translates to:
+  /// **'Surveillance régulière des parcelles'**
+  String get scanRecHealthyMonitoring;
+
+  /// Recommandation plante saine rotation
+  ///
+  /// In fr, this message translates to:
+  /// **'Rotation des cultures'**
+  String get scanRecHealthyRotation;
+
   /// Astuce résultat scan
   ///
   /// In fr, this message translates to:
@@ -835,6 +859,654 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Nom requis'**
   String get journalNameRequired;
+
+  /// Titre écran inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription'**
+  String get registerTitle;
+
+  /// Salutation inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour!'**
+  String get registerHello;
+
+  /// Sous-titre inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur AgriMada'**
+  String get registerWelcome;
+
+  /// Libellé nom complet
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom complet'**
+  String get registerNameLabel;
+
+  /// Libellé email inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Email'**
+  String get registerEmailLabel;
+
+  /// Libellé mot de passe inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get registerPasswordLabel;
+
+  /// Libellé confirmer mot de passe
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer mot de passe'**
+  String get registerConfirmPasswordLabel;
+
+  /// Bouton inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'inscrire'**
+  String get registerSubmit;
+
+  /// Texte conditions inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte les Conditions d\'utilisation et la Politique de confidentialité'**
+  String get registerAcceptTerms;
+
+  /// Erreur conditions non acceptées
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez accepter les Conditions d\'utilisation'**
+  String get registerAcceptError;
+
+  /// Lien connexion inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà un compte?'**
+  String get registerHasAccount;
+
+  /// Texte lien connexion
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter'**
+  String get registerLoginLink;
+
+  /// Succès inscription
+  ///
+  /// In fr, this message translates to:
+  /// **'Inscription réussie'**
+  String get registerSuccess;
+
+  /// Titre page prévention
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévenir les maladies'**
+  String get preventionTitle;
+
+  /// Sous-titre prévention
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévenez vos rizicultures'**
+  String get preventionSubtitle;
+
+  /// Titre astuce prévention
+  ///
+  /// In fr, this message translates to:
+  /// **'Astuce de prévention'**
+  String get preventionAstuceTitle;
+
+  /// Description astuce prévention
+  ///
+  /// In fr, this message translates to:
+  /// **'Des gestes simples aujourd\'hui pour un riz sain et une meilleure récolte demain'**
+  String get preventionAstuceDesc;
+
+  /// Titre astuce du moment
+  ///
+  /// In fr, this message translates to:
+  /// **'Astuce du moment'**
+  String get preventionAstuceMoment;
+
+  /// Sous-titre gestion eau
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenez une bonne gestion de l\'eau'**
+  String get preventionWaterManagement;
+
+  /// Description gestion eau
+  ///
+  /// In fr, this message translates to:
+  /// **'Une bonne gestion de l\'eau limite le développement des maladies comme la pyriculariose, la bactériose et la fusariose.'**
+  String get preventionWaterDesc;
+
+  /// Titre pourquoi efficace
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est efficace ?'**
+  String get preventionPourquoi;
+
+  /// Description pourquoi efficace
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'excès d\'eau et l\'humidité favorisent les champignons et bactéries. Une bonne gestion de l\'eau renforce la résistance naturelle du riz.'**
+  String get preventionPourquoiDesc;
+
+  /// Titre bon à savoir
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon à savoir'**
+  String get preventionBonASavoir;
+
+  /// Description bon à savoir
+  ///
+  /// In fr, this message translates to:
+  /// **'Des plantes vigoureuses, un sol bien oxygéné et une eau bien gérée sont les clés d\'un riz en bonne santé.'**
+  String get preventionBonASavoirDesc;
+
+  /// Titre comment faire
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment faire ?'**
+  String get preventionCommentFaire;
+
+  /// Titre page guides
+  ///
+  /// In fr, this message translates to:
+  /// **'Guides des maladies'**
+  String get guidesTitle;
+
+  /// Sous-titre guides
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiches d\'identification hors ligne'**
+  String get guidesSubtitle;
+
+  /// Section symptômes
+  ///
+  /// In fr, this message translates to:
+  /// **'Symptômes'**
+  String get guidesSymptoms;
+
+  /// Section causes
+  ///
+  /// In fr, this message translates to:
+  /// **'Causes'**
+  String get guidesCauses;
+
+  /// Section traitements
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitements'**
+  String get guidesTreatments;
+
+  /// Titre du menu
+  ///
+  /// In fr, this message translates to:
+  /// **'Menu'**
+  String get drawerMenuTitle;
+
+  /// Titre accueil drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get drawerHomeTitle;
+
+  /// Sous-titre accueil drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à la page d\'accueil'**
+  String get drawerHomeSubtitle;
+
+  /// Titre parcelles drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes parcelles'**
+  String get drawerPlotsTitle;
+
+  /// Sous-titre parcelles drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi de vos rizières et surfaces'**
+  String get drawerPlotsSubtitle;
+
+  /// Titre historique drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get drawerHistoryTitle;
+
+  /// Sous-titre historique drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Liste de vos analyses passées'**
+  String get drawerHistorySubtitle;
+
+  /// Titre guides dans le drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Guides des maladies'**
+  String get drawerGuidesTitle;
+
+  /// Sous-titre guides dans le drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiches d\'identification hors ligne'**
+  String get drawerGuidesSubtitle;
+
+  /// Titre paramètres dans le drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get drawerSettingsTitle;
+
+  /// Sous-titre paramètres dans le drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue et préférences'**
+  String get drawerSettingsSubtitle;
+
+  /// Titre stockage
+  ///
+  /// In fr, this message translates to:
+  /// **'Stockage'**
+  String get drawerStorage;
+
+  /// Texte mémoire utilisée
+  ///
+  /// In fr, this message translates to:
+  /// **'Mémoire utilisée sur ce smartphone'**
+  String get drawerMemoryUsed;
+
+  /// Bouton déconnexion drawer
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnexion'**
+  String get drawerLogout;
+
+  /// Dernière mise à jour du modèle
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière MAJ : {date}'**
+  String drawerLastUpdate(String date);
+
+  /// Texte modèle embarqué
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle IA embarqué'**
+  String get drawerEmbeddedModel;
+
+  /// Titre écran paramètres
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get settingsTitle;
+
+  /// Téléphone indisponible
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone indisponible'**
+  String get settingsPhoneUnavailable;
+
+  /// Région indisponible
+  ///
+  /// In fr, this message translates to:
+  /// **'Région indisponible'**
+  String get settingsRegionUnavailable;
+
+  /// Paramètre langue
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue'**
+  String get settingsLanguage;
+
+  /// Bouton déconnexion paramètres
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get settingsLogout;
+
+  /// Titre écran mot de passe oublié
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié'**
+  String get resetPasswordTitle;
+
+  /// Titre réinitialisation
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser le mot de passe'**
+  String get resetPasswordHeadline;
+
+  /// Instructions réinitialisation
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez votre numéro de téléphone pour recevoir les instructions.'**
+  String get resetPasswordInstruction;
+
+  /// Label téléphone
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone'**
+  String get resetPasswordPhoneLabel;
+
+  /// Hint téléphone
+  ///
+  /// In fr, this message translates to:
+  /// **'0341234567'**
+  String get resetPasswordPhoneHint;
+
+  /// Erreur champ requis
+  ///
+  /// In fr, this message translates to:
+  /// **'Champ requis'**
+  String get resetPasswordPhoneRequired;
+
+  /// Erreur numéro invalide
+  ///
+  /// In fr, this message translates to:
+  /// **'Numero invalide'**
+  String get resetPasswordPhoneInvalid;
+
+  /// Lien retour connexion
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à la connexion'**
+  String get resetPasswordBackToLogin;
+
+  /// Bouton suivant onboarding
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get onboardingNext;
+
+  /// Bouton commencer onboarding
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get onboardingStart;
+
+  /// Titre slide 1
+  ///
+  /// In fr, this message translates to:
+  /// **'Photographiez la feuille malade'**
+  String get onboardingSlide1Title;
+
+  /// Desc slide 1
+  ///
+  /// In fr, this message translates to:
+  /// **'Placez la feuille dans le cadre. Gardez 20-30 cm de distance et une bonne lumière naturelle.'**
+  String get onboardingSlide1Desc;
+
+  /// Titre slide 2
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'IA analyse hors ligne'**
+  String get onboardingSlide2Title;
+
+  /// Desc slide 2
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas besoin d\'internet. Le diagnostic fonctionne directement sur votre téléphone.'**
+  String get onboardingSlide2Desc;
+
+  /// Titre slide 3
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez le diagnostic'**
+  String get onboardingSlide3Title;
+
+  /// Desc slide 3
+  ///
+  /// In fr, this message translates to:
+  /// **'Visualisez la gravité détectée, la confiance de l\'analyse et les recommandations adaptées.'**
+  String get onboardingSlide3Desc;
+
+  /// Titre slide 4
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivez vos parcelles'**
+  String get onboardingSlide4Title;
+
+  /// Desc slide 4
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouvez l\'historique des analyses de chaque parcelle dans le journal agricole.'**
+  String get onboardingSlide4Desc;
+
+  /// Tip 1 prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurez un drainage efficace de la parcelle pour éviter la stagnation d\'eau.'**
+  String get preventionTip1;
+
+  /// Tip 2 prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Alternez les phases d\'inondation et d\'assèchement (en irrigation intermittente).'**
+  String get preventionTip2;
+
+  /// Tip 3 prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Évitez un niveau d\'eau trop élevé en permanence (3-5 cm suffisent).'**
+  String get preventionTip3;
+
+  /// Tip 4 prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Évitez l\'excès d\'azote, qui rend les plantes plus sensibles aux maladies.'**
+  String get preventionTip4;
+
+  /// Tip 5 prevention
+  ///
+  /// In fr, this message translates to:
+  /// **'Nettoyez régulièrement les canaux et entrées d\'eau pour une meilleure circulation.'**
+  String get preventionTip5;
+
+  /// Statut splash initialisation
+  ///
+  /// In fr, this message translates to:
+  /// **'Initialisation en cours...'**
+  String get splashStatusInitializing;
+
+  /// Statut splash dégradé
+  ///
+  /// In fr, this message translates to:
+  /// **'Initialisation partielle, mode degradé.'**
+  String get splashStatusDegraded;
+
+  /// Statut splash IA prête
+  ///
+  /// In fr, this message translates to:
+  /// **'IA prête'**
+  String get splashStatusAiReady;
+
+  /// Statut splash IA indisponible
+  ///
+  /// In fr, this message translates to:
+  /// **'IA indisponible'**
+  String get splashStatusAiUnavailable;
+
+  /// Statut splash session active
+  ///
+  /// In fr, this message translates to:
+  /// **'Session active'**
+  String get splashStatusSessionActive;
+
+  /// Statut splash session invité
+  ///
+  /// In fr, this message translates to:
+  /// **'Session invité'**
+  String get splashStatusSessionGuest;
+
+  /// En-tête date CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Date'**
+  String get exportCsvDate;
+
+  /// En-tête parcelle CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcelle'**
+  String get exportCsvPlot;
+
+  /// En-tête maladie CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Maladie'**
+  String get exportCsvDisease;
+
+  /// En-tête gravité CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Gravité'**
+  String get exportCsvSeverity;
+
+  /// En-tête confiance CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance(%)'**
+  String get exportCsvConfidence;
+
+  /// En-tête reco CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandations'**
+  String get exportCsvRecommendations;
+
+  /// En-tête traitement CSV
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement appliqué'**
+  String get exportCsvTreatment;
+
+  /// Footer PDF
+  ///
+  /// In fr, this message translates to:
+  /// **'Généré par AgriMada - Agriculture intelligente'**
+  String get exportPdfGeneratedBy;
+
+  /// Titre PDF
+  ///
+  /// In fr, this message translates to:
+  /// **'Export journal agricole'**
+  String get exportPdfTitle;
+
+  /// Toutes parcelles PDF
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les parcelles'**
+  String get exportPdfAllPlots;
+
+  /// Label parcelle PDF
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcelle: {plot}'**
+  String exportPdfPlotLabel(String plot);
+
+  /// Label date PDF
+  ///
+  /// In fr, this message translates to:
+  /// **'Date d\'export: {date}'**
+  String exportPdfDateLabel(String date);
+
+  /// No description provided for @guideDisease1Name.
+  ///
+  /// In fr, this message translates to:
+  /// **'Brûlure bactérienne'**
+  String get guideDisease1Name;
+
+  /// No description provided for @guideDisease1Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maladie bactérienne qui provoque le flétrissement des feuilles. Les premiers symptômes apparaissent sous forme de lésions gris-vert le long des bords des feuilles, qui s\'étendent rapidement et deviennent jaune-blanchâtre.'**
+  String get guideDisease1Desc;
+
+  /// No description provided for @guideDisease1Symptoms.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Lésions gris-vert le long des nervures\n• Flétrissement en V sur les bords\n• Exsudat bactérien jaune par temps humide\n• Feuilles qui sèchent et blanchissent'**
+  String get guideDisease1Symptoms;
+
+  /// No description provided for @guideDisease1Causes.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Forte humidité et températures élevées\n• Excès d\'azote\n• Eau stagnante prolongée\n• Variétés sensibles'**
+  String get guideDisease1Causes;
+
+  /// No description provided for @guideDisease2Name.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tache brune'**
+  String get guideDisease2Name;
+
+  /// No description provided for @guideDisease2Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maladie fongique courante du riz, surtout dans les sols carencés. Les taches brunes ovales apparaissent sur les feuilles, réduisant la capacité photosynthétique de la plante.'**
+  String get guideDisease2Desc;
+
+  /// No description provided for @guideDisease2Symptoms.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Taches brunes ovales sur les feuilles\n• Anneaux concentriques sur les lésions\n• Grains tachetés dans les cas sévères\n• Réduction du rendement'**
+  String get guideDisease2Symptoms;
+
+  /// No description provided for @guideDisease2Causes.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Carence en potassium\n• Sols pauvres et mal drainés\n• Stress hydrique\n• Forte humidité relative'**
+  String get guideDisease2Causes;
+
+  /// No description provided for @guideDisease3Name.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charbon foliaire'**
+  String get guideDisease3Name;
+
+  /// No description provided for @guideDisease3Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maladie fongique qui se manifeste par des tiges noires sur les feuilles de riz. Le champignon se développe dans les tissus foliaires et forme des sores noirs remplis de spores.'**
+  String get guideDisease3Desc;
+
+  /// No description provided for @guideDisease3Symptoms.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Taches noires angulaires sur les feuilles\n• Lésions sur les gaines foliaires\n• Spores noires poudreuses\n• Affaiblissement général de la plante'**
+  String get guideDisease3Symptoms;
+
+  /// No description provided for @guideDisease3Causes.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Humidité élevée prolongée\n• Températures modérées (20-25°C)\n• Densité de semis élevée\n• Mauvais drainage'**
+  String get guideDisease3Causes;
+
+  /// No description provided for @guideDisease4Name.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plante saine'**
+  String get guideDisease4Name;
+
+  /// No description provided for @guideDisease4Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre plant de riz ne présente aucun signe de maladie. Continuez à appliquer les bonnes pratiques agricoles pour maintenir la santé de vos cultures.'**
+  String get guideDisease4Desc;
+
+  /// No description provided for @guideDisease4Symptoms.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Feuilles vertes et vigoureuses\n• Croissance régulière\n• Pas de lésions ni de décoloration\n• Tallage normal'**
+  String get guideDisease4Symptoms;
+
+  /// No description provided for @guideDisease4Causes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonnes pratiques agricoles :'**
+  String get guideDisease4Causes;
 }
 
 class _AppLocalizationsDelegate

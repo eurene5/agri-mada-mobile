@@ -1,110 +1,64 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:agri_mada/core/ai/tflite_service.dart';
+import 'package:agri_mada/core/errors/failure.dart';
+import 'package:agri_mada/features/scan/domain/entities/diagnostic_result.dart';
+import 'package:agri_mada/features/scan/domain/repositories/scan_repository.dart';
+import 'package:agri_mada/features/scan/domain/usecases/analyze_image_usecase.dart';
 
-class ScanFailure {
-  const ScanFailure(this.message);
-
-  final String message;
-}
-
-class AnalyzeImageUseCase {
-  const AnalyzeImageUseCase(this._tfliteService);
-
-  final TFLiteService _tfliteService;
-
-  Future<Either<Object, DiagnosticResult>> call(File imageFile) async {
-    try {
-      final result = await _tfliteService.analyzeImage(imageFile);
-      return Right(result);
-    } on TFLiteNotInitializedException catch (e) {
-      return Left(e);
-    } catch (_) {
-      return const Left(ScanFailure('Image invalide'));
-    }
-  }
-}
-
-class MockTFLiteService extends Mock implements TFLiteService {}
-
-class FakeFile extends Fake implements File {}
+class MockScanRepository extends Mock implements ScanRepository {}
 
 void main() {
-  late MockTFLiteService mockTfliteService;
+  late MockScanRepository repository;
   late AnalyzeImageUseCase useCase;
-  late File imageFile;
-
-  const tResult = DiagnosticResult(
-    maladieDetectee: 'Brown spot',
-    confiance: 0.93,
-    niveauGravite: 'modere',
-    recommandations: ['Ameliorer la fertilisation'],
-  );
-
-  setUpAll(() {
-    registerFallbackValue(FakeFile());
-  });
 
   setUp(() {
-    mockTfliteService = MockTFLiteService();
-    useCase = AnalyzeImageUseCase(mockTfliteService);
-    imageFile = File('test_image.jpg');
+    repository = MockScanRepository();
+    useCase = AnalyzeImageUseCase(repository);
   });
 
   group('AnalyzeImageUseCase', () {
     test('retourne un DiagnosticResult quand l\'analyse reussit', () async {
-      // Arrange
-      when(() => mockTfliteService.analyzeImage(any())).thenAnswer(
-        (_) async => tResult,
+      when(() => repository.analyze(any())).thenAnswer(
+        (_) async => Right(
+          DiagnosticResult(
+            maladieDetectee: 'Brown spot',
+            confiance: 0.93,
+            createdAt: DateTime.now(),
+            niveauGravite: 'modere',
+            recommandations: ['Ameliorer la fertilisation'],
+          ),
+        ),
       );
 
-      // Act
-      final result = await useCase(imageFile);
+      final result = await useCase('test.jpg');
 
-      // Assert
-      expect(result, const Right<Object, DiagnosticResult>(tResult));
-      verify(() => mockTfliteService.analyzeImage(imageFile)).called(1);
-      verifyNoMoreInteractions(mockTfliteService);
+      expect(result.isRight(), isTrue);
+      verify(() => repository.analyze('test.jpg')).called(1);
     });
 
-    test('retourne TFLiteNotInitializedException si moteur non initialise',
-        () async {
-      // Arrange
-      when(() => mockTfliteService.analyzeImage(any())).thenThrow(
-        const TFLiteNotInitializedException(),
-      );
+    test('retourne ValidationFailure pour chemin vide', () async {
+      final result = await useCase('');
 
-      // Act
-      final result = await useCase(imageFile);
-
-      // Assert
-      expect(result.isLeft(), isTrue);
+      expect(result, isA<Left<Failure, DiagnosticResult>>());
       result.fold(
-        (failure) => expect(failure, isA<TFLiteNotInitializedException>()),
+        (failure) => expect(failure, isA<ValidationFailure>()),
         (_) => fail('Expected Left'),
       );
+      verifyZeroInteractions(repository);
     });
 
-    test('retourne un ScanFailure quand l\'image est invalide', () async {
-      // Arrange
-      when(() => mockTfliteService.analyzeImage(any())).thenThrow(
-        Exception('Image invalide'),
+    test('retourne Failure quand le repository echoue', () async {
+      when(() => repository.analyze(any())).thenAnswer(
+        (_) async => const Left(ServerFailure('Erreur TFLite')),
       );
 
-      // Act
-      final result = await useCase(imageFile);
+      final result = await useCase('test.jpg');
 
-      // Assert
       expect(result.isLeft(), isTrue);
       result.fold(
-        (failure) {
-          expect(failure, isA<ScanFailure>());
-          expect((failure as ScanFailure).message, 'Image invalide');
-        },
+        (failure) => expect(failure, isA<ServerFailure>()),
         (_) => fail('Expected Left'),
       );
     });

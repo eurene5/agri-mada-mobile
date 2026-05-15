@@ -24,6 +24,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -77,10 +78,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       drawer: const HomeDrawer(),
       backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
@@ -88,7 +88,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.screenHorizontal,
                   vertical: AppSpacing.md,
                 ),
@@ -98,23 +98,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     _buildAnimatedItem(
                         _HomeHeader(
                           onMenuTap: () =>
-                              scaffoldKey.currentState?.openDrawer(),
+                              _scaffoldKey.currentState?.openDrawer(),
                         ),
                         0),
-                    SizedBox(height: AppSpacing.md),
-                    _buildAnimatedItem(_SearchBar(), 1),
-                    SizedBox(height: AppSpacing.lg),
-                    _buildAnimatedItem(_SummaryCard(), 2),
-                    SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildAnimatedItem(const _SearchBar(), 1),
+                    const SizedBox(height: AppSpacing.lg),
+                    _buildAnimatedItem(const _SummaryCard(), 2),
+                    const SizedBox(height: AppSpacing.lg),
                     _buildAnimatedItem(
                         Text(
                           loc.homeServicesTitle,
                           style: AppTypography.headlineMedium,
                         ),
                         3),
-                    SizedBox(height: AppSpacing.md),
-                    _buildAnimatedItem(_ServicesGrid(), 4),
-                    SizedBox(height: 100),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildAnimatedItem(const _ServicesGrid(), 4),
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -183,7 +183,6 @@ class _HomeHeader extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTypography.bodySmall.copyWith(
                 color: AppColors.primary,
-                fontSize: 12,
               ),
             ),
           ],
@@ -360,30 +359,20 @@ class _SearchBar extends StatelessWidget {
                 const Icon(Icons.search,
                     color: AppColors.textSecondary, size: 18),
                 const SizedBox(width: AppSpacing.sm),
-                Text(
-                  loc.homeSearchPlaceholder,
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                Expanded(
+                  child: Text(
+                    loc.homeSearchPlaceholder,
+                    style: AppTypography.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ],
-            ),
-          ),
+          ],
         ),
-        const SizedBox(width: AppSpacing.sm),
-        // Bouton filtre
-        Container(
-          width: 49,
-          height: 49,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-          ),
-          child:
-              const Icon(Icons.tune, color: AppColors.textOnPrimary, size: 22),
-        ),
-      ],
-    );
+      ),
+      ),
+    ],
+  );
   }
 }
 
@@ -416,7 +405,9 @@ class _SummaryCard extends StatelessWidget {
                 children: [
                   Text(
                     loc.homeSummaryTitle,
-                    style: AppTypography.headlineMedium.copyWith(fontSize: 16),
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 2,
                   ),
                   const Spacer(),
@@ -500,24 +491,28 @@ class _ServicesGrid extends StatelessWidget {
           description: loc.homeServicePlotsDescription,
           iconPath: 'assets/images/service_parcelles.png',
           iconFallback: Icons.map_outlined,
+          onTap: () => context.go(AppRoutes.journal),
         ),
         _ServiceCard(
           title: loc.homeServiceCropsTitle,
           description: loc.homeServiceCropsDescription,
           iconPath: 'assets/images/service_cultures.png',
           iconFallback: Icons.bar_chart_outlined,
+          onTap: () => context.go(AppRoutes.scanning),
         ),
         _ServiceCard(
           title: loc.homeServiceSolutionsTitle,
           description: loc.homeServiceSolutionsDescription,
           iconPath: 'assets/images/service_solutions.png',
           iconFallback: Icons.science_outlined,
+          onTap: () => context.go(AppRoutes.guides),
         ),
         _ServiceCard(
           title: loc.homeServicePreventionTitle,
           description: loc.homeServicePreventionDescription,
           iconPath: 'assets/images/service_prevention.png',
           iconFallback: Icons.health_and_safety_outlined,
+          onTap: () => context.go(AppRoutes.prevention),
         ),
       ],
     );
@@ -530,60 +525,65 @@ class _ServiceCard extends StatelessWidget {
     required this.description,
     required this.iconPath,
     required this.iconFallback,
+    this.onTap,
   });
 
   final String title;
   final String description;
   final String iconPath;
   final IconData iconFallback;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(AppSpacing.cardPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Image.asset(
-            iconPath,
-            width: 64,
-            height: 50,
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => Icon(
-              iconFallback,
-              color: AppColors.primary,
-              size: 40,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            title,
-            style: AppTypography.bodyMedium.copyWith(
-              fontWeight: FontWeight.w600,
+          ],
+        ),
+        padding: const EdgeInsets.all(AppSpacing.cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.asset(
+              iconPath,
+              width: 64,
+              height: 50,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Icon(
+                iconFallback,
+                color: AppColors.primary,
+                size: 40,
+              ),
             ),
-            maxLines: 2,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Expanded(
-            child: Text(
-              description,
-              style: AppTypography.bodySmall.copyWith(fontSize: 11),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              title,
+              style: AppTypography.bodyMedium.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 2,
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.xs),
+            Expanded(
+              child: Text(
+                description,
+                style: AppTypography.caption,
+                maxLines: 4,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

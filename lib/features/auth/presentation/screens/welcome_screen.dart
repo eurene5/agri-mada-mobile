@@ -169,6 +169,14 @@ class _WelcomeHero extends StatelessWidget {
               imagePath: 'assets/images/deco_rice_3.png',
             ),
           ),
+          const Positioned(
+            top: 30,
+            left: -15,
+            child: _DecorativeCircle(
+              size: 32,
+              imagePath: 'assets/images/deco_rice_4.png',
+            ),
+          ),
         ],
       ),
     );

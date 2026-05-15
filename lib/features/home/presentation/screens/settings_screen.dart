@@ -9,6 +9,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../core/widgets/app_button/app_button.dart';
 import '../../../auth/presentation/providers/session_provider.dart';
 import '../../../../core/providers/locale_provider.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -35,7 +36,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
-        title: const Text('Paramètres'),
+        title: Text(AppLocalizations.of(context).settingsTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
@@ -48,9 +49,15 @@ class SettingsScreen extends ConsumerWidget {
                 children: [
                   Text('$prenom $nom'.trim(), style: AppTypography.titleLarge),
                   const SizedBox(height: AppSpacing.xs),
-                  Text(tel.isEmpty ? 'Téléphone indisponible' : tel,
+                  Text(
+                      tel.isEmpty
+                          ? AppLocalizations.of(context).settingsPhoneUnavailable
+                          : tel,
                       style: AppTypography.bodyMedium),
-                  Text(region.isEmpty ? 'Région indisponible' : region,
+                  Text(
+                      region.isEmpty
+                          ? AppLocalizations.of(context).settingsRegionUnavailable
+                          : region,
                       style: AppTypography.bodySmall),
                 ],
               ),
@@ -60,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('Langue'),
+              title: Text(AppLocalizations.of(context).settingsLanguage),
               subtitle: Text(locale.languageCode.toUpperCase()),
               trailing: PopupMenuButton<String>(
                 onSelected: (value) {
@@ -75,7 +82,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           AppButton(
-            label: 'Se déconnecter',
+            label: AppLocalizations.of(context).settingsLogout,
             onPressed: () => _logout(context, ref),
           ),
         ],

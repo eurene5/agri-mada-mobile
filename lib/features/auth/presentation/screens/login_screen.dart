@@ -74,7 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Future<void> _onLogin() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     await ref.read(authNotifierProvider.notifier).login(
-          email: _usernameController.text.trim(),
+          tel: _usernameController.text.trim(),
           password: _passwordController.text,
         );
     if (!mounted) return;
@@ -151,12 +151,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       // Identifiant (tel/username)
                       _LoginTextField(
                         controller: _usernameController,
-                        hintText: loc.loginEmailLabel,
-                        prefixIcon: Icons.email_outlined,
-                        keyboardType: TextInputType.text,
+                        hintText: 'Téléphone',
+                        prefixIcon: Icons.phone_outlined,
+                        keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return loc.loginEmailRequired;
+                            return 'Veuillez entrer votre numéro';
                           }
                           return null;
                         },
@@ -192,11 +192,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: _onForgotPasswordTap,
-                          child: Text(
+                            child: Text(
                             loc.loginForgotPassword,
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.primary,
-                              fontSize: 14,
                             ),
                           ),
                         ),

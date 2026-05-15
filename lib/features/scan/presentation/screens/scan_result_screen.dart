@@ -297,8 +297,8 @@ class _DiagnosticCard extends StatelessWidget {
                             color: AppColors.primary, size: 14),
                         const SizedBox(width: 4),
                         Text(_confidence(loc),
-                            style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.primary, fontSize: 11)),
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.primary)),
                       ],
                     ),
                   ),
@@ -548,7 +548,6 @@ class _RecommendationItem extends StatelessWidget {
                 style: AppTypography.bodySmall.copyWith(
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
-                  fontSize: 14,
                 ),
               ),
               const SizedBox(height: 4),

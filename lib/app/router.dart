@@ -7,6 +7,8 @@ import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/home/presentation/screens/settings_screen.dart';
+import '../features/guides/presentation/screens/guides_screen.dart';
+import '../features/prevention/presentation/screens/prevention_screen.dart';
 import '../features/scan/presentation/screens/scanning_screen.dart';
 import '../features/scan/presentation/screens/scan_result_screen.dart';
 import '../features/journal/presentation/screens/journal_screen.dart';
@@ -26,6 +28,8 @@ abstract final class AppRoutes {
   static const String scanning = '/scanning';
   static const String scanResult = '/scan-result';
   static const String journal = '/journal';
+  static const String prevention = '/prevention';
+  static const String guides = '/guides';
   static const String onboarding = '/onboarding';
 }
 
@@ -38,8 +42,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         SessionService.instance.isOnboardingDone(),
         SessionService.instance.isLoggedIn(),
       ]);
-      final isOnboardingDone = results[0] as bool;
-      final isLoggedIn = results[1] as bool;
+      final isOnboardingDone = results[0];
+      final isLoggedIn = results[1];
       final route = state.matchedLocation;
       final isSplashRoute = route == AppRoutes.splash;
       final isAuthRoute = route == AppRoutes.welcome ||
@@ -135,6 +139,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.scanResult,
         builder: (context, state) => const ScanResultScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.prevention,
+        builder: (context, state) => const PreventionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.guides,
+        builder: (context, state) => const GuidesScreen(),
       ),
       GoRoute(
         path: AppRoutes.onboarding,

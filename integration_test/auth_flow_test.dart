@@ -104,7 +104,7 @@ void main() {
     );
 
     when(() => mockLoginUseCase.call(
-          email: any(named: 'email'),
+          tel: any(named: 'tel'),
           password: any(named: 'password'),
         )).thenAnswer((_) async => const Right<Failure, UserProfile>(user));
 

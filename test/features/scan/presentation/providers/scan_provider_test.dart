@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:agri_mada/core/ai/tflite_service.dart';
 import 'package:agri_mada/features/scan/data/repositories/diagnostic_local_repository.dart';
 import 'package:agri_mada/features/scan/presentation/providers/scan_provider.dart';
+import 'package:agri_mada/core/providers/tflite_provider.dart';
 
 class MockTFLiteService extends Mock implements TFLiteService {}
 
@@ -20,7 +21,7 @@ void main() {
   late MockTFLiteService mockTfliteService;
   late MockDiagnosticLocalRepository mockDiagnosticRepository;
 
-  const tResult = DiagnosticResult(
+  const tResult = TFLiteInferenceResult(
     maladieDetectee: 'Leaf smut',
     confiance: 0.88,
     niveauGravite: 'severe',
@@ -85,10 +86,11 @@ void main() {
           .read(scanNotifierProvider.notifier)
           .analyzeImage(File('img.jpg'));
 
-      expect(result, tResult);
+      expect(result, isNotNull);
+      expect(result!.maladieDetectee, 'Leaf smut');
       final state = container.read(scanNotifierProvider);
       expect(state, isA<ScanSuccess>());
-      expect((state as ScanSuccess).result, tResult);
+      expect((state as ScanSuccess).result.maladieDetectee, 'Leaf smut');
     });
 
     test(

@@ -317,6 +317,18 @@ class AppLocalizationsMg extends AppLocalizations {
       'Zavamaniry salama. Tohizy ny fanao tsara amin\'ny fambolena.';
 
   @override
+  String get scanRecHealthyWater => 'Ataovy tsara ny fitantanana ny rano';
+
+  @override
+  String get scanRecHealthyFertilization => 'Fametrahana zezika voalanjalanja';
+
+  @override
+  String get scanRecHealthyMonitoring => 'Fanaraha-maso matetika ny tanimbary';
+
+  @override
+  String get scanRecHealthyRotation => 'Fihodinana voly';
+
+  @override
   String get scanTip =>
       'Torohevitra : aza manondraka be loatra mandritra ny 3 andro';
 
@@ -415,4 +427,362 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get journalNameRequired => 'Ilaina ny anarana';
+
+  @override
+  String get registerTitle => 'Hisoratra anarana';
+
+  @override
+  String get registerHello => 'Salama!';
+
+  @override
+  String get registerWelcome => 'Tongasoa eto amin\'ny AgriMada';
+
+  @override
+  String get registerNameLabel => 'Anarana feno';
+
+  @override
+  String get registerEmailLabel => 'Mailaka';
+
+  @override
+  String get registerPasswordLabel => 'Teny miafina';
+
+  @override
+  String get registerConfirmPasswordLabel => 'Hamarino ny teny miafina';
+
+  @override
+  String get registerSubmit => 'Hisoratra anarana';
+
+  @override
+  String get registerAcceptTerms =>
+      'Manaiky ny Fepetra fampiasana sy ny Politika momba ny fiainana manokana aho';
+
+  @override
+  String get registerAcceptError => 'Mba ekeo ny Fepetra fampiasana';
+
+  @override
+  String get registerHasAccount => 'Efa manana kaonty?';
+
+  @override
+  String get registerLoginLink => 'Hiditra';
+
+  @override
+  String get registerSuccess => 'Soa aman-tsara ny fisoratana anarana';
+
+  @override
+  String get preventionTitle => 'Misoroka ny aretina';
+
+  @override
+  String get preventionSubtitle => 'Arovy ny fambolena vary';
+
+  @override
+  String get preventionAstuceTitle => 'Torohay fisorohana';
+
+  @override
+  String get preventionAstuceDesc =>
+      'Fihetsika tsotra anio ho an\'ny vary salama sy vokatra tsara kokoa rahampitso';
+
+  @override
+  String get preventionAstuceMoment => 'Torohay amin\'izao fotoana izao';
+
+  @override
+  String get preventionWaterManagement =>
+      'Tantano tsara ny fitantanana ny rano';
+
+  @override
+  String get preventionWaterDesc =>
+      'Ny fitantanana ny rano tsara dia mametra ny fivoaran\'ny aretina toy ny pyriculariose, bactériose ary fusariose.';
+
+  @override
+  String get preventionPourquoi => 'Fa maninona no mandaitra izany?';
+
+  @override
+  String get preventionPourquoiDesc =>
+      'Ny rano be sy ny hamandoana dia mampiroborobo ny holatra sy bakteria. Ny fitantanana ny rano tsara dia manamafy ny fanoherana voajanahary ny vary.';
+
+  @override
+  String get preventionBonASavoir => 'Tsara ho fantatra';
+
+  @override
+  String get preventionBonASavoirDesc =>
+      'Ny zavamaniry mavitrika, ny tany misy oksizenina tsara ary ny rano voatantana tsara dia fanalahidin\'ny vary salama.';
+
+  @override
+  String get preventionCommentFaire => 'Ahoana no fanaovana izany?';
+
+  @override
+  String get guidesTitle => 'Torolalana momba ny aretina';
+
+  @override
+  String get guidesSubtitle => 'Takelaka famantarana tsy misy aterineto';
+
+  @override
+  String get guidesSymptoms => 'Soritr\'aretina';
+
+  @override
+  String get guidesCauses => 'Antony';
+
+  @override
+  String get guidesTreatments => 'Fitsaboana';
+
+  @override
+  String get drawerMenuTitle => 'Menio';
+
+  @override
+  String get drawerHomeTitle => 'Fandraisana';
+
+  @override
+  String get drawerHomeSubtitle => 'Hiverina amin\'ny fandraisana';
+
+  @override
+  String get drawerPlotsTitle => 'Tanimbary';
+
+  @override
+  String get drawerPlotsSubtitle => 'Fanaraha-maso ny tanimbary';
+
+  @override
+  String get drawerHistoryTitle => 'Tantara';
+
+  @override
+  String get drawerHistorySubtitle => 'Lisitry ny fanadihadiana';
+
+  @override
+  String get drawerGuidesTitle => 'Torolalana momba ny aretina';
+
+  @override
+  String get drawerGuidesSubtitle => 'Takelaka famantarana tsy misy aterineto';
+
+  @override
+  String get drawerSettingsTitle => 'Fikirakirana';
+
+  @override
+  String get drawerSettingsSubtitle => 'Fiteny sy safidy';
+
+  @override
+  String get drawerStorage => 'Fitehirizana';
+
+  @override
+  String get drawerMemoryUsed => 'Fitehirizana ampiasaina amin\'ity finday ity';
+
+  @override
+  String get drawerLogout => 'Hivoaka';
+
+  @override
+  String drawerLastUpdate(String date) {
+    return 'Fanavaozana farany : $date';
+  }
+
+  @override
+  String get drawerEmbeddedModel => 'Modely IA anaty';
+
+  @override
+  String get settingsTitle => 'Fikirakirana';
+
+  @override
+  String get settingsPhoneUnavailable => 'Tsy misy nomerao';
+
+  @override
+  String get settingsRegionUnavailable => 'Tsy misy faritra';
+
+  @override
+  String get settingsLanguage => 'Fiteny';
+
+  @override
+  String get settingsLogout => 'Hivoaka';
+
+  @override
+  String get resetPasswordTitle => 'Hadino ny teny miafina';
+
+  @override
+  String get resetPasswordHeadline => 'Hamerina ny teny miafina';
+
+  @override
+  String get resetPasswordInstruction =>
+      'Ampidiro ny nomeraon-telefaoninao handraisana ny toromarika.';
+
+  @override
+  String get resetPasswordPhoneLabel => 'Telefaonina';
+
+  @override
+  String get resetPasswordPhoneHint => '0341234567';
+
+  @override
+  String get resetPasswordPhoneRequired => 'Tsy maintsy fenoina';
+
+  @override
+  String get resetPasswordPhoneInvalid => 'Nomerao tsy mitombina';
+
+  @override
+  String get resetPasswordBackToLogin => 'Hiverina amin\'ny fidirana';
+
+  @override
+  String get onboardingNext => 'Manaraka';
+
+  @override
+  String get onboardingStart => 'Hanomboka';
+
+  @override
+  String get onboardingSlide1Title => 'Alao sary ny ravina marary';
+
+  @override
+  String get onboardingSlide1Desc =>
+      'Apetraho ao anatin\'ny tabilao ny ravina. Mijanòna eo amin\'ny 20-30 cm ary hazavana tsara.';
+
+  @override
+  String get onboardingSlide2Title => 'Manadihady ivelan\'ny tambajotra ny IA';
+
+  @override
+  String get onboardingSlide2Desc =>
+      'Tsy mila aterineto. Mandeha mivantana amin\'ny findainao ny fitiliana.';
+
+  @override
+  String get onboardingSlide3Title => 'Jereo ny vokatra';
+
+  @override
+  String get onboardingSlide3Desc =>
+      'Jereo ny hamafin\'ny aretina, ny fahamendrehan\'ny vokatra ary ny toro-hevitra mifanaraka aminy.';
+
+  @override
+  String get onboardingSlide4Title => 'Araho ny tanimbarinao';
+
+  @override
+  String get onboardingSlide4Desc =>
+      'Tadiavo ao amin\'ny boky ny tantaran\'ny fitiliana ho an\'ny tanimbary tsirairay.';
+
+  @override
+  String get preventionTip1 =>
+      'Ataovy tsara ny fivoahan\'ny rano eo amin\'ny tanimbary hisorohana ny rano miandrona.';
+
+  @override
+  String get preventionTip2 =>
+      'Avadiho matetika ny fotoana feno rano sy maina (fitarihan-drano mitsitapatapaka).';
+
+  @override
+  String get preventionTip3 =>
+      'Hialao ny rano be loatra mitohy (ampy ny 3-5 cm).';
+
+  @override
+  String get preventionTip4 =>
+      'Hialao ny azota be loatra, mahatonga ny vary ho mora voan\'ny aretina.';
+
+  @override
+  String get preventionTip5 =>
+      'Diovy matetika ny lakandrano sy ny fidirandrano mba hikorianan\'ny rano tsara.';
+
+  @override
+  String get splashStatusInitializing => 'Eo am-panombohana...';
+
+  @override
+  String get splashStatusDegraded => 'Fanombohana tsy feno.';
+
+  @override
+  String get splashStatusAiReady => 'Vonona ny IA';
+
+  @override
+  String get splashStatusAiUnavailable => 'Tsy misy ny IA';
+
+  @override
+  String get splashStatusSessionActive => 'Kaonty mavitrika';
+
+  @override
+  String get splashStatusSessionGuest => 'Kaonty vahiny';
+
+  @override
+  String get exportCsvDate => 'Daty';
+
+  @override
+  String get exportCsvPlot => 'Tanimbary';
+
+  @override
+  String get exportCsvDisease => 'Aretina';
+
+  @override
+  String get exportCsvSeverity => 'Hamafiny';
+
+  @override
+  String get exportCsvConfidence => 'Fahamendrehana(%)';
+
+  @override
+  String get exportCsvRecommendations => 'Toro-hevitra';
+
+  @override
+  String get exportCsvTreatment => 'Fitsaboana natao';
+
+  @override
+  String get exportPdfGeneratedBy =>
+      'Navoakan\'ny AgriMada - Fambolena manara-penitra';
+
+  @override
+  String get exportPdfTitle => 'Tantaran\'ny tanimbary';
+
+  @override
+  String get exportPdfAllPlots => 'Tanimbary rehetra';
+
+  @override
+  String exportPdfPlotLabel(String plot) {
+    return 'Tanimbary: $plot';
+  }
+
+  @override
+  String exportPdfDateLabel(String date) {
+    return 'Daty hamoahana: $date';
+  }
+
+  @override
+  String get guideDisease1Name => 'Aretin\'ny bakteria (Brûlure bactérienne)';
+
+  @override
+  String get guideDisease1Desc =>
+      'Aretin\'ny bakteria izay mahatonga ny ravina ho malazo. Ny fambara voalohany dia mipoitra toy ny pentina fotsy-maitso eo amoron\'ny ravina, izay mitatra haingana ary lasa fotsy-mavo.';
+
+  @override
+  String get guideDisease1Symptoms =>
+      '• Pentina fotsy-maitso eo amoron\'ny hazondravina\n• Malazo miendrika V eo amin\'ny sisiny\n• Misy rano mavo rehefa mando ny andro\n• Ravina maina ary mivadika fotsy';
+
+  @override
+  String get guideDisease1Causes =>
+      '• Hamandoana be sy hafanana ambony\n• Azota be loatra\n• Rano miandrona maharitra\n• Karazam-bary mora voa';
+
+  @override
+  String get guideDisease2Name => 'Pentina mainty (Tache brune)';
+
+  @override
+  String get guideDisease2Desc =>
+      'Aretin\'ny holatra matetika amin\'ny vary, indrindra amin\'ny tany mahantra. Mipoitra eo amin\'ny ravina ny pentina mainty lavalava, ka mampihena ny fahafahan\'ny zavamaniry mamelona.';
+
+  @override
+  String get guideDisease2Symptoms =>
+      '• Pentina mainty lavalava eo amin\'ny ravina\n• Misy faribolana eo amin\'ny fery\n• Voam-bary misy pentina raha mafy ny aretina\n• Mihena ny vokatra';
+
+  @override
+  String get guideDisease2Causes =>
+      '• Tsy fisian\'ny potasioma\n• Tany mahantra sy tsy tsara fivoahan-drano\n• Tsy fahampian-drano\n• Hamandoana be';
+
+  @override
+  String get guideDisease3Name => 'Aretin\'ny holatra (Charbon foliaire)';
+
+  @override
+  String get guideDisease3Desc =>
+      'Aretin\'ny holatra izay hita amin\'ny tsorakazo mainty eo amin\'ny ravin-bary. Mivoatra ao anatin\'ny ravina ny holatra ary mamorona faritra mainty feno voany.';
+
+  @override
+  String get guideDisease3Symptoms =>
+      '• Pentina mainty misy zoro eo amin\'ny ravina\n• Fery eo amin\'ny fonon-dravina\n• Vovoka mainty\n• Mihamalemy ny zavamaniry';
+
+  @override
+  String get guideDisease3Causes =>
+      '• Hamandoana ambony maharitra\n• Hafanana antonony (20-25°C)\n• Famafazana mifanety loatra\n• Fivoahan-drano ratsy';
+
+  @override
+  String get guideDisease4Name => 'Zavamaniry salama';
+
+  @override
+  String get guideDisease4Desc =>
+      'Tsy ahitana soritr\'aretina ny varinao. Tohizo ny fampiharana ny fomba fambolena tsara mba hitazomana ny fahasalaman\'ny volinao.';
+
+  @override
+  String get guideDisease4Symptoms =>
+      '• Ravina maitso sy matanjaka\n• Fitomboana ara-dalàna\n• Tsy misy fery na fiovan\'ny loko\n• Fitsimohana ara-dalàna';
+
+  @override
+  String get guideDisease4Causes => 'Fomba fambolena tsara :';
 }

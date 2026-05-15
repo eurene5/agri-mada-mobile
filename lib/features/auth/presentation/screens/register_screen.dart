@@ -23,6 +23,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _regionController = TextEditingController();
   final _telController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
+  bool _acceptTerms = false;
 
   @override
   void dispose() {
@@ -31,11 +35,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _regionController.dispose();
     _telController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _register() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!_acceptTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez accepter les Conditions d\'utilisation'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
     await ref.read(registerNotifierProvider.notifier).register(
           nom: _nomController.text.trim(),
           prenom: _prenomController.text.trim(),
@@ -61,7 +75,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         success: () {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Inscription reussie')),
+            const SnackBar(content: Text('Inscription réussie')),
           );
           context.go(AppRoutes.login);
         },
@@ -72,130 +86,328 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final isLoading = registerState is RegisterLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.scaffoldBackground,
-        surfaceTintColor: Colors.transparent,
-        title: const Text('Créer un compte'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Inscription agriculteur',
-                style: AppTypography.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Renseignez vos informations pour créer votre accès.',
-                style: AppTypography.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _Field(controller: _nomController, label: 'Nom', hint: 'Rakoto'),
-              const SizedBox(height: AppSpacing.md),
-              _Field(
-                controller: _prenomController,
-                label: 'Prénom',
-                hint: 'Jean',
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _Field(
-                controller: _regionController,
-                label: 'Région',
-                hint: 'Analamanga',
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _Field(
-                controller: _telController,
-                label: 'Téléphone',
-                hint: '0341234567',
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Champ requis';
-                  }
-                  final normalized = value.replaceAll(RegExp(r'\s+'), '');
-                  if (!RegExp(r'^[0-9]{6,20}$').hasMatch(normalized)) {
-                    return 'Numero invalide';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _Field(
-                controller: _passwordController,
-                label: 'Mot de passe',
-                hint: '••••••••',
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Champ requis';
-                  }
-                  if (value.length < 6) {
-                    return 'Minimum 6 caracteres';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              AppButton(
-                label: 'Créer mon compte',
-                onPressed: isLoading ? null : _register,
-                isLoading: isLoading,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Center(
-                child: TextButton(
-                  onPressed: () => context.go(AppRoutes.login),
-                  child: const Text('J’ai déjà un compte'),
+      backgroundColor: AppColors.primary,
+      body: Column(
+        children: [
+          const _RegisterHeader(),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(70),
+                  topRight: Radius.circular(70),
                 ),
               ),
-            ],
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenHorizontal,
+                  vertical: AppSpacing.xl,
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Inscription',
+                        style: AppTypography.titleLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      _RegisterTextField(
+                        controller: _nomController,
+                        hintText: 'Nom',
+                        prefixIcon: Icons.person_outline,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Champ requis';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _RegisterTextField(
+                        controller: _prenomController,
+                        hintText: 'Prénom',
+                        prefixIcon: Icons.person_outline,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Champ requis';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _RegisterTextField(
+                        controller: _regionController,
+                        hintText: 'Région',
+                        prefixIcon: Icons.map_outlined,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Champ requis';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _RegisterTextField(
+                        controller: _telController,
+                        hintText: 'Téléphone',
+                        prefixIcon: Icons.phone_outlined,
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Champ requis';
+                          }
+                          final normalized = value.replaceAll(RegExp(r'\s+'), '');
+                          if (!RegExp(r'^[0-9]{6,20}$').hasMatch(normalized)) {
+                            return 'Numéro invalide';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _RegisterTextField(
+                        controller: _passwordController,
+                        hintText: 'Mot de passe',
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: !_passwordVisible,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _passwordVisible
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppColors.primary,
+                          ),
+                          onPressed: () =>
+                              setState(() => _passwordVisible = !_passwordVisible),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Champ requis';
+                          }
+                          if (value.length < 6) {
+                            return 'Minimum 6 caractères';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _RegisterTextField(
+                        controller: _confirmPasswordController,
+                        hintText: 'Confirmer mot de passe',
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: !_confirmPasswordVisible,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _confirmPasswordVisible
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: AppColors.primary,
+                          ),
+                          onPressed: () => setState(
+                              () => _confirmPasswordVisible = !_confirmPasswordVisible),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Champ requis';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Les mots de passe ne correspondent pas';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Checkbox(
+                              value: _acceptTerms,
+                              onChanged: (v) =>
+                                  setState(() => _acceptTerms = v ?? false),
+                              activeColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 12,
+                                ),
+                                children: [
+                                  const TextSpan(
+                                    text: 'J\'accepte les ',
+                                  ),
+                                  TextSpan(
+                                    text: 'Conditions d\'utilisation',
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const TextSpan(text: ' et la '),
+                                  TextSpan(
+                                    text: 'Politique de confidentialité',
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      AppButton(
+                        label: 'S\'inscrire',
+                        onPressed: isLoading ? null : _register,
+                        isLoading: isLoading,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Déjà un compte?',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => context.go(AppRoutes.login),
+                            child: Text(
+                              ' Se connecter',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-class _Field extends StatelessWidget {
-  const _Field({
+class _RegisterHeader extends StatelessWidget {
+  const _RegisterHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+    return SizedBox(
+      height: topPadding + 160,
+      child: Stack(
+        children: [
+          Positioned(
+            top: topPadding + 20,
+            right: 20,
+            child: Container(
+              width: 120,
+              height: 90,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(80),
+                borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+              ),
+              child: Image.asset(
+                'assets/images/login_deco.png',
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Icon(
+                  Icons.grass,
+                  color: AppColors.textOnPrimary,
+                  size: 48,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: topPadding + 50,
+            left: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bonjour!',
+                  style: AppTypography.displayLarge.copyWith(
+                    color: AppColors.textOnPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  'Bienvenue sur AgriMada',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textOnPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RegisterTextField extends StatelessWidget {
+  const _RegisterTextField({
     required this.controller,
-    required this.label,
-    required this.hint,
+    required this.hintText,
+    required this.prefixIcon,
     this.keyboardType,
     this.obscureText = false,
+    this.suffixIcon,
     this.validator,
   });
 
   final TextEditingController controller;
-  final String label;
-  final String hint;
+  final String hintText;
+  final IconData prefixIcon;
   final TextInputType? keyboardType;
   final bool obscureText;
+  final Widget? suffixIcon;
   final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
+    return SizedBox(
+      height: AppSpacing.inputHeight,
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        obscureText: obscureText,
+        validator: validator,
+        style: AppTypography.bodyLarge.copyWith(
+          color: AppColors.textPrimary.withAlpha(204),
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          prefixIcon: Icon(prefixIcon, color: AppColors.primary),
+          suffixIcon: suffixIcon,
+        ),
       ),
-      validator: validator ??
-          (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Champ requis';
-            }
-            return null;
-          },
     );
   }
 }

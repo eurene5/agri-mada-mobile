@@ -13,7 +13,7 @@ abstract interface class AuthRepository {
   });
 
   Future<Either<Failure, AuthEntity>> login({
-    required String email,
+    required String tel,
     required String password,
   });
 

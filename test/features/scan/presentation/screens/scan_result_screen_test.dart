@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:agri_mada/core/ai/tflite_service.dart';
 import 'package:agri_mada/core/errors/failure.dart';
 import 'package:agri_mada/core/local_db/models/diagnostic_local.dart';
 import 'package:agri_mada/features/scan/data/repositories/diagnostic_local_repository.dart';
@@ -45,7 +44,7 @@ class _MockDiagnosticLocalRepository extends Mock
 
 class _TestScanNotifier extends ScanNotifier {
   _TestScanNotifier({
-    required DiagnosticResult result,
+    required domain.DiagnosticResult result,
     required DiagnosticLocal? persistReturn,
     DiagnosticLocal? lastSavedDiagnostic,
   })  : _persistReturn = persistReturn,
@@ -87,11 +86,12 @@ void main() {
       ..dateDiagnostic = date;
   }
 
-  const tResult = DiagnosticResult(
+  final tResult = domain.DiagnosticResult(
     maladieDetectee: 'Leaf smut',
     confiance: 0.88,
     niveauGravite: 'severe',
     recommandations: ['Traiter les semences'],
+    createdAt: DateTime(2026, 5, 13),
   );
 
   Future<void> pumpScreen(

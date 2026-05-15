@@ -4,11 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 import '../../data/repositories/parcelle_local_repository.dart';
 import '../../data/services/export_service.dart';
+import '../../domain/entities/journal_entry.dart';
 import '../../domain/entities/parcelle_entity.dart';
 import '../../domain/repositories/journal_repository.dart';
 import '../../domain/usecases/export_journal_usecase.dart';
 import '../../domain/usecases/get_parcelles_usecase.dart';
-import '../../../scan/data/repositories/diagnostic_local_repository.dart';
+import '../../../scan/presentation/providers/scan_provider.dart' show diagnosticRepositoryProvider;
 
 /// Accès au repository des parcelles
 final parcelleRepositoryProvider = Provider<ParcelleLocalRepository>(
@@ -29,20 +30,20 @@ final exportServiceProvider = Provider<ExportService>(
   (_) => ExportService(),
 );
 
-final diagnosticRepositoryForExportProvider =
-    Provider<DiagnosticLocalRepository>((_) => DiagnosticLocalRepository());
+// Réutilise diagnosticRepositoryProvider centralisé depuis scan_provider
 
 final exportJournalUseCaseProvider = Provider<ExportJournalUseCase>(
   (ref) => ExportJournalUseCase(
-    diagnosticRepository: ref.watch(diagnosticRepositoryForExportProvider),
+    diagnosticRepository: ref.watch(diagnosticRepositoryProvider),
     parcelleRepository: ref.watch(parcelleRepositoryProvider),
     exportService: ref.watch(exportServiceProvider),
   ),
 );
 
 /// Journal agricole complet avec statut de santé de chaque parcelle
+/// Journal agricole complet avec statut de santé de chaque parcelle
 final journalAgricoleProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
+    FutureProvider<List<JournalEntry>>((ref) async {
   return ref.read(parcelleRepositoryProvider).getJournalAgricole();
 });
 

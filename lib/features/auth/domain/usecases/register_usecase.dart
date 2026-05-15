@@ -15,11 +15,7 @@ class RegisterUseCase {
     required String tel,
     required String password,
   }) {
-    if (nom.isEmpty ||
-        prenom.isEmpty ||
-        region.isEmpty ||
-        tel.isEmpty ||
-        password.isEmpty) {
+    if (nom.isEmpty || prenom.isEmpty || region.isEmpty || tel.isEmpty || password.isEmpty) {
       return Future.value(
         const Left(ValidationFailure('Tous les champs sont requis')),
       );

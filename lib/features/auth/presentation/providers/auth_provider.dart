@@ -84,13 +84,13 @@ class AuthNotifier extends _$AuthNotifier {
   AuthState build() => const AuthState.initial();
 
   Future<void> login({
-    required String email,
+    required String tel,
     required String password,
   }) async {
     state = const AuthState.loading();
 
     final result = await ref.read(loginUseCaseProvider).call(
-          email: email,
+          tel: tel,
           password: password,
         );
 

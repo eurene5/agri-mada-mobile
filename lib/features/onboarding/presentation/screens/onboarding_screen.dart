@@ -9,6 +9,7 @@ import '../../../../app/theme/app_typography.dart';
 import '../../../../core/ai/model_version_service.dart';
 import '../../../../core/local_db/session_service.dart';
 import '../../../../core/widgets/app_button/app_button.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/providers/session_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -24,32 +25,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   late final PageController _pageController;
   int _currentIndex = 0;
 
-  final List<_OnboardingSlideData> _slides = const [
-    _OnboardingSlideData(
-      title: 'Photographiez la feuille malade',
-      description:
-          'Placez la feuille dans le cadre. Gardez 20-30 cm de distance et une bonne lumière naturelle.',
-      icon: Icons.photo_camera_outlined,
-    ),
-    _OnboardingSlideData(
-      title: 'L\'IA analyse hors ligne',
-      description:
-          'Pas besoin d\'internet. Le diagnostic fonctionne directement sur votre téléphone.',
-      icon: Icons.psychology_outlined,
-    ),
-    _OnboardingSlideData(
-      title: 'Consultez le diagnostic',
-      description:
-          'Visualisez la gravité détectée, la confiance de l\'analyse et les recommandations adaptées.',
-      icon: Icons.fact_check_outlined,
-    ),
-    _OnboardingSlideData(
-      title: 'Suivez vos parcelles',
-      description:
-          'Retrouvez l\'historique des analyses de chaque parcelle dans le journal agricole.',
-      icon: Icons.map_outlined,
-    ),
-  ];
+  List<_OnboardingSlideData> _buildSlides(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    return [
+      _OnboardingSlideData(
+        title: loc.onboardingSlide1Title,
+        description: loc.onboardingSlide1Desc,
+        icon: Icons.photo_camera_outlined,
+      ),
+      _OnboardingSlideData(
+        title: loc.onboardingSlide2Title,
+        description: loc.onboardingSlide2Desc,
+        icon: Icons.psychology_outlined,
+      ),
+      _OnboardingSlideData(
+        title: loc.onboardingSlide3Title,
+        description: loc.onboardingSlide3Desc,
+        icon: Icons.fact_check_outlined,
+      ),
+      _OnboardingSlideData(
+        title: loc.onboardingSlide4Title,
+        description: loc.onboardingSlide4Desc,
+        icon: Icons.map_outlined,
+      ),
+    ];
+  }
 
   @override
   void initState() {
@@ -63,7 +63,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
-  bool get _isLastSlide => _currentIndex == _slides.length - 1;
 
   Future<void> _skip() async {
     if (!widget.consultationMode) {
@@ -78,8 +77,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     context.pop();
   }
 
-  Future<void> _next() async {
-    if (_isLastSlide) {
+  Future<void> _next(int totalSlides) async {
+    if (_currentIndex >= totalSlides - 1) {
       await _skip();
       return;
     }
@@ -92,8 +91,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final bootstrapAsync = ref.watch(appBootstrapProvider);
     final bootstrap = bootstrapAsync.valueOrNull;
+    final slides = _buildSlides(context);
+    final isLastSlide = _currentIndex == slides.length - 1;
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
@@ -112,18 +114,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: _slides.length,
+                  itemCount: slides.length,
                   onPageChanged: (index) =>
                       setState(() => _currentIndex = index),
                   itemBuilder: (context, index) {
-                    final slide = _slides[index];
+                    final slide = slides[index];
                     return _OnboardingSlide(slide: slide);
                   },
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
               _OnboardingIndicator(
-                total: _slides.length,
+                total: slides.length,
                 currentIndex: _currentIndex,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -133,8 +135,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: AppSpacing.lg),
               if (!widget.consultationMode)
                 AppButton(
-                  label: _isLastSlide ? 'Commencer' : 'Suivant',
-                  onPressed: _next,
+                  label: isLastSlide
+                      ? loc.onboardingStart
+                      : loc.onboardingNext,
+                  onPressed: () => _next(slides.length),
                 )
               else
                 AppButton(
@@ -287,7 +291,7 @@ class _ModelVersionCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Version du modèle IA', style: AppTypography.bodyMedium),
+              const Text('Version du modèle IA', style: AppTypography.bodyMedium),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 'v${info.version} - ${info.date}',
@@ -328,7 +332,7 @@ class _RuntimeStatusCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Statut de l\'application', style: AppTypography.bodyMedium),
+          const Text('Statut de l\'application', style: AppTypography.bodyMedium),
           const SizedBox(height: AppSpacing.xs),
           Text(
             isAiReady

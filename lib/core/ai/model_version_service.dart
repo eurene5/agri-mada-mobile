@@ -19,7 +19,11 @@ class ModelVersionService {
 
   static final ModelVersionService instance = ModelVersionService._();
 
+  ModelVersionInfo? _cached;
+
   Future<ModelVersionInfo> load() async {
+    if (_cached != null) return _cached!;
+
     final rawJson =
         await rootBundle.loadString('assets/model/model_version.json');
     final json = jsonDecode(rawJson) as Map<String, dynamic>;
@@ -29,10 +33,12 @@ class ModelVersionService {
             .map((item) => item.toString())
             .toList();
 
-    return ModelVersionInfo(
+    _cached = ModelVersionInfo(
       version: json['version']?.toString() ?? 'inconnue',
       date: json['date']?.toString() ?? 'inconnue',
       maladiesSupportees: maladies,
     );
+
+    return _cached!;
   }
 }

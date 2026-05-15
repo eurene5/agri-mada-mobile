@@ -82,11 +82,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AuthEntity>> login({
-    required String email,
+    required String tel,
     required String password,
   }) async {
     try {
-      final token = await _remote.login(email, password);
+      final token = await _remote.login(tel, password);
       await _sessionService.saveSession(
         token: token.accessToken,
         tokenType: token.tokenType,
@@ -95,12 +95,12 @@ class AuthRepositoryImpl implements AuthRepository {
       final profileJsonRaw = await _remote.getMe(
         '${token.tokenType} ${token.accessToken}',
       );
-      final profileJson = Map<String, dynamic>.from(profileJsonRaw);
+      final profileJson = Map<String, dynamic>.from(profileJsonRaw as Map);
 
       final userId = profileJson['id'] as int?;
       final nom = profileJson['nom'] as String? ?? '';
       final prenom = profileJson['prenom'] as String? ?? '';
-      final tel = profileJson['tel'] as String? ?? '';
+      final profileTel = profileJson['tel'] as String? ?? '';
       final region = profileJson['region'] as String? ?? '';
 
       if (userId == null) {
@@ -111,14 +111,14 @@ class AuthRepositoryImpl implements AuthRepository {
         userId: userId,
         nom: nom,
         prenom: prenom,
-        tel: tel,
+        tel: profileTel,
         region: region,
       );
 
       final profile = UserProfile(
         userId: userId.toString(),
         email: profileJson['email'] as String? ?? '',
-        phoneNumber: profileJson['phone_number'] as String? ?? tel,
+        phoneNumber: profileJson['phone_number'] as String? ?? profileTel,
       );
 
       AppLogger.debug('Login réussi: ${profile.userId}');

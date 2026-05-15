@@ -7,6 +7,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_typography.dart';
 import '../../../../core/widgets/app_button/app_button.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class ResetPasswordScreen extends ConsumerStatefulWidget {
@@ -64,18 +65,18 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.scaffoldBackground,
         surfaceTintColor: Colors.transparent,
-        title: const Text('Mot de passe oublié'),
+        title: Text(AppLocalizations.of(context).resetPasswordTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Réinitialiser le mot de passe',
+            Text(AppLocalizations.of(context).resetPasswordHeadline,
                 style: AppTypography.headlineMedium),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Entrez votre numéro de téléphone pour recevoir les instructions.',
+              AppLocalizations.of(context).resetPasswordInstruction,
               style: AppTypography.bodySmall,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -84,17 +85,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               child: TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Téléphone',
-                  hintText: '0341234567',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).resetPasswordPhoneLabel,
+                  hintText: AppLocalizations.of(context).resetPasswordPhoneHint,
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Champ requis';
+                    return AppLocalizations.of(context).resetPasswordPhoneRequired;
                   }
                   final normalized = value.replaceAll(RegExp(r'\s+'), '');
                   if (!RegExp(r'^[0-9]{6,20}$').hasMatch(normalized)) {
-                    return 'Numero invalide';
+                    return AppLocalizations.of(context).resetPasswordPhoneInvalid;
                   }
                   return null;
                 },
@@ -102,7 +103,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             AppButton(
-              label: 'Envoyer',
+              label: AppLocalizations.of(context).commonSend,
               onPressed: isLoading ? null : _submit,
               isLoading: isLoading,
             ),
@@ -110,7 +111,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             Center(
               child: TextButton(
                 onPressed: () => context.go(AppRoutes.login),
-                child: const Text('Retour à la connexion'),
+                child: Text(AppLocalizations.of(context).resetPasswordBackToLogin),
               ),
             ),
           ],

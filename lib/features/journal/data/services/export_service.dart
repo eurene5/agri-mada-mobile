@@ -11,6 +11,36 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../../core/local_db/models/diagnostic_local.dart';
 import '../../../../core/local_db/models/parcelle_local.dart';
 
+class ExportStrings {
+  const ExportStrings({
+    required this.csvDate,
+    required this.csvPlot,
+    required this.csvDisease,
+    required this.csvSeverity,
+    required this.csvConfidence,
+    required this.csvRecommendations,
+    required this.csvTreatment,
+    required this.pdfGeneratedBy,
+    required this.pdfTitle,
+    required this.pdfAllPlots,
+    required this.pdfPlotLabel,
+    required this.pdfDateLabel,
+  });
+
+  final String csvDate;
+  final String csvPlot;
+  final String csvDisease;
+  final String csvSeverity;
+  final String csvConfidence;
+  final String csvRecommendations;
+  final String csvTreatment;
+  final String pdfGeneratedBy;
+  final String pdfTitle;
+  final String pdfAllPlots;
+  final String Function(String) pdfPlotLabel;
+  final String Function(String) pdfDateLabel;
+}
+
 class ExportService {
   ExportService();
 
@@ -19,6 +49,7 @@ class ExportService {
   Future<String> exportCsv({
     required List<DiagnosticLocal> diagnostics,
     required Map<int, ParcelleLocal> parcellesById,
+    required ExportStrings strings,
     int? parcelleId,
   }) async {
     final directory = await _ensureExportDirectory();
@@ -27,13 +58,13 @@ class ExportService {
 
     final rows = <List<String>>[
       [
-        'Date',
-        'Parcelle',
-        'Maladie',
-        'Gravité',
-        'Confiance(%)',
-        'Recommandations',
-        'Traitement appliqué',
+        strings.csvDate,
+        strings.csvPlot,
+        strings.csvDisease,
+        strings.csvSeverity,
+        strings.csvConfidence,
+        strings.csvRecommendations,
+        strings.csvTreatment,
       ],
       ...diagnostics.map(
         (diagnostic) => [
@@ -43,7 +74,7 @@ class ExportService {
           _formatGravite(diagnostic.niveauGravite),
           _confidencePercent(diagnostic.confiance),
           _normalizeText(diagnostic.recommandations),
-          _normalizeText(diagnostic.recommandations),
+          '\u2014', // Pas de champ 'traitement appliqu\u00e9' dans le mod\u00e8le
         ],
       ),
     ];
@@ -62,6 +93,7 @@ class ExportService {
   Future<String> exportPdf({
     required List<DiagnosticLocal> diagnostics,
     required Map<int, ParcelleLocal> parcellesById,
+    required ExportStrings strings,
     int? parcelleId,
   }) async {
     final directory = await _ensureExportDirectory();
@@ -72,20 +104,20 @@ class ExportService {
     final logo = await _loadLogo();
     final exportDate = _dateFormat.format(DateTime.now());
     final parcelleLabel = parcelleId == null
-        ? 'Toutes les parcelles'
+        ? strings.pdfAllPlots
         : _parcelleLabel(parcelleId, parcellesById);
 
     pdf.addPage(
       pw.MultiPage(
-        pageTheme: pw.PageTheme(
+        pageTheme: const pw.PageTheme(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(24),
+          margin: pw.EdgeInsets.all(24),
         ),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
           child: pw.Text(
-            'Généré par AgriMada - Agriculture intelligente',
-            style: pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+            strings.pdfGeneratedBy,
+            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
           ),
         ),
         build: (context) => [
@@ -115,12 +147,12 @@ class ExportService {
                       ),
                     ),
                     pw.SizedBox(height: 4),
-                    pw.Text('Export journal agricole',
+                    pw.Text(strings.pdfTitle,
                         style: const pw.TextStyle(fontSize: 12)),
                     pw.SizedBox(height: 4),
-                    pw.Text('Parcelle: $parcelleLabel',
+                    pw.Text(strings.pdfPlotLabel(parcelleLabel),
                         style: const pw.TextStyle(fontSize: 11)),
-                    pw.Text('Date d\'export: $exportDate',
+                    pw.Text(strings.pdfDateLabel(exportDate),
                         style: const pw.TextStyle(fontSize: 11)),
                   ],
                 ),
@@ -143,13 +175,13 @@ class ExportService {
               pw.TableRow(
                 decoration: const pw.BoxDecoration(color: PdfColors.green),
                 children: [
-                  _PdfHeaderCell('Date'),
-                  _PdfHeaderCell('Parcelle'),
-                  _PdfHeaderCell('Maladie'),
-                  _PdfHeaderCell('Gravité'),
-                  _PdfHeaderCell('Confiance(%)'),
-                  _PdfHeaderCell('Recommandations'),
-                  _PdfHeaderCell('Traitement appliqué'),
+                  _PdfHeaderCell(strings.csvDate),
+                  _PdfHeaderCell(strings.csvPlot),
+                  _PdfHeaderCell(strings.csvDisease),
+                  _PdfHeaderCell(strings.csvSeverity),
+                  _PdfHeaderCell(strings.csvConfidence),
+                  _PdfHeaderCell(strings.csvRecommendations),
+                  _PdfHeaderCell(strings.csvTreatment),
                 ],
               ),
               ...diagnostics.map(
@@ -171,7 +203,7 @@ class ExportService {
                       alignment: pw.Alignment.centerRight,
                     ),
                     _PdfBodyCell(_normalizeText(diagnostic.recommandations)),
-                    _PdfBodyCell(_normalizeText(diagnostic.recommandations)),
+                    _PdfBodyCell('\u2014'), // Pas de champ 'traitement appliqu\u00e9'
                   ],
                 ),
               ),
